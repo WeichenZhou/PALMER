@@ -25,7 +25,7 @@
 #include "calling.cpp"
 using namespace std;
 
-int tube(string working_dir, string input_bam, string chr, int start, int end){
+int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n){
     
 //building working directory
     int start1, end1;
@@ -61,12 +61,17 @@ int tube(string working_dir, string input_bam, string chr, int start, int end){
     char *syst_RMloc = new char[sys_RMloc.length()+1];
     strcpy(syst_RMloc, sys_RMloc.c_str());
     
+    string chr_fix;
+    if(ref_n==37){
+        chr_fix="chr"+chr;
+    }
+    
     file1.open(syst_RMloc);
-    file1<<"chr"<<chr<<'\t'<<(start-100000)<<'\t'<<(end+100000)<<endl;
+    file1<<chr_fix<<'\t'<<(start-100000)<<'\t'<<(end+100000)<<endl;
 
 //Repeat region selector
     
-    RMSelector(working_dir, WD_tube);
+    RMSelector(working_dir, WD_tube, sys_region);
     //cout<<"2. RMSelector Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
     
 //Read masker
@@ -76,12 +81,12 @@ int tube(string working_dir, string input_bam, string chr, int start, int end){
  
 //Blastn
     
-    blastn(working_dir, WD_tube);
+    blastn(working_dir, WD_tube, type);
     //cout<<"4. Blastn Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
     
 //Blastn caller
     
-    BlastnCaller(WD_tube, chr);
+    BlastnCaller(WD_tube, chr_fix, type);
     //cout<<"5. Blastn Caller Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
  
     cout<<"Pre-masking step & single read calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;

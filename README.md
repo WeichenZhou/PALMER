@@ -1,4 +1,3 @@
-# PALMER
 Pre-mAsking Long reads for Mobile Element inseRtion 
 PALMER is used to detect non-reference MEI events within the masked sequence data. It uses the reference-aligned BAM files from long-read technology as inputs. 
 1. It delineates large genome data into small bins (100kb bins), which will be piped into multi-threads and processed separately, to increase the efficiency of program. 

@@ -15,7 +15,7 @@
 
 using namespace std;
 
-int blastn(string WD, string WD_dir){
+int blastn(string WD, string WD_dir, string t){
     
     //cout<<"Blastn Step is now running."<<endl;
     
@@ -31,8 +31,17 @@ int blastn(string WD, string WD_dir){
         cout <<"CANNOT OPEN FILE"<< endl;
         exit(1);
     }
+    string sys_blastn;
+    if(t=="LINE"){
+         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query lib/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+    }
+    else if(t=="ALU"){
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query lib/AluY.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+    }
+    else if(t=="SVA"){
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+    }
     
-    string sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+WD+"buildup/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     char *syst_blastn = new char[sys_blastn.length()+1];
     strcpy(syst_blastn, sys_blastn.c_str());
     

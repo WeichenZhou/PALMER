@@ -15,11 +15,11 @@
 
 using namespace std;
 
-int RMSelector(string WD, string WD_dir){
+int RMSelector(string WD, string WD_dir, string sys_region){
     
     //cout<<"RMSelector Step is now running."<<endl;
     
-    string sys_region=WD+"buildup/LINEs.regions";
+    //string sys_region=WD+"buildup/LINEs.regions";
     char *syst_region =new char[sys_region.length()+1];
     strcpy(syst_region, sys_region.c_str());
     
@@ -81,8 +81,8 @@ int RMSelector(string WD, string WD_dir){
         //file1>>input;
         //file1>>input;
         file1>>rm_info[i][3];
-        rm_info[i][1]="LINE";
-        rm_info[i][2]="L1";
+        rm_info[i][1]="RM";
+        rm_info[i][2]="RM";
         //getline(file1,input);
     }
     
