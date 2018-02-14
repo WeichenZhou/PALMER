@@ -15,7 +15,7 @@
 
 using namespace std;
 
-int blastn(string WD, string WD_dir, string t){
+int blastn(string WD, string WD_dir, string t, string direc){
     
     //cout<<"Blastn Step is now running."<<endl;
     
@@ -33,13 +33,13 @@ int blastn(string WD, string WD_dir, string t){
     }
     string sys_blastn;
     if(t=="LINE"){
-         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query lib/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     else if(t=="ALU"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query lib/AluY.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/AluY.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     else if(t=="SVA"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     
     char *syst_blastn = new char[sys_blastn.length()+1];
