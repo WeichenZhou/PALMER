@@ -445,7 +445,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p1=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -540,7 +540,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p2=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -635,7 +635,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p3=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -730,7 +730,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p4=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -825,7 +825,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p5=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -920,7 +920,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p6=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1015,7 +1015,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p7=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1110,7 +1110,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p8=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1205,7 +1205,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p9=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1300,7 +1300,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p10=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1395,7 +1395,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p11=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1490,7 +1490,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p12=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1585,7 +1585,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p13=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1680,7 +1680,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p14=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1775,7 +1775,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p15=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1870,7 +1870,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p16=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -1965,7 +1965,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p17=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2060,7 +2060,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p18=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2155,7 +2155,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p19=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2250,7 +2250,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p20=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2345,7 +2345,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p21=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2440,7 +2440,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p22=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2535,7 +2535,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p23=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2630,7 +2630,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p24=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2725,7 +2725,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p25=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2820,7 +2820,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p26=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -2915,7 +2915,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p27=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -3010,7 +3010,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p28=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -3105,7 +3105,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p29=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
@@ -3200,7 +3200,7 @@ int main(int argc, char *argv[]){
                 }
                 if(chr_index==1){
                     if((p30=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n);
+                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
                         //cout<<"And this is process "<<getpid()<<endl;
                         return 0;
                     }
