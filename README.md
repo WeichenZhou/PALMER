@@ -16,13 +16,13 @@ Required Resources:
   ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 ```
 
-A QUICK START:
 Download and Install
 ```
 git clone git@github.com:mills-lab/PALMER.git
 cd PALMER
 make
 ```
+
 Parameters
 ```
   --input, input aligned long-read sequencing file
