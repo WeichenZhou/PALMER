@@ -46,4 +46,5 @@ int blastn(string WD, string WD_dir, string t, string direc){
     strcpy(syst_blastn, sys_blastn.c_str());
     
     system(syst_blastn);
+    return 0;
 }

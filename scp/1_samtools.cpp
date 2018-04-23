@@ -25,4 +25,5 @@ int samtools(string working_dir1, string working_dir, string input_bam, string c
     char *syst = new char[sys.length()+1];
     strcpy(syst, sys.c_str());
     system(syst);
+    return 0;
 }

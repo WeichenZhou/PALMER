@@ -93,4 +93,5 @@ int RMSelector(string WD, string WD_dir, string sys_region){
             }
         }
     }
+    return 0;
 }
