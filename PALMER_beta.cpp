@@ -102,6 +102,13 @@ int main(int argc, char *argv[]){
     
     if(flag_T==0){
         cout<<"PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA"<<endl;
+        cout<<"Usage:"<<endl;
+        cout<<"--input, input aligned long-read sequencing file"<<endl;
+        cout<<"--workdir, the user's working directory"<<endl;
+        cout<<"--ref, reference genome of the aligned file (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--type, type of MEIs to detect (options: LINE, ALU or SVA)"<<endl;
+        cout<<"--chr, chr name for PALMER to run (default: whole genome; options: chr1, chr2, ...chrY)"<<endl;
+        cout<<"--output, name of output file (default: output.txt)"<<endl;
         exit(1);
     }
     if(flag_wd==0){
