@@ -30,10 +30,28 @@ make
 
 Parameters
 ```
-  --input, input aligned long-read sequencing file
-  --workdir, the user's working directory
-  --ref, reference genome of the aligned file (options: GRCh37 or GRCh38)
-  --type, type of MEIs to detect (options: LINE, ALU or SVA)
-  --chr, chr name for PALMER to run (default: whole genome; options: chr1, chr2, ...chrY)
-  --output, name of output file (default: output.txt)
+Usage:
+
+--input
+         input aligned long-read sequencing file
+
+--workdir
+         the user's working directory
+
+--ref (options: GRCh37 or GRCh38)
+         reference genome used for the aligned file 
+
+--type (options: LINE, ALU or SVA)
+         type of MEIs to detect
+
+--chr (default: whole genome; options: chr1, chr2, ...chrY)
+         chr name for PALMER to run (if running for whole genome, don't need to assign)
+
+--output (default: output.txt)
+         name of output file
+```
+
+Example
+```
+./PALMER --input ~/NA12878.washu.alignment_hs37d5.1.bam --workdir $DirPath/chr1.line.0406/ --ref GRCh37 --output chr1.line.txt --type LINE --chr chr1
 ```
