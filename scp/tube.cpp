@@ -16,13 +16,13 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "samtools.cpp"
-#include "rm_selector.cpp"
-#include "read_masker.cpp"
-#include "blastn.cpp"
-#include "blastn_caller.cpp"
-#include "TSD_seq.cpp"
-#include "calling.cpp"
+#include "1_samtools.cpp"
+#include "2_rm_selector.cpp"
+#include "3_read_masker.cpp"
+#include "4_blastn.cpp"
+#include "5_blastn_caller.cpp"
+#include "6_TSD_seq.cpp"
+#include "7_calling.cpp"
 using namespace std;
 
 int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc){
@@ -100,4 +100,6 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
     calling(WD_tube);
     cout<<"Calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
+    
+    return 0;
 }

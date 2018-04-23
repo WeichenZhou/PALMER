@@ -16,6 +16,12 @@
 using namespace std;
 
 int BlastnCaller(string WD_dir, string chr_fix, string t){
+//test
+//int main(){
+    //string WD_dir="/Users/zhouweichen/Documents/workspace/16.10.08.Pacbio_analysis/17.11.24.PALMER/v1.1.1/scp/IO_test/";
+    //string chr_fix="chr1";
+    //string t="LINE";
+    
     
     //cout<<"Blastn Caller Step is now running."<<endl;
     string sys_blastncaller;
@@ -74,12 +80,12 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         exit(1);
     }
 
-    string sys_cigar3 = WD_dir+"cigar.3";
-    char *syst_cigar3 =  new char[sys_cigar3.length()+1];
-    strcpy(syst_cigar3, sys_cigar3.c_str());
+    //string sys_cigar3 = WD_dir+"cigar.3";
+    //char *syst_cigar3 =  new char[sys_cigar3.length()+1];
+    //strcpy(syst_cigar3, sys_cigar3.c_str());
     
-    ofstream file4;
-    file4.open(syst_cigar3);
+    //ofstream file4;
+    //file4.open(syst_cigar3);
     
     string sys_readresult = WD_dir+"read_result.txt";
     char *syst_readresult =  new char[sys_readresult.length()+1];
@@ -171,8 +177,8 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
             if(bla_name[i]==read[j][0]){
                 flag_r=1;
                 
-                file4<<read[j][2]<<endl;
-                file6.open(syst_cigar3);
+                //file4<<read[j][2]<<endl;
+                //file6.open(syst_cigar3);
                 char cig;
                 int number;
                 int bit;        //tag in ref
@@ -181,8 +187,13 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                 insert_e=bit;
                 int k=0;        //tag in read
                 
-                file6>>number;
-                file6>>cig;
+                stringstream ss_cigar3;
+                ss_cigar3.clear();
+                ss_cigar3.str(read[j][2]);
+                
+                ss_cigar3>>number;
+                ss_cigar3>>cig;
+                
                 for(;!(cig=='E'&&number==0);){
                     if(cig=='M'||cig=='X'||cig=='='){
                         k=k+number;
@@ -217,14 +228,14 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                     else if(cig=='D'){
                         bit=bit+number;
                     }
-                    file6>>number;
-                    file6>>cig;
+                    ss_cigar3>>number;
+                    ss_cigar3>>cig;
                 }
-                file6.close();
-                file6.clear();
-                file4.close();
-                file4.clear();
-                file4.open(syst_cigar3);
+                //file6.close();
+                //file6.clear();
+                //file4.close();
+                //file4.clear();
+                //file4.open(syst_cigar3);
             }
         }
         if(M>=int(0.5*(r_e-r_s))){ 
@@ -336,4 +347,5 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
             }
         }
     }
+    return 0;
 }
