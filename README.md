@@ -53,5 +53,5 @@ Usage:
 
 Example
 ```
-./PALMER --input ../NA12878.washu.alignment_hs37d5.1.bam --workdir /```Your_Working_dir```/chr1.line.0406/ --ref GRCh37 --output chr1.line.txt --type LINE --chr chr1
+./PALMER --input ~/NA12878.washu.alignment_hs37d5.1.bam --workdir $DirPath/chr1.line.0406/ --ref GRCh37 --output chr1.line.txt --type LINE --chr chr1
 ```
