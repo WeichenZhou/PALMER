@@ -38,7 +38,7 @@ Usage:
 --workdir
          the user's working directory
 
---ref (options: GRCh37 or GRCh38)
+--ref (options: hg19, GRCh37 or GRCh38)
          reference genome used for the aligned file 
 
 --type (options: LINE, ALU or SVA)

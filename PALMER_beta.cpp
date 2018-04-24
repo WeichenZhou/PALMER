@@ -481,7 +481,7 @@ int main(int argc, char *argv[]){
             line_index=i;
             i++;
         }
-        else if(CHR=="chrM"&&input_index=="M"&&ref_n==37){
+        else if(CHR=="chrM"&&input_index=="MT"&&ref_n==37){
             line_index=i;
             i++;
         }
@@ -593,7 +593,7 @@ int main(int argc, char *argv[]){
         else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
             chr_index=1;
         }
-        else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
+        else if(CHR=="chrM"&& chr=="MT"&&ref_n==37){
             chr_index=1;
         }
         else if(CHR== chr&&(ref_n==38||ref_n==19)){
@@ -1641,6 +1641,7 @@ int main(int argc, char *argv[]){
     string sys_WD_chr21="mkdir "+WD+"chr21/";
     string sys_WD_chr22="mkdir "+WD+"chr22/";
     
+    if()
     char *syst_WD_chr1 =new char[sys_WD_chr1.length()+1];
     strcpy(syst_WD_chr1, sys_WD_chr1.c_str());
     system(syst_WD_chr1);
@@ -1745,17 +1746,30 @@ int main(int argc, char *argv[]){
         ss2 << end;
         string s_end =ss2.str();
 
-        string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+"chr"+chr+"/calls.txt";
-        //cout<<sys_merge<<endl;
-        char *syst_merge = new char[sys_merge.length()+1];
-        strcpy(syst_merge, sys_merge.c_str());
-        system(syst_merge);
-        
-        string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+"chr"+chr+"/TSD_output.txt";
-        char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
-        strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
-        system(syst_merge_blastn);
-        
+        if(ref_n==37){
+            string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+"chr"+chr+"/calls.txt";
+            //cout<<sys_merge<<endl;
+            char *syst_merge = new char[sys_merge.length()+1];
+            strcpy(syst_merge, sys_merge.c_str());
+            system(syst_merge);
+            
+            string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+"chr"+chr+"/TSD_output.txt";
+            char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
+            strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
+            system(syst_merge_blastn);
+        }
+        else if(ref_n==19||ref_n==38){
+            string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+chr+"/calls.txt";
+            //cout<<sys_merge<<endl;
+            char *syst_merge = new char[sys_merge.length()+1];
+            strcpy(syst_merge, sys_merge.c_str());
+            system(syst_merge);
+            
+            string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+chr+"/TSD_output.txt";
+            char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
+            strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
+            system(syst_merge_blastn);
+        }
     }
     cout<<"Merging step completed."<<endl;
  /*
