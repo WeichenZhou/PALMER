@@ -66,6 +66,7 @@ int main(int argc, char *argv[]){
             ref=argv[i+1];
             if(ref=="GRCh37") ref_n=37;
             else if(ref=="GRCh38") ref_n=38;
+            else if(ref=="hg19") ref_n=19;
             else {
                 cout<<"PLEASE INPUT A CORRECT REFERENCE :("<<endl;
             }
@@ -105,7 +106,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -115,7 +116,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome used for the aligned file"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -134,7 +135,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -144,7 +145,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome used for the aligned file"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -163,7 +164,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -173,7 +174,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome used for the aligned file"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -192,7 +193,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -202,7 +203,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome of the aligned file "<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -305,7 +306,23 @@ int main(int argc, char *argv[]){
             sys_line_region=buildup+"SVA.regions.GRCh38";
         }
     }
-    
+    else if(ref_n==19){
+        sys_region_index=buildup+"region.split.index.hg19";
+        
+        //test
+        //sys_region_index=buildup+"region.split.index.test.txt";
+        //
+        
+        if(T=="LINE"){
+            sys_line_region=buildup+"LINEs.regions.hg19";
+        }
+        if(T=="ALU"){
+            sys_line_region=buildup+"Alu.regions.hg19";
+        }
+        if(T=="SVA"){
+            sys_line_region=buildup+"SVA.regions.hg19";
+        }
+    }
     cout<<sys_region_index<<" "<<sys_line_region<<endl;
  //original
 
@@ -468,7 +485,7 @@ int main(int argc, char *argv[]){
             line_index=i;
             i++;
         }
-        else if(CHR==input_index&&ref_n==38){
+        else if(CHR==input_index&&(ref_n==38||ref_n==19)){
             line_index=i;
             i++;
         }
@@ -579,7 +596,7 @@ int main(int argc, char *argv[]){
         else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
             chr_index=1;
         }
-        else if(CHR== chr&&ref_n==38){
+        else if(CHR== chr&&(ref_n==38||ref_n==19)){
             chr_index=1;
         }
         if(chr_index==1){
