@@ -1641,7 +1641,7 @@ int main(int argc, char *argv[]){
     string sys_WD_chr21="mkdir "+WD+"chr21/";
     string sys_WD_chr22="mkdir "+WD+"chr22/";
     
-    if()
+    //if()
     char *syst_WD_chr1 =new char[sys_WD_chr1.length()+1];
     strcpy(syst_WD_chr1, sys_WD_chr1.c_str());
     system(syst_WD_chr1);
