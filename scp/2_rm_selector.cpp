@@ -28,8 +28,9 @@ int RMSelector(string WD, string WD_dir, string sys_region){
     
     if (!file1.is_open())
     {
-        cout <<"CANNOT OPEN FILE."<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'sys_region'."<< endl;
+        //exit(1);
+        return 0;
     }
     
     string input;
@@ -76,6 +77,78 @@ int RMSelector(string WD, string WD_dir, string sys_region){
         //file1>>input;
         //file1>>input;
         file1>>rm_info[i][0];
+        if(rm_info[i][0]=="1"){
+            rm_info[i][0]="chr1";
+        }
+        else if(rm_info[i][0]=="2"){
+            rm_info[i][0]="chr2";
+        }
+        else if(rm_info[i][0]=="3"){
+            rm_info[i][0]="chr3";
+        }
+        else if(rm_info[i][0]=="4"){
+            rm_info[i][0]="chr4";
+        }
+        else if(rm_info[i][0]=="5"){
+            rm_info[i][0]="chr5";
+        }
+        else if(rm_info[i][0]=="6"){
+            rm_info[i][0]="chr6";
+        }
+        else if(rm_info[i][0]=="7"){
+            rm_info[i][0]="chr7";
+        }
+        else if(rm_info[i][0]=="8"){
+            rm_info[i][0]="chr8";
+        }
+        else if(rm_info[i][0]=="9"){
+            rm_info[i][0]="chr9";
+        }
+        else if(rm_info[i][0]=="10"){
+            rm_info[i][0]="chr10";
+        }
+        else if(rm_info[i][0]=="11"){
+            rm_info[i][0]="chr11";
+        }
+        else if(rm_info[i][0]=="12"){
+            rm_info[i][0]="chr12";
+        }
+        else if(rm_info[i][0]=="13"){
+            rm_info[i][0]="chr13";
+        }
+        else if(rm_info[i][0]=="14"){
+            rm_info[i][0]="chr14";
+        }
+        else if(rm_info[i][0]=="15"){
+            rm_info[i][0]="chr15";
+        }
+        else if(rm_info[i][0]=="16"){
+            rm_info[i][0]="chr16";
+        }
+        else if(rm_info[i][0]=="17"){
+            rm_info[i][0]="chr17";
+        }
+        else if(rm_info[i][0]=="18"){
+            rm_info[i][0]="chr18";
+        }
+        else if(rm_info[i][0]=="19"){
+            rm_info[i][0]="chr19";
+        }
+        else if(rm_info[i][0]=="20"){
+            rm_info[i][0]="chr20";
+        }
+        else if(rm_info[i][0]=="21"){
+            rm_info[i][0]="chr21";
+        }
+        else if(rm_info[i][0]=="22"){
+            rm_info[i][0]="chr22";
+        }
+        else if(rm_info[i][0]=="Y"){
+            rm_info[i][0]="chrY";
+        }
+        else if(rm_info[i][0]=="X"){
+            rm_info[i][0]="chrX";
+        }
         file1>>rm_loc[i][0];
         file1>>rm_loc[i][1];
         //file1>>input;
@@ -93,5 +166,13 @@ int RMSelector(string WD, string WD_dir, string sys_region){
             }
         }
     }
+    
+    for(int i=0;i!=line;i++){
+        delete [] rm_info[i];
+        delete [] rm_loc[i];
+    }
+    delete [] rm_info;
+    delete [] rm_loc;
+    
     return 0;
 }

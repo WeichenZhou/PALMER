@@ -38,7 +38,7 @@ Usage:
 --workdir
          the user's working directory
 
---ref (options: GRCh37 or GRCh38)
+--ref (options: hg19, GRCh37 or GRCh38)
          reference genome used for the aligned file 
 
 --type (options: LINE, ALU or SVA)
@@ -55,3 +55,5 @@ Example
 ```
 ./PALMER --input ~/NA12878.washu.alignment_hs37d5.1.bam --workdir $DirPath/chr1.line.0406/ --ref GRCh37 --output chr1.line.txt --type LINE --chr chr1
 ```
+
+## Output format 

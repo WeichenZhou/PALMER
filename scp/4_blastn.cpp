@@ -28,8 +28,9 @@ int blastn(string WD, string WD_dir, string t, string direc){
     
     if (!file1.is_open())
     {
-        cout <<"CANNOT OPEN FILE"<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'SEQ.masked'"<< endl;
+        //exit(1);
+        return 0;
     }
     string sys_blastn;
     if(t=="LINE"){

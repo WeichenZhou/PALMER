@@ -50,8 +50,9 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     
     if (!file1.is_open())
     {
-        cout <<"CANNOT OPEN FILE"<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'cigar.2'"<< endl;
+        //exit(1);
+        return 0;
     }
     
     string sys_blastnrefine = WD_dir+"blastn_refine.txt";
@@ -63,8 +64,9 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     
     if (!file2.is_open())
     {
-        cout <<"CANNOT OPEN FILE"<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'blastn_refine.txt'"<< endl;
+        //exit(1);
+        return 0;
     }
 
     string sys_selecinfo = WD_dir+"selected.reads.info";
@@ -76,8 +78,9 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     
     if (!file3.is_open())
     {
-        cout <<"CANNOT OPEN FILE"<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'selected.reads.info'"<< endl;
+        //exit(1);
+        return 0;
     }
 
     //string sys_cigar3 = WD_dir+"cigar.3";
@@ -347,5 +350,22 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
             }
         }
     }
+    
+    for(int i=0;i!=blast;i++){
+        delete [] bla[i];
+        //delete [] sam_loc[i];
+    }
+    delete [] bla;
+    
+    for(int i=0;i!=line;i++){
+        delete [] read[i];
+        //delete [] sam_loc[i];
+    }
+    delete [] read;
+    
+    delete [] bla_name;
+    delete [] orient;
+    delete [] read_loc;
+    
     return 0;
 }

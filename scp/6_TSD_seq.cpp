@@ -363,5 +363,21 @@ int tsd_module(string WD_dir){
         
         
     }
+    
+    for(int i=0;i!=line_region;i++){
+        delete [] SEQ[i];
+        //delete [] sam_loc[i];
+    }
+    delete [] SEQ;
+    //delete [] sam_loc;
+    
+    for(int i=0;i!=line_read;i++){
+        delete [] info[i];
+        delete [] loc[i];
+    }
+    delete [] info;
+    delete [] loc;
+    
+    delete [] name;
     return 0;
 }
