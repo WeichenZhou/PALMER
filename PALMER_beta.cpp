@@ -66,6 +66,7 @@ int main(int argc, char *argv[]){
             ref=argv[i+1];
             if(ref=="GRCh37") ref_n=37;
             else if(ref=="GRCh38") ref_n=38;
+            else if(ref=="hg19") ref_n=19;
             else {
                 cout<<"PLEASE INPUT A CORRECT REFERENCE :("<<endl;
             }
@@ -96,6 +97,19 @@ int main(int argc, char *argv[]){
             //NUM_threads=argv[i+1];
             cout <<"WE DO NOT SUPPORT MULTITHREADS RIGHT NOW :)"<< endl;
         }
+        /*ver1.3
+        if(strncmp(argv[i],"--ref_file",10)==0){
+            file11.open(argv[i+1],ios::in | ios::binary);
+            if (!file11.is_open())
+            {
+                cout <<"CANNOT OPEN REFERENCE FILE :("<< endl;
+                cout<<"PLEASE ASSIGN A REFERENCE FILE."<<endl;
+                exit(1);
+            }
+            ref_file=argv[i+1];
+            
+            //cout <<"WE DO NOT SUPPORT MULTITHREADS RIGHT NOW :)"<< endl;
+        }*/
         
     }
     
@@ -105,7 +119,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -115,7 +129,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome used for the aligned file"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -134,7 +148,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -144,7 +158,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome used for the aligned file"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -163,7 +177,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -173,7 +187,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome used for the aligned file"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -192,7 +206,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
         cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Mills Lab."<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
@@ -202,7 +216,7 @@ int main(int argc, char *argv[]){
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: GRCh37 or GRCh38)"<<endl;
+        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
         cout<<"         reference genome of the aligned file "<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
@@ -252,21 +266,6 @@ int main(int argc, char *argv[]){
     direc=accumulate(dir_conv.begin(),dir_conv.end(),direc);
     
     string buildup=direc+"/index/";
-    /*
-    string sys_buildup="mkdir "+buildup;
-    char *syst_buildup=new char[sys_buildup.length()+1];
-    strcpy(syst_buildup, sys_buildup.c_str());
-    
-    system(syst_buildup);
-    */
-    //string sys_line_region=buildup+"LINEs.regions";
-    /*
-    char *syst_line_region =new char[sys_line_region.length()+1];
-    strcpy(syst_line_region, sys_line_region.c_str());
-    
-    ofstream file11;
-    file11.open(syst_line_region);
-    */
     
     string sys_region_index,sys_line_region;
     
@@ -305,38 +304,30 @@ int main(int argc, char *argv[]){
             sys_line_region=buildup+"SVA.regions.GRCh38";
         }
     }
-    
+    else if(ref_n==19){
+        sys_region_index=buildup+"region.split.index.hg19";
+        
+        //test
+        //sys_region_index=buildup+"region.split.index.test.txt";
+        //
+        
+        if(T=="LINE"){
+            sys_line_region=buildup+"LINEs.regions.hg19";
+        }
+        if(T=="ALU"){
+            sys_line_region=buildup+"Alu.regions.hg19";
+        }
+        if(T=="SVA"){
+            sys_line_region=buildup+"SVA.regions.hg19";
+        }
+    }
     cout<<sys_region_index<<" "<<sys_line_region<<endl;
  //original
 
     //string sys_region_index=buildup+"region.split.index";
     char *syst_region_index =new char[sys_region_index.length()+1];
     strcpy(syst_region_index, sys_region_index.c_str());
-    //ofstream file12;
-    //file12.open(syst_region_index);
-    /*
-    if(ref_n==37){
-        file12<<region_split_index_GRCh37;
-    }
-    else if(ref_n==38){
-    //    file12<<region_split_index_GRCh38;
-    }*/
-/* 
-    string sys_region_index=buildup+"region.split.index.test";
-    char *syst_region_index =new char[sys_region_index.length()+1];
-    strcpy(syst_region_index, sys_region_index.c_str());
-    ofstream file12;
-    file12.open(syst_region_index);
-    file12<<region_split_index_test;
- */
-    /*
-    string sys_l=buildup+"L1.3.fasta";
-    char *syst_l =new char[sys_l.length()+1];
-    strcpy(syst_l, sys_l.c_str());
-    ofstream file13;
-    file13.open(syst_l);
-    file13<<L1_3_fasta;
-    */
+    
     ifstream file2;
     file2.open(syst_region_index);
     
@@ -464,11 +455,11 @@ int main(int argc, char *argv[]){
             line_index=i;
             i++;
         }
-        else if(CHR=="chrM"&&input_index=="M"&&ref_n==37){
+        else if(CHR=="chrM"&&input_index=="MT"&&ref_n==37){
             line_index=i;
             i++;
         }
-        else if(CHR==input_index&&ref_n==38){
+        else if(CHR==input_index&&(ref_n==38||ref_n==19)){
             line_index=i;
             i++;
         }
@@ -495,7 +486,7 @@ int main(int argc, char *argv[]){
     int start, end;
 
 //no multithread
-    for(int i=0;i!=line_index;i++){
+    for(int i=0;i!=line_index;){
         
         file2>>chr;
         file2>>start;
@@ -576,1001 +567,24 @@ int main(int argc, char *argv[]){
         else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
             chr_index=1;
         }
-        else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
+        else if(CHR=="chrM"&& chr=="MT"&&ref_n==37){
             chr_index=1;
         }
-        else if(CHR== chr&&ref_n==38){
+        else if(CHR==chr&&(ref_n==38||ref_n==19)){
             chr_index=1;
+            //cout<<"right call"<<endl;
         }
         if(chr_index==1){
+            i++;
+            //cout<<chr<<endl;
+            //getchar();
             tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
         }
+        /*ver1.3
+        if(chr_index==1){
+            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_file);
+        }*/
     }
-
-
-//previous multithread
-/*
-    for(int i=0;i!=line_index;){
-        for(int j=0;j!=NUM_circle;j++){
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p1=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p2=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p3=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p4=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p5=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p6=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p7=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p8=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p9=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            if(i!=line_index){
-                i++;
-                file2>>chr;
-                file2>>start;
-                file2>>end;
-                int chr_index=0;
-                if(CHR=="ALL"){
-                    chr_index=1;
-                }
-                else if(CHR=="chr1"&& chr=="1"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr2"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr3"&& chr=="3"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr4"&& chr=="4"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr5"&& chr=="5"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr6"&& chr=="6"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr7"&& chr=="7"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr8"&& chr=="8"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr9"&& chr=="9"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr10"&& chr=="10"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr11"&& chr=="11"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr12"&& chr=="12"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr13"&& chr=="13"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr14"&& chr=="14"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr15"&& chr=="15"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr16"&& chr=="16"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr17"&& chr=="17"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr18"&& chr=="18"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr19"&& chr=="19"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr20"&& chr=="20"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrY"&& chr=="Y"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR=="chrM"&& chr=="M"&&ref_n==37){
-                    chr_index=1;
-                }
-                else if(CHR== chr&&ref_n==38){
-                    chr_index=1;
-                }
-                if(chr_index==1){
-                    if((p10=fork())==0){
-                        tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
-                        //cout<<"And this is process "<<getpid()<<endl;
-                        return 0;
-                    }
-                }
-            }else break;
-            
-            waitpid(p1,NULL,0);
-            waitpid(p2,NULL,0);
-            waitpid(p3,NULL,0);
-            waitpid(p4,NULL,0);
-            waitpid(p5,NULL,0);
-            waitpid(p6,NULL,0);
-            waitpid(p7,NULL,0);
-            waitpid(p8,NULL,0);
-            waitpid(p9,NULL,0);
-            waitpid(p10,NULL,0);
-            
-
-        }
-            waitpid(p1,NULL,0);
-            waitpid(p2,NULL,0);
-            waitpid(p3,NULL,0);
-            waitpid(p4,NULL,0);
-            waitpid(p5,NULL,0);
-            waitpid(p6,NULL,0);
-            waitpid(p7,NULL,0);
-            waitpid(p8,NULL,0);
-            waitpid(p9,NULL,0);
-            waitpid(p10,NULL,0);
-        
- 
-        
-    }
-*/
  
  
 //merge and calling
@@ -1624,100 +638,144 @@ int main(int argc, char *argv[]){
     string sys_WD_chr21="mkdir "+WD+"chr21/";
     string sys_WD_chr22="mkdir "+WD+"chr22/";
     
-    char *syst_WD_chr1 =new char[sys_WD_chr1.length()+1];
-    strcpy(syst_WD_chr1, sys_WD_chr1.c_str());
-    system(syst_WD_chr1);
+    if(CHR=="chr1"||CHR=="ALL"){
+        char *syst_WD_chr1 =new char[sys_WD_chr1.length()+1];
+        strcpy(syst_WD_chr1, sys_WD_chr1.c_str());
+        system(syst_WD_chr1);
+    }
     
-    char *syst_WD_chr2 =new char[sys_WD_chr2.length()+1];
-    strcpy(syst_WD_chr2, sys_WD_chr2.c_str());
-    system(syst_WD_chr2);
+    if(CHR=="chr2"||CHR=="ALL"){
+        char *syst_WD_chr2 =new char[sys_WD_chr2.length()+1];
+        strcpy(syst_WD_chr2, sys_WD_chr2.c_str());
+        system(syst_WD_chr2);
+    }
     
-    char *syst_WD_chr3 =new char[sys_WD_chr3.length()+1];
-    strcpy(syst_WD_chr3, sys_WD_chr3.c_str());
-    system(syst_WD_chr3);
+    if(CHR=="chr3"||CHR=="ALL"){
+        char *syst_WD_chr3 =new char[sys_WD_chr3.length()+1];
+        strcpy(syst_WD_chr3, sys_WD_chr3.c_str());
+        system(syst_WD_chr3);
+    }
     
-    char *syst_WD_chr4 =new char[sys_WD_chr4.length()+1];
-    strcpy(syst_WD_chr4, sys_WD_chr4.c_str());
-    system(syst_WD_chr4);
+    if(CHR=="chr4"||CHR=="ALL"){
+        char *syst_WD_chr4 =new char[sys_WD_chr4.length()+1];
+        strcpy(syst_WD_chr4, sys_WD_chr4.c_str());
+        system(syst_WD_chr4);
+    }
     
-    char *syst_WD_chr5 =new char[sys_WD_chr5.length()+1];
-    strcpy(syst_WD_chr5, sys_WD_chr5.c_str());
-    system(syst_WD_chr5);
+    if(CHR=="chr5"||CHR=="ALL"){
+        char *syst_WD_chr5 =new char[sys_WD_chr5.length()+1];
+        strcpy(syst_WD_chr5, sys_WD_chr5.c_str());
+        system(syst_WD_chr5);
+    }
     
-    char *syst_WD_chr6 =new char[sys_WD_chr6.length()+1];
-    strcpy(syst_WD_chr6, sys_WD_chr6.c_str());
-    system(syst_WD_chr6);
+    if(CHR=="chr6"||CHR=="ALL"){
+        char *syst_WD_chr6 =new char[sys_WD_chr6.length()+1];
+        strcpy(syst_WD_chr6, sys_WD_chr6.c_str());
+        system(syst_WD_chr6);
+    }
     
-    char *syst_WD_chr7 =new char[sys_WD_chr7.length()+1];
-    strcpy(syst_WD_chr7, sys_WD_chr7.c_str());
-    system(syst_WD_chr7);
+    if(CHR=="chr7"||CHR=="ALL"){
+        char *syst_WD_chr7 =new char[sys_WD_chr7.length()+1];
+        strcpy(syst_WD_chr7, sys_WD_chr7.c_str());
+        system(syst_WD_chr7);
+    }
     
-    char *syst_WD_chr8 =new char[sys_WD_chr8.length()+1];
-    strcpy(syst_WD_chr8, sys_WD_chr8.c_str());
-    system(syst_WD_chr8);
+    if(CHR=="chr8"||CHR=="ALL"){
+        char *syst_WD_chr8 =new char[sys_WD_chr8.length()+1];
+        strcpy(syst_WD_chr8, sys_WD_chr8.c_str());
+        system(syst_WD_chr8);
+    }
     
-    char *syst_WD_chr9 =new char[sys_WD_chr9.length()+1];
-    strcpy(syst_WD_chr9, sys_WD_chr9.c_str());
-    system(syst_WD_chr9);
+    if(CHR=="chr9"||CHR=="ALL"){
+        char *syst_WD_chr9 =new char[sys_WD_chr9.length()+1];
+        strcpy(syst_WD_chr9, sys_WD_chr9.c_str());
+        system(syst_WD_chr9);
+    }
     
-    char *syst_WD_chr10 =new char[sys_WD_chr10.length()+1];
-    strcpy(syst_WD_chr10, sys_WD_chr10.c_str());
-    system(syst_WD_chr10);
+    if(CHR=="chr10"||CHR=="ALL"){
+        char *syst_WD_chr10 =new char[sys_WD_chr10.length()+1];
+        strcpy(syst_WD_chr10, sys_WD_chr10.c_str());
+        system(syst_WD_chr10);
+    }
     
-    char *syst_WD_chr11 =new char[sys_WD_chr11.length()+1];
-    strcpy(syst_WD_chr11, sys_WD_chr11.c_str());
-    system(syst_WD_chr11);
+    if(CHR=="chr11"||CHR=="ALL"){
+        char *syst_WD_chr11 =new char[sys_WD_chr11.length()+1];
+        strcpy(syst_WD_chr11, sys_WD_chr11.c_str());
+        system(syst_WD_chr11);
+    }
     
-    char *syst_WD_chr12 =new char[sys_WD_chr12.length()+1];
-    strcpy(syst_WD_chr12, sys_WD_chr12.c_str());
-    system(syst_WD_chr12);
+    if(CHR=="chr12"||CHR=="ALL"){
+        char *syst_WD_chr12 =new char[sys_WD_chr12.length()+1];
+        strcpy(syst_WD_chr12, sys_WD_chr12.c_str());
+        system(syst_WD_chr12);
+    }
     
-    char *syst_WD_chr13 =new char[sys_WD_chr13.length()+1];
-    strcpy(syst_WD_chr13, sys_WD_chr13.c_str());
-    system(syst_WD_chr13);
+    if(CHR=="chr13"||CHR=="ALL"){
+        char *syst_WD_chr13 =new char[sys_WD_chr13.length()+1];
+        strcpy(syst_WD_chr13, sys_WD_chr13.c_str());
+        system(syst_WD_chr13);
+    }
     
-    char *syst_WD_chr14 =new char[sys_WD_chr1.length()+1];
-    strcpy(syst_WD_chr14, sys_WD_chr14.c_str());
-    system(syst_WD_chr14);
+    if(CHR=="chr14"||CHR=="ALL"){
+        char *syst_WD_chr14 =new char[sys_WD_chr1.length()+1];
+        strcpy(syst_WD_chr14, sys_WD_chr14.c_str());
+        system(syst_WD_chr14);
+    }
     
-    char *syst_WD_chr15 =new char[sys_WD_chr15.length()+1];
-    strcpy(syst_WD_chr15, sys_WD_chr15.c_str());
-    system(syst_WD_chr15);
+    if(CHR=="chr15"||CHR=="ALL"){
+        char *syst_WD_chr15 =new char[sys_WD_chr15.length()+1];
+        strcpy(syst_WD_chr15, sys_WD_chr15.c_str());
+        system(syst_WD_chr15);
+    }
     
-    char *syst_WD_chr16 =new char[sys_WD_chr16.length()+1];
-    strcpy(syst_WD_chr16, sys_WD_chr16.c_str());
-    system(syst_WD_chr16);
+    if(CHR=="chr16"||CHR=="ALL"){
+        char *syst_WD_chr16 =new char[sys_WD_chr16.length()+1];
+        strcpy(syst_WD_chr16, sys_WD_chr16.c_str());
+        system(syst_WD_chr16);
+    }
     
-    char *syst_WD_chr17 =new char[sys_WD_chr17.length()+1];
-    strcpy(syst_WD_chr17, sys_WD_chr17.c_str());
-    system(syst_WD_chr17);
+    if(CHR=="chr17"||CHR=="ALL"){
+        char *syst_WD_chr17 =new char[sys_WD_chr17.length()+1];
+        strcpy(syst_WD_chr17, sys_WD_chr17.c_str());
+        system(syst_WD_chr17);
+    }
     
-    char *syst_WD_chr18 =new char[sys_WD_chr18.length()+1];
-    strcpy(syst_WD_chr18, sys_WD_chr18.c_str());
-    system(syst_WD_chr18);
+    if(CHR=="chr18"||CHR=="ALL"){
+        char *syst_WD_chr18 =new char[sys_WD_chr18.length()+1];
+        strcpy(syst_WD_chr18, sys_WD_chr18.c_str());
+        system(syst_WD_chr18);
+    }
     
-    char *syst_WD_chr19 =new char[sys_WD_chr19.length()+1];
-    strcpy(syst_WD_chr19, sys_WD_chr19.c_str());
-    system(syst_WD_chr19);
+    if(CHR=="chr19"||CHR=="ALL"){
+        char *syst_WD_chr19 =new char[sys_WD_chr19.length()+1];
+        strcpy(syst_WD_chr19, sys_WD_chr19.c_str());
+        system(syst_WD_chr19);
+    }
     
-    char *syst_WD_chr20 =new char[sys_WD_chr20.length()+1];
-    strcpy(syst_WD_chr20, sys_WD_chr20.c_str());
-    system(syst_WD_chr20);
+    if(CHR=="chr20"||CHR=="ALL"){
+        char *syst_WD_chr20 =new char[sys_WD_chr20.length()+1];
+        strcpy(syst_WD_chr20, sys_WD_chr20.c_str());
+        system(syst_WD_chr20);
+    }
     
-    char *syst_WD_chr21 =new char[sys_WD_chr21.length()+1];
-    strcpy(syst_WD_chr21, sys_WD_chr21.c_str());
-    system(syst_WD_chr21);
+    if(CHR=="chr21"||CHR=="ALL"){
+        char *syst_WD_chr21 =new char[sys_WD_chr21.length()+1];
+        strcpy(syst_WD_chr21, sys_WD_chr21.c_str());
+        system(syst_WD_chr21);
+    }
     
-    char *syst_WD_chr22 =new char[sys_WD_chr22.length()+1];
-    strcpy(syst_WD_chr22, sys_WD_chr22.c_str());
-    system(syst_WD_chr22);
+    if(CHR=="chr22"||CHR=="ALL"){
+        char *syst_WD_chr22 =new char[sys_WD_chr22.length()+1];
+        strcpy(syst_WD_chr22, sys_WD_chr22.c_str());
+        system(syst_WD_chr22);
+    }
     
     file2.close();
     file2.clear();
     file2.open(syst_region_index);
     
     //merge
-    for(int i=0;i!=line_index;i++){
+    for(int i=0;i!=line_index;){
         file2>>chr;
         file2>>start;
         file2>>end;
@@ -1727,291 +785,66 @@ int main(int argc, char *argv[]){
         string s_start =ss1.str();
         ss2 << end;
         string s_end =ss2.str();
+        
+        string CHR_in;
+        CHR_in="chr"+chr;
 
-        string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+"chr"+chr+"/calls.txt";
-        //cout<<sys_merge<<endl;
-        char *syst_merge = new char[sys_merge.length()+1];
-        strcpy(syst_merge, sys_merge.c_str());
-        system(syst_merge);
-        
-        string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+"chr"+chr+"/TSD_output.txt";
-        char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
-        strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
-        system(syst_merge_blastn);
-        
+        if(ref_n==37&&CHR_in==CHR){
+            string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+"chr"+chr+"/calls.txt";
+            //cout<<sys_merge<<endl;
+            char *syst_merge = new char[sys_merge.length()+1];
+            strcpy(syst_merge, sys_merge.c_str());
+            system(syst_merge);
+            
+            string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+"chr"+chr+"/TSD_output.txt";
+            char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
+            strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
+            system(syst_merge_blastn);
+            
+            
+            i++;
+        }
+        else if((CHR==chr)&&(ref_n==19||ref_n==38)){
+            string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+chr+"/calls.txt";
+            //cout<<sys_merge<<endl;
+            char *syst_merge = new char[sys_merge.length()+1];
+            strcpy(syst_merge, sys_merge.c_str());
+            system(syst_merge);
+            
+            string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+chr+"/TSD_output.txt";
+            char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
+            strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
+            system(syst_merge_blastn);
+            
+            i++;
+        }
     }
+    
+    string sys_final_title = WD+output;
+    char *syst_final_title = new char[sys_final_title.length()+1];
+    strcpy(syst_final_title, sys_final_title.c_str());
+    ofstream file3;
+    file3.open(syst_final_title);
+    
+    file3<<"cluster_id"<<'\t'<<"chr start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"LINE-1_start1"<<'\t'<<"LINE-1_start2"<<'\t'<<"LINE-1_end1"<<'\t'<<"LINE-1_end2"<<'\t'<<"Supporting_reads"<<'\t'<<"Supporting_reads_w_TSD"<<'\t'<<"orientation"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<endl;
+    
+    if(ref_n==37){
+        string sys_final="cat "+WD+"chr"+chr+"/calls.txt >> "+WD+output;
+        //cout<<sys_merge<<endl;
+        char *syst_final = new char[sys_final.length()+1];
+        strcpy(syst_final, sys_final.c_str());
+        system(syst_final);
+    }
+    else if(ref_n==19||ref_n==38){
+        string sys_final="cat "+WD+chr+"/calls.txt >> "+WD+output;
+        //cout<<sys_merge<<endl;
+        char *syst_final = new char[sys_final.length()+1];
+        strcpy(syst_final, sys_final.c_str());
+        system(syst_final);
+    }
+    
     cout<<"Merging step completed."<<endl;
- /*
-    //calling & collaps
-    cout<<"Calling step is initiated."<<endl;
-    
-        if((p1=fork())==0){
-            cout<<" Calling results in chr1."<<endl;
-            calling(WD_chr1);
-            //collaps(WD_chr1);
-            return 0;
-        }
-        if((p2=fork())==0){
-            cout<<" Calling results in chr2."<<endl;
-            calling(WD_chr2);
-            //collaps(WD_chr2);
-            return 0;
-        }
-        if((p3=fork())==0){
-            cout<<" Calling results in chr3."<<endl;
-            calling(WD_chr3);
-            //collaps(WD_chr3);
-            return 0;
-        }
-        if((p4=fork())==0){
-            cout<<" Calling results in chr4."<<endl;
-            calling(WD_chr4);
-            //collaps(WD_chr4);
-            return 0;
-        }
-        if((p5=fork())==0){
-            cout<<" Calling results in chr5."<<endl;
-            calling(WD_chr5);
-            //collaps(WD_chr5);
-            return 0;
-        }
-        if((p6=fork())==0){
-            cout<<" Calling results in chr6."<<endl;
-            calling(WD_chr6);
-            //collaps(WD_chr6);
-            return 0;
-        }
-        if((p7=fork())==0){
-            cout<<" Calling results in chr7."<<endl;
-            calling(WD_chr7);
-            //collaps(WD_chr7);
-            return 0;
-        }
-        if((p8=fork())==0){
-            cout<<" Calling results in chr8."<<endl;
-            calling(WD_chr8);
-            //collaps(WD_chr8);
-            return 0;
-        }
-        if((p9=fork())==0){
-            cout<<" Calling results in chr9."<<endl;
-            calling(WD_chr9);
-            //collaps(WD_chr9);
-            return 0;
-        }
-        if((p10=fork())==0){
-            cout<<" Calling results in chr10."<<endl;
-            calling(WD_chr10);
-            //collaps(WD_chr10);
-            return 0;
-        }
-        if((p11=fork())==0){
-            cout<<" Calling results in chr11."<<endl;
-            calling(WD_chr11);
-            //collaps(WD_chr11);
-            return 0;
-        }
-        if((p12=fork())==0){
-            cout<<" Calling results in chr12."<<endl;
-            calling(WD_chr12);
-            //collaps(WD_chr12);
-            return 0;
-        }
-        if((p13=fork())==0){
-            cout<<" Calling results in chr13."<<endl;
-            calling(WD_chr13);
-            //collaps(WD_chr13);
-            return 0;
-        }
-        if((p14=fork())==0){
-            cout<<" Calling results in chr14."<<endl;
-            calling(WD_chr14);
-            //collaps(WD_chr14);
-            return 0;
-        }
-        if((p15=fork())==0){
-            cout<<" Calling results in chr15."<<endl;
-            calling(WD_chr15);
-            //collaps(WD_chr15);
-            return 0;
-        }
-        if((p16=fork())==0){
-            cout<<" Calling results in chr16."<<endl;
-            calling(WD_chr16);
-            //collaps(WD_chr16);
-            return 0;
-        }
-        if((p17=fork())==0){
-            cout<<" Calling results in chr17."<<endl;
-            calling(WD_chr17);
-            //collaps(WD_chr17);
-            return 0;
-        }
-        if((p18=fork())==0){
-            cout<<" Calling results in chr18."<<endl;
-            calling(WD_chr18);
-            //collaps(WD_chr18);
-            return 0;
-        }
-        if((p19=fork())==0){
-            cout<<" Calling results in chr19."<<endl;
-            calling(WD_chr19);
-            //collaps(WD_chr19);
-            return 0;
-        }
-        if((p20=fork())==0){
-            cout<<" Calling results in chr20."<<endl;
-            calling(WD_chr20);
-            //collaps(WD_chr20);
-            return 0;
-        }
-        if((p21=fork())==0){
-            cout<<" Calling results in chr21."<<endl;
-            calling(WD_chr21);
-            //collaps(WD_chr21);
-            return 0;
-        }
-        if((p22=fork())==0){
-            cout<<" Calling results in chr22."<<endl;
-            calling(WD_chr22);
-            //collaps(WD_chr22);
-            return 0;
-        }
-        waitpid(p1,NULL,0);
-        waitpid(p2,NULL,0);
-        waitpid(p3,NULL,0);
-        waitpid(p4,NULL,0);
-        waitpid(p5,NULL,0);
-        waitpid(p6,NULL,0);
-        waitpid(p7,NULL,0);
-        waitpid(p8,NULL,0);
-        waitpid(p9,NULL,0);
-        waitpid(p10,NULL,0);
-        waitpid(p11,NULL,0);
-        waitpid(p12,NULL,0);
-        waitpid(p13,NULL,0);
-        waitpid(p14,NULL,0);
-        waitpid(p15,NULL,0);
-        waitpid(p16,NULL,0);
-        waitpid(p17,NULL,0);
-        waitpid(p18,NULL,0);
-        waitpid(p19,NULL,0);
-        waitpid(p20,NULL,0);
-        waitpid(p21,NULL,0);
-        waitpid(p22,NULL,0);
- */   
-    cout<<"Almost finished there."<<endl;
-    /*
-    string sys_output1 = "cat "+WD_chr1+"collaps.txt >> "+WD+output;
-    char *syst_output1 = new char[sys_output1.length()+1];
-    strcpy(syst_output1, sys_output1.c_str());
-    system(syst_output1);
-    
-    string sys_output2 = "cat "+WD_chr2+"collaps.txt >> "+WD+output;
-    char *syst_output2 = new char[sys_output2.length()+1];
-    strcpy(syst_output2, sys_output2.c_str());
-    system(syst_output2);
-    
-    string sys_output3 = "cat "+WD_chr3+"collaps.txt >> "+WD+output;
-    char *syst_output3 = new char[sys_output3.length()+1];
-    strcpy(syst_output3, sys_output3.c_str());
-    system(syst_output3);
-    
-    string sys_output4 = "cat "+WD_chr4+"collaps.txt >> "+WD+output;
-    char *syst_output4 = new char[sys_output4.length()+1];
-    strcpy(syst_output4, sys_output4.c_str());
-    system(syst_output4);
-    
-    string sys_output5 = "cat "+WD_chr5+"collaps.txt >> "+WD+output;
-    char *syst_output5 = new char[sys_output5.length()+1];
-    strcpy(syst_output5, sys_output5.c_str());
-    system(syst_output5);
-    
-    string sys_output6 = "cat "+WD_chr6+"collaps.txt >> "+WD+output;
-    char *syst_output6 = new char[sys_output6.length()+1];
-    strcpy(syst_output6, sys_output6.c_str());
-    system(syst_output6);
-    
-    string sys_output7 = "cat "+WD_chr7+"collaps.txt >> "+WD+output;
-    char *syst_output7 = new char[sys_output7.length()+1];
-    strcpy(syst_output7, sys_output7.c_str());
-    system(syst_output7);
-    
-    string sys_output8 = "cat "+WD_chr8+"collaps.txt >> "+WD+output;
-    char *syst_output8 = new char[sys_output8.length()+1];
-    strcpy(syst_output8, sys_output8.c_str());
-    system(syst_output8);
-    
-    string sys_output9 = "cat "+WD_chr9+"collaps.txt >> "+WD+output;
-    char *syst_output9 = new char[sys_output9.length()+1];
-    strcpy(syst_output9, sys_output9.c_str());
-    system(syst_output9);
-    
-    string sys_output10 = "cat "+WD_chr10+"collaps.txt >> "+WD+output;
-    char *syst_output10 = new char[sys_output10.length()+1];
-    strcpy(syst_output10, sys_output10.c_str());
-    system(syst_output10);
-    
-    string sys_output11 = "cat "+WD_chr11+"collaps.txt >> "+WD+output;
-    char *syst_output11 = new char[sys_output11.length()+1];
-    strcpy(syst_output11, sys_output11.c_str());
-    system(syst_output11);
-    
-    string sys_output12 = "cat "+WD_chr12+"collaps.txt >> "+WD+output;
-    char *syst_output12 = new char[sys_output12.length()+1];
-    strcpy(syst_output12, sys_output12.c_str());
-    system(syst_output12);
-    
-    string sys_output13 = "cat "+WD_chr13+"collaps.txt >> "+WD+output;
-    char *syst_output13 = new char[sys_output13.length()+1];
-    strcpy(syst_output13, sys_output13.c_str());
-    system(syst_output13);
-    
-    string sys_output14 = "cat "+WD_chr14+"collaps.txt >> "+WD+output;
-    char *syst_output14 = new char[sys_output14.length()+1];
-    strcpy(syst_output14, sys_output14.c_str());
-    system(syst_output14);
-    
-    string sys_output15 = "cat "+WD_chr15+"collaps.txt >> "+WD+output;
-    char *syst_output15 = new char[sys_output15.length()+1];
-    strcpy(syst_output15, sys_output15.c_str());
-    system(syst_output15);
-    
-    string sys_output16 = "cat "+WD_chr16+"collaps.txt >> "+WD+output;
-    char *syst_output16 = new char[sys_output16.length()+1];
-    strcpy(syst_output16, sys_output16.c_str());
-    system(syst_output16);
-    
-    string sys_output17 = "cat "+WD_chr17+"collaps.txt >> "+WD+output;
-    char *syst_output17 = new char[sys_output17.length()+1];
-    strcpy(syst_output17, sys_output17.c_str());
-    system(syst_output17);
-    
-    string sys_output18 = "cat "+WD_chr18+"collaps.txt >> "+WD+output;
-    char *syst_output18 = new char[sys_output18.length()+1];
-    strcpy(syst_output18, sys_output18.c_str());
-    system(syst_output18);
-    
-    string sys_output19 = "cat "+WD_chr19+"collaps.txt >> "+WD+output;
-    char *syst_output19 = new char[sys_output19.length()+1];
-    strcpy(syst_output19, sys_output19.c_str());
-    system(syst_output19);
-    
-    string sys_output20 = "cat "+WD_chr20+"collaps.txt >> "+WD+output;
-    char *syst_output20 = new char[sys_output20.length()+1];
-    strcpy(syst_output20, sys_output20.c_str());
-    system(syst_output20);
-    
-    string sys_output21 = "cat "+WD_chr21+"collaps.txt >> "+WD+output;
-    char *syst_output21 = new char[sys_output21.length()+1];
-    strcpy(syst_output21, sys_output21.c_str());
-    system(syst_output21);
-    
-    string sys_output22 = "cat "+WD_chr22+"collaps.txt >> "+WD+output;
-    char *syst_output22 = new char[sys_output22.length()+1];
-    strcpy(syst_output22, sys_output22.c_str());
-    system(syst_output22);
-    */
+    //cout<<"Almost finished there."<<endl;
     cout<<"Final calls finished."<<endl;
     cout<<"Results are in "+WD+output<<endl;
     
