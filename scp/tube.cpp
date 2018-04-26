@@ -62,6 +62,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     strcpy(syst_RMloc, sys_RMloc.c_str());
     
     string chr_fix;
+    chr_fix=chr;
     if(ref_n==37){
         chr_fix="chr"+chr;
     }
