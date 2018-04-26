@@ -63,8 +63,9 @@ int ReadMasker(string WD_dir){
     
     if (!file1.is_open()||!file2.is_open())
     {
-        cout <<"CANNOT OPEN FILES"<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'RM.selected'"<< endl;
+        //exit(1);
+        return 0;
     }
     
     string input;
@@ -263,5 +264,20 @@ int ReadMasker(string WD_dir){
             file7<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<endl;
         }
     }
+    
+    for(int i=0;i!=line;i++){
+        delete [] sam_info[i];
+        delete [] sam_loc[i];
+    }
+    delete [] sam_info;
+    delete [] sam_loc;
+    
+    for(int i=0;i!=line_rm;i++){
+        delete [] rm_info[i];
+        delete [] rm_loc[i];
+    }
+    delete [] rm_info;
+    delete [] rm_loc;
+    
     return 0;
 }

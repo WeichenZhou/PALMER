@@ -28,8 +28,9 @@ int RMSelector(string WD, string WD_dir, string sys_region){
     
     if (!file1.is_open())
     {
-        cout <<"CANNOT OPEN FILE."<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'sys_region'."<< endl;
+        //exit(1);
+        return 0;
     }
     
     string input;
@@ -165,5 +166,13 @@ int RMSelector(string WD, string WD_dir, string sys_region){
             }
         }
     }
+    
+    for(int i=0;i!=line;i++){
+        delete [] rm_info[i];
+        delete [] rm_loc[i];
+    }
+    delete [] rm_info;
+    delete [] rm_loc;
+    
     return 0;
 }

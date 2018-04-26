@@ -37,8 +37,9 @@ int calling(string WD_dir){
     
     if (!file1.is_open())
     {
-        cout <<"CANNOT OPEN FILE"<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'read_result_TSD.txt'"<< endl;
+        //exit(1);
+        return 0;
     }
     
     int line;
@@ -87,8 +88,9 @@ int calling(string WD_dir){
     
     if (!file3.is_open())
     {
-        cout <<"CANNOT OPEN FILE"<< endl;
-        exit(1);
+        cout <<"CANNOT OPEN FILE, 'TSD_blastn.txt'"<< endl;
+        //exit(1);
+        return 0;
     }
     
     ofstream file4;
@@ -1237,6 +1239,23 @@ int calling(string WD_dir){
             }
         }
     }
+    
+    for(int i=0;i!=line;i++){
+        delete [] info[i];
+        delete [] loc[i];
+    }
+    delete [] info;
+    delete [] loc;
+    
+    for(int i=0;i!=line_tsd;i++){
+        delete [] loc_tsd[i];
+        //delete [] loc[i];
+    }
+    delete [] loc_tsd;
+    
+    delete [] orien;
+    delete [] info_tsd;
+    
     return 0;
 }
 
