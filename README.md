@@ -66,19 +66,22 @@ Example
 ```
 
 ## Output format 
-We have two outputs: output.calls.txt and output.TSD_reads.txt.
+We have two outputs: 
+
+output.calls.txt & output.TSD_reads.txt.
 
 ## logs
 Ver1.2 Sep.5th.2018
--- Better performance for Alu calling
--- Import 'CNV-related false positive exclusion' module
--- Import genotyping module (not online yet)
--- Import 'customized sequence finding and genome masking' moudle
--- Several minor bugs fixed
--- Optimized output files
--- Optimized codes and annotations
+
+* Better performance for Alu calling
+* Import 'CNV-related false positive exclusion' module
+* Import genotyping module (not online yet)
+* Import 'customized sequence finding and genome masking' moudle
+* Several minor bugs fixed
+* Optimized output files
+* Optimized codes and annotations
 
 Ver1.1 Apr.24th.2018
--- Alu and SAV detection module online.
+* Alu and SAV detection module online.
 
 Ver1.0 Feb.14th.2018
