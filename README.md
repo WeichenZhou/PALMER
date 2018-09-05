@@ -13,13 +13,13 @@ PALMER is used to detect non-reference MEI events within the masked sequence dat
 * Finally, PALMER will combine all events in each bin and output all candidate non-reference MEIs.
 
 
-Required Resources:
+Required resources:
 ```
   samtools/1.3.1  https://github.com/samtools/samtools
   ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 ```
 
-## Getting Started
+## Getting started
 
 Download and Install
 ```
@@ -70,8 +70,8 @@ We have two outputs:
 
 output.calls.txt & output.TSD_reads.txt.
 
-## logs
-Ver1.2 Sep.5th.2018
+## Logs
+**Ver1.2** Sep.5th.2018
 
 * Better performance for Alu calling
 * Import 'CNV-related false positive exclusion' module
@@ -81,7 +81,7 @@ Ver1.2 Sep.5th.2018
 * Optimized output files
 * Optimized codes and annotations
 
-Ver1.1 Apr.24th.2018
+**Ver1.1** Apr.24th.2018
 * Alu and SAV detection module online.
 
-Ver1.0 Feb.14th.2018
+**Ver1.0** Feb.14th.2018
