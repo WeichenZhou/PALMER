@@ -37,14 +37,20 @@ int main(int argc, char *argv[]){
 
 //parameters_start
     
-    string T, WD, inputF, output, SP, ref, CHR;
+    string T, WD, inputF, output, SP, ref, CHR, ref_fa, cus, cusin;
     //int NUM_threads=30;
     int NUM_threads=10;
     ifstream file1;
+    ifstream file11;
+    //ifstream file12;
+    ifstream file13;
     //ofstream file2;
     int flag_wd=0;
     int flag_inputf=0;
     int flag_T=0;
+    int flag_reffa=0;
+    int flag_cus=0;
+    int flag_cusin=0;
     output="output.txt";
     SP="Human";
     //T="LINE";
@@ -62,13 +68,13 @@ int main(int argc, char *argv[]){
         if(strncmp(argv[i],"--chr",5)==0){
             CHR=argv[i+1];
         }
-        if(strncmp(argv[i],"--ref",5)==0){
+        if(strncmp(argv[i],"--ref_ver",9)==0){
             ref=argv[i+1];
             if(ref=="GRCh37") ref_n=37;
             else if(ref=="GRCh38") ref_n=38;
             else if(ref=="hg19") ref_n=19;
             else {
-                cout<<"PLEASE INPUT A CORRECT REFERENCE :("<<endl;
+                cout<<"PLEASE INPUT A CORRECT HUMAN REFERENCE :("<<endl;
             }
         }
         if(strncmp(argv[i],"--type",6)==0){
@@ -97,40 +103,80 @@ int main(int argc, char *argv[]){
             //NUM_threads=argv[i+1];
             cout <<"WE DO NOT SUPPORT MULTITHREADS RIGHT NOW :)"<< endl;
         }
-        /*ver1.3
-        if(strncmp(argv[i],"--ref_file",10)==0){
+        if(strncmp(argv[i],"--ref_fa",8)==0){
+            flag_reffa=1;
             file11.open(argv[i+1],ios::in | ios::binary);
             if (!file11.is_open())
             {
                 cout <<"CANNOT OPEN REFERENCE FILE :("<< endl;
                 cout<<"PLEASE ASSIGN A REFERENCE FILE."<<endl;
-                exit(1);
+                //exit(1);
+                flag_reffa=0;
             }
-            ref_file=argv[i+1];
-            
-            //cout <<"WE DO NOT SUPPORT MULTITHREADS RIGHT NOW :)"<< endl;
-        }*/
+            ref_fa=argv[i+1];
+        }
+        
+        if(strncmp(argv[i],"--custom_seq",12)==0){
+            flag_cus=1;
+            /*
+            file12.open(argv[i+1],ios::in | ios::binary);
+            if (!file12.is_open())
+            {
+                cout <<"CANNOT OPEN CUSTOMIZED FILE :("<< endl;
+                cout<<"PLEASE ASSIGN A CUSTOMIZED FASTA FILE."<<endl;
+                //exit(1);
+                flag_cus=0;
+            }*/
+            cus=argv[i+1];
+            T="CUSTOMIZED";
+        }
+        if(strncmp(argv[i],"--custom_index",14)==0){
+            flag_cusin=1;
+            if(flag_cus==1){
+                 file13.open(argv[i+1],ios::in | ios::binary);
+                 if (!file13.is_open())
+                 {
+                 cout <<"You are not assigning any index files"<< endl;
+                 cout<<"Custmized finding will initiate without masking module."<<endl;
+                 //exit(1);
+                 flag_cusin=0;
+                 }
+            }
+            cusin=argv[i+1];
+        }
         
     }
     
     
-    if(flag_T==0){
-        cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA"<<endl;
+    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0){
+        if(flag_T==0&&flag_cus==0){
+            cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA"<<endl;}
+        if(flag_T==1&&flag_cus==1){
+            cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE WITHOUT YOUR CUSTOMIZED SEQUENCE"<<endl;}
+        if(flag_wd==0){
+            cout<<"***ERROR*** PLEASE SET UP A WORKING DIRECOTY!"<<endl;}
+        if(flag_inputf==0){
+            cout<<"***ERROR*** PLEASE INPUT A FILE!"<<endl;}
+        if(ref_n==0||flag_reffa==0){
+            cout<<"***ERROR*** PLEASE ASSIGN A CORRECT REFERENCE version/fasta!"<<endl;}
         cout<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
+        cout<<"Version: Beta1.2"<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab. Sep.5th.2018"<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
         cout<<endl;
         cout<<"--input"<<endl;
-        cout<<"         input aligned long-read sequencing file"<<endl;
+        cout<<"         aligned long-read sequencing BAM file with directory path"<<endl;
         cout<<endl;
         cout<<"--workdir"<<endl;
         cout<<"         the user's working directory"<<endl;
         cout<<endl;
-        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
-        cout<<"         reference genome used for the aligned file"<<endl;
+        cout<<"--ref_ver (options: hg19, GRCh37 or GRCh38)"<<endl;
+        cout<<"         reference genome used for the aligned file (only human genome rightnow)"<<endl;
+        cout<<endl;
+        cout<<"--ref_fa"<<endl;
+        cout<<"         indexed fasta file of reference genome fasta file with directory path used for the aligned file"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU or SVA)"<<endl;
         cout<<"         type of MEIs to detect"<<endl;
@@ -138,98 +184,21 @@ int main(int argc, char *argv[]){
         cout<<"--chr (default: whole genome; options: chr1, chr2, ...chrY)"<<endl;
         cout<<"         chr name for PALMER to run (if running for whole genome, don't need to assign)"<<endl;
         cout<<endl;
+        
+        cout<<"--custom_seq (default:no input)"<<endl;
+        cout<<"         fasta file with directory path to customize your insertion finding"<<endl;
+        cout<<endl;
+        cout<<"--custom_index (default:no input, if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)"<<endl;
+        cout<<"         index file with directory path to mask the genome for your insertion finding"<<endl;
+        cout<<endl;
+        
+        
         cout<<"--output (default: output.txt)"<<endl;
         cout<<"         name of output file"<<endl;
         cout<<endl;
         exit(1);
     }
-    if(flag_wd==0){
-        cout<<"***ERROR*** PLEASE SET UP A WORKING DIRECOTY!"<<endl;
-        cout<<endl;
-        cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
-        cout<<endl;
-        cout<<"Usage:"<<endl;
-        cout<<endl;
-        cout<<"--input"<<endl;
-        cout<<"         input aligned long-read sequencing file"<<endl;
-        cout<<endl;
-        cout<<"--workdir"<<endl;
-        cout<<"         the user's working directory"<<endl;
-        cout<<endl;
-        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
-        cout<<"         reference genome used for the aligned file"<<endl;
-        cout<<endl;
-        cout<<"--type (options: LINE, ALU or SVA)"<<endl;
-        cout<<"         type of MEIs to detect"<<endl;
-        cout<<endl;
-        cout<<"--chr (default: whole genome; options: chr1, chr2, ...chrY)"<<endl;
-        cout<<"         chr name for PALMER to run (if running for whole genome, don't need to assign)"<<endl;
-        cout<<endl;
-        cout<<"--output (default: output.txt)"<<endl;
-        cout<<"         name of output file"<<endl;
-        cout<<endl;
-        exit(1);
-    }
-    if(flag_inputf==0){
-        cout<<"***ERROR*** PLEASE INPUT A FILE!"<<endl;
-        cout<<endl;
-        cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
-        cout<<endl;
-        cout<<"Usage:"<<endl;
-        cout<<endl;
-        cout<<"--input"<<endl;
-        cout<<"         input aligned long-read sequencing file"<<endl;
-        cout<<endl;
-        cout<<"--workdir"<<endl;
-        cout<<"         the user's working directory"<<endl;
-        cout<<endl;
-        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
-        cout<<"         reference genome used for the aligned file"<<endl;
-        cout<<endl;
-        cout<<"--type (options: LINE, ALU or SVA)"<<endl;
-        cout<<"         type of MEIs to detect"<<endl;
-        cout<<endl;
-        cout<<"--chr (default: whole genome; options: chr1, chr2, ...chrY)"<<endl;
-        cout<<"         chr name for PALMER to run (if running for whole genome, don't need to assign)"<<endl;
-        cout<<endl;
-        cout<<"--output (default: output.txt)"<<endl;
-        cout<<"         name of output file"<<endl;
-        cout<<endl;
-        exit(1);
-    }
-    if(ref_n==0){
-        cout<<"***ERROR*** PLEASE ASSIGN A CORRECT REFERENCE! GRCh37/GRCh38"<<endl;
-        cout<<endl;
-        cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: Beta1.0"<<endl;
-        cout<<"Presented by Weichen Zhou @ Mills Lab."<<endl;
-        cout<<endl;
-        cout<<"Usage:"<<endl;
-        cout<<endl;
-        cout<<"--input"<<endl;
-        cout<<"         input aligned long-read sequencing file"<<endl;
-        cout<<endl;
-        cout<<"--workdir"<<endl;
-        cout<<"         the user's working directory"<<endl;
-        cout<<endl;
-        cout<<"--ref (options: hg19, GRCh37 or GRCh38)"<<endl;
-        cout<<"         reference genome of the aligned file "<<endl;
-        cout<<endl;
-        cout<<"--type (options: LINE, ALU or SVA)"<<endl;
-        cout<<"         type of MEIs to detect"<<endl;
-        cout<<endl;
-        cout<<"--chr (default: whole genome; options: chr1, chr2, ...chrY)"<<endl;
-        cout<<"         chr name for PALMER to run (if running for whole genome, don't need to assign)"<<endl;
-        cout<<endl;
-        cout<<"--output (default: output.txt)"<<endl;
-        cout<<"         name of output file"<<endl;
-        cout<<endl;
-        exit(1);
-    }
+    
     
     string parameter[6];
     parameter[0]=T;
@@ -268,6 +237,20 @@ int main(int argc, char *argv[]){
     string buildup=direc+"/index/";
     
     string sys_region_index,sys_line_region;
+    
+    if(T=="CUSTOMIZED"){
+        
+        //sys_region_index=buildup+"region.split.index.GRCh37";
+        if(flag_cusin==1){
+            sys_line_region=cusin;
+        }
+        else {
+            sys_line_region="NULL";
+        }
+        
+        T=cus;
+    }
+    
     
     if(ref_n==37){
         
@@ -321,7 +304,7 @@ int main(int argc, char *argv[]){
             sys_line_region=buildup+"SVA.regions.hg19";
         }
     }
-    cout<<sys_region_index<<" "<<sys_line_region<<endl;
+    //cout<<sys_region_index<<" "<<sys_line_region<<endl;
  //original
 
     //string sys_region_index=buildup+"region.split.index";
@@ -349,6 +332,7 @@ int main(int argc, char *argv[]){
 //parameters_end
     
 //multiple threads
+    //##########hard code##########upgrade section##########
     
     string input_index;
     int line_index=0;
@@ -468,6 +452,8 @@ int main(int argc, char *argv[]){
         
     }
     
+    line_index=line_index+1;
+    
     cout<<"THERE ARE "<<line_index<<" REGIONS TO COUNT."<<endl;
     cout<<"Pre-masking step & single read calling step is initiated."<<endl;
     
@@ -578,7 +564,8 @@ int main(int argc, char *argv[]){
             i++;
             //cout<<chr<<endl;
             //getchar();
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc);
+            //****
+            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa);
         }
         /*ver1.3
         if(chr_index==1){
@@ -614,6 +601,9 @@ int main(int argc, char *argv[]){
     string WD_chr20=WD+"chr20/";
     string WD_chr21=WD+"chr21/";
     string WD_chr22=WD+"chr22/";
+    string WD_chr23=WD+"chrX/";
+    string WD_chr24=WD+"chrY/";
+    string WD_chr25=WD+"chrM/";
     
     string sys_WD_chr1="mkdir "+WD+"chr1/";
     string sys_WD_chr2="mkdir "+WD+"chr2/";
@@ -637,6 +627,9 @@ int main(int argc, char *argv[]){
     string sys_WD_chr20="mkdir "+WD+"chr20/";
     string sys_WD_chr21="mkdir "+WD+"chr21/";
     string sys_WD_chr22="mkdir "+WD+"chr22/";
+    string sys_WD_chr23="mkdir "+WD+"chrX/";
+    string sys_WD_chr24="mkdir "+WD+"chrY/";
+    string sys_WD_chr25="mkdir "+WD+"chrM/";
     
     if(CHR=="chr1"||CHR=="ALL"){
         char *syst_WD_chr1 =new char[sys_WD_chr1.length()+1];
@@ -770,11 +763,49 @@ int main(int argc, char *argv[]){
         system(syst_WD_chr22);
     }
     
+    if(CHR=="chrX"||CHR=="ALL"){
+        char *syst_WD_chr23 =new char[sys_WD_chr23.length()+1];
+        strcpy(syst_WD_chr23, sys_WD_chr23.c_str());
+        system(syst_WD_chr23);
+    }
+    
+    if(CHR=="chrY"||CHR=="ALL"){
+        char *syst_WD_chr24 =new char[sys_WD_chr24.length()+1];
+        strcpy(syst_WD_chr24, sys_WD_chr24.c_str());
+        system(syst_WD_chr24);
+    }
+    
+    if(CHR=="chrM"||CHR=="ALL"){
+        char *syst_WD_chr25 =new char[sys_WD_chr25.length()+1];
+        strcpy(syst_WD_chr25, sys_WD_chr25.c_str());
+        system(syst_WD_chr25);
+    }
+   
+    //##########hard code##########upgrade section##########end
+    
     file2.close();
     file2.clear();
     file2.open(syst_region_index);
     
+    
     //merge
+    
+    string sys_final_title = WD+output+"calls.txt";
+    char *syst_final_title = new char[sys_final_title.length()+1];
+    strcpy(syst_final_title, sys_final_title.c_str());
+    ofstream file3;
+    file3.open(syst_final_title,ios::trunc);
+    
+    file3<<"cluster_id"<<'\t'<<"chr start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Supporting_reads"<<'\t'<<"Supporting_reads_w_TSD"<<'\t'<<"Segmented_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<endl;
+    
+    string sys_final_tsd_title = WD+output+"TSD_reads.txt";
+    char *syst_final_tsd_title = new char[sys_final_tsd_title.length()+1];
+    strcpy(syst_final_tsd_title, sys_final_tsd_title.c_str());
+    ofstream file31;
+    file31.open(syst_final_tsd_title,ios::trunc);
+    
+    file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<endl;
+    
     for(int i=0;i!=line_index;){
         file2>>chr;
         file2>>start;
@@ -790,6 +821,7 @@ int main(int argc, char *argv[]){
         CHR_in="chr"+chr;
 
         if(ref_n==37&&CHR_in==CHR){
+            /*
             string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+"chr"+chr+"/calls.txt";
             //cout<<sys_merge<<endl;
             char *syst_merge = new char[sys_merge.length()+1];
@@ -800,11 +832,23 @@ int main(int argc, char *argv[]){
             char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
             strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
             system(syst_merge_blastn);
+            */
+            string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
+            //cout<<sys_final<<endl;
+            char *syst_final = new char[sys_final.length()+1];
+            strcpy(syst_final, sys_final.c_str());
+            system(syst_final);
             
+            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+            //cout<<sys_final<<endl;
+            char *syst_final_tsd = new char[sys_final_tsd.length()+1];
+            strcpy(syst_final_tsd, sys_final_tsd.c_str());
+            system(syst_final_tsd);
             
             i++;
         }
         else if((CHR==chr)&&(ref_n==19||ref_n==38)){
+            /*
             string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+chr+"/calls.txt";
             //cout<<sys_merge<<endl;
             char *syst_merge = new char[sys_merge.length()+1];
@@ -815,34 +859,41 @@ int main(int argc, char *argv[]){
             char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
             strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
             system(syst_merge_blastn);
+            */
+            
+            string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
+            //cout<<sys_final<<endl;
+            char *syst_final = new char[sys_final.length()+1];
+            strcpy(syst_final, sys_final.c_str());
+            system(syst_final);
+            
+            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+            //cout<<sys_final<<endl;
+            char *syst_final_tsd = new char[sys_final_tsd.length()+1];
+            strcpy(syst_final_tsd, sys_final_tsd.c_str());
+            system(syst_final_tsd);
             
             i++;
         }
     }
     
-    string sys_final_title = WD+output;
-    char *syst_final_title = new char[sys_final_title.length()+1];
-    strcpy(syst_final_title, sys_final_title.c_str());
-    ofstream file3;
-    file3.open(syst_final_title);
     
-    file3<<"cluster_id"<<'\t'<<"chr start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"LINE-1_start1"<<'\t'<<"LINE-1_start2"<<'\t'<<"LINE-1_end1"<<'\t'<<"LINE-1_end2"<<'\t'<<"Supporting_reads"<<'\t'<<"Supporting_reads_w_TSD"<<'\t'<<"orientation"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<endl;
-    
+    /*
     if(ref_n==37){
-        string sys_final="cat "+WD+"chr"+chr+"/calls.txt >> "+WD+output;
-        //cout<<sys_merge<<endl;
+        string sys_final="cat "+WD+"chr"+chr+"/calls.txt >> "+sys_final_title;
+        cout<<sys_final<<endl;
         char *syst_final = new char[sys_final.length()+1];
         strcpy(syst_final, sys_final.c_str());
         system(syst_final);
     }
     else if(ref_n==19||ref_n==38){
-        string sys_final="cat "+WD+chr+"/calls.txt >> "+WD+output;
-        //cout<<sys_merge<<endl;
+        string sys_final="cat "+WD+chr+"/calls.txt >> "+sys_final_title;
+        cout<<sys_final<<endl;
         char *syst_final = new char[sys_final.length()+1];
         strcpy(syst_final, sys_final.c_str());
         system(syst_final);
     }
-    
+    */
     cout<<"Merging step completed."<<endl;
     //cout<<"Almost finished there."<<endl;
     cout<<"Final calls finished."<<endl;

@@ -61,9 +61,9 @@ int ReadMasker(string WD_dir){
     
     file7.open(syst_selecinfo);
     
-    if (!file1.is_open()||!file2.is_open())
+    if (!file1.is_open())
     {
-        cout <<"CANNOT OPEN FILE, 'RM.selected'"<< endl;
+        cout <<"CANNOT OPEN FILE, 'region.sam'"<< endl;
         //exit(1);
         return 0;
     }
@@ -79,20 +79,12 @@ int ReadMasker(string WD_dir){
     }
     //cout<<line<<endl;
     
-    int line_rm=0;
-    for(int i=0;!file2.eof();i++){
-        getline(file2,input);
-        line_rm=i;
-    }
+    
     //cout<<line_rm<<endl;
     file1.close();
     file1.clear();
     file1.open(syst_regionsam);
-    
-    file2.close();
-    file2.clear();
-    file2.open(syst_RMselec);
-    
+
     string **sam_info;
     sam_info=new string*[line];
     for(int i=0;i!=line;i++) sam_info[i]=new string[6];
@@ -115,23 +107,58 @@ int ReadMasker(string WD_dir){
         getline(file1,sam_info[i][5]);//QUAL
         
     }
-    
+    int line_rm;
     int **rm_loc;
-    rm_loc=new int*[line_rm];
-    for(int i=0;i!=line_rm;i++) rm_loc[i]=new int[2];
-    
     string **rm_info;
-    rm_info=new string*[line_rm];
-    for(int i=0;i!=line_rm;i++) rm_info[i]=new string[4];
     
-    for(int i=0;i!=line_rm;i++){
-        file2>>rm_info[i][0];           //chr
-        file2>>rm_loc[i][0];            //start
-        file2>>rm_loc[i][1];            //end
-        file2>>rm_info[i][1];           //class
-        file2>>rm_info[i][2];           //family
-        file2>>rm_info[i][3];           //name
+    if (!file2.is_open()){
+        line_rm=1;
+        
+        
+        rm_loc=new int*[line_rm];
+        for(int i=0;i!=line_rm;i++) rm_loc[i]=new int[2];
+        
+        
+        rm_info=new string*[line_rm];
+        for(int i=0;i!=line_rm;i++) rm_info[i]=new string[4];
+        
+        rm_info[0][0]="null";           //chr
+        rm_loc[0][0]=0;            //start
+        rm_loc[0][1]=0;            //end
+        rm_info[0][1]="null";           //class
+        rm_info[0][2]="null";           //family
+        rm_info[0][3]="null";          //name
+        
     }
+    else {
+        line_rm=0;
+        for(int i=0;!file2.eof();i++){
+            getline(file2,input);
+            line_rm=i;
+        }
+        file2.close();
+        file2.clear();
+        file2.open(syst_RMselec);
+        
+        //int **rm_loc;
+        rm_loc=new int*[line_rm];
+        for(int i=0;i!=line_rm;i++) rm_loc[i]=new int[2];
+        
+        //string **rm_info;
+        rm_info=new string*[line_rm];
+        for(int i=0;i!=line_rm;i++) rm_info[i]=new string[4];
+        
+        for(int i=0;i!=line_rm;i++){
+            file2>>rm_info[i][0];           //chr
+            file2>>rm_loc[i][0];            //start
+            file2>>rm_loc[i][1];            //end
+            file2>>rm_info[i][1];           //class
+            file2>>rm_info[i][2];           //family
+            file2>>rm_info[i][3];           //name
+        }
+        
+    }
+    
 //cout<<"region reading complete"<<endl;
     for(int i=0;i!=line;i++){
         //cout<<i<<endl;
