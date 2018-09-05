@@ -25,15 +25,9 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     
     //cout<<"Blastn Caller Step is now running."<<endl;
     string sys_blastncaller;
-    if(t=="LINE"){
-        sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep \"L19088.1\" |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
-    }
-    else if(t=="ALU"){
-        sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep \"AluY\" |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
-    }
-    else if(t=="SVA"){
-        sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep \"SVA_F\" |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
-    }
+    
+    sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
+    
     
     char *syst_blastncaller = new char[sys_blastncaller.length()+1];
     strcpy(syst_blastncaller, sys_blastncaller.c_str());
@@ -256,7 +250,11 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     
 //read_connector
     
-    int S=100;//confident gap
+    //***********customized value***********
+    int S=100;//Segmental hit gap in one read
+    if (t=="ALU"){
+        S=6;
+    }
     
     for(int i=0;i!=blast;i++){
         if(bla[i][6]==0){
@@ -345,7 +343,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
             if(t=="LINE"&&L1_s<=5998&&L1_e>=6022){
                 file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<endl;
             }
-            else {
+            else if(t!="LINE"){
                 file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<endl;
             }
         }

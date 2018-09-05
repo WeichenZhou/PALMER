@@ -18,6 +18,7 @@ using namespace std;
 int samtools(string working_dir1, string working_dir, string input_bam, string chr, string start, string end){
     
     //cout<<"Samtools Step is now running."<<endl;
+    //##########hard code warming########## -q -F ##########
     
     string sys;
     sys="samtools view -q 10 -F 0x100 -F 0x200 -F 0x800 -F 0x400 "+input_bam+" "+chr+":"+start+"-"+end+" > "+working_dir+"region.sam";
