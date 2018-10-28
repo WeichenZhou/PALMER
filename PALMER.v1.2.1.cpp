@@ -427,7 +427,7 @@ int main(int argc, char *argv[]){
             line_index=i;
             i++;
         }
-        else if(CHR=="chr22"&&input_index=="2"&&ref_n==37){
+        else if(CHR=="chr22"&&input_index=="22"&&ref_n==37){
             line_index=i;
             i++;
         }
@@ -544,7 +544,7 @@ int main(int argc, char *argv[]){
         else if(CHR=="chr21"&& chr=="21"&&ref_n==37){
             chr_index=1;
         }
-        else if(CHR=="chr22"&& chr=="2"&&ref_n==37){
+        else if(CHR=="chr22"&& chr=="22"&&ref_n==37){
             chr_index=1;
         }
         else if(CHR=="chrX"&& chr=="X"&&ref_n==37){
