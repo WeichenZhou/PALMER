@@ -23,7 +23,7 @@ Required resources:
 
 Download and Install
 ```
-git clone git@github.com:mills-lab/PALMER.git
+git clone https://github.com/mills-lab/PALMER.git
 cd PALMER
 make
 ```
@@ -80,6 +80,7 @@ output.calls.txt & output.TSD_reads.txt.
 * Several minor bugs fixed
 * Optimized output files
 * Optimized codes and annotations
+* LICENSE added
 
 **Ver1.1** Apr.24th.2018
 * Alu and SAV detection module online.
