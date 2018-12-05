@@ -23,6 +23,13 @@ int tsd_module(string WD_dir){
     
     //string WD_dir="/Users/zhouweichen/Documents/workspace/16.10.08.Pacbio_analysis/17.11.24.PALMER/v1.1.1/scp/IO_test/";
     
+    int BIN_5=50;
+    int J_BIN=50;
+    int BIN_3=3500;
+    int J_BIN_mer=13;
+    //int JUN_BIN=50;
+
+    
     ifstream file1;
     ifstream file2;
     
@@ -77,7 +84,11 @@ int tsd_module(string WD_dir){
     
     int **loc;
     loc=new int*[line_read];
-    for(int i=0;i!=line_read;i++) loc[i]=new int[6];
+    for(int i=0;i!=line_read;i++) loc[i]=new int[7];
+    
+    int **loc_TP;
+    loc_TP=new int*[line_read];
+    for(int i=0;i!=line_read;i++) loc_TP[i]=new int[7];
     
     for(int i=0;i!=line_read;i++){
         file1>>name[i];
@@ -89,6 +100,14 @@ int tsd_module(string WD_dir){
         file1>>loc[i][5];
         file1>>info[i][0];
         file1>>info[i][1];
+        file1>>loc[i][6];
+        file1>>loc_TP[i][0];
+        file1>>loc_TP[i][1];
+        file1>>loc_TP[i][2];
+        file1>>loc_TP[i][3];
+        file1>>loc_TP[i][4];
+        file1>>loc_TP[i][5];
+        file1>>loc_TP[i][6];
     }
     for(int i=0;i!=line_region;i++){
         file2>>SEQ[i][0];
@@ -110,13 +129,10 @@ int tsd_module(string WD_dir){
     ifstream file6;
     
     ofstream file8;
-    ifstream file9;
 
     ofstream file7;
-    ofstream file11;
     
     ofstream file12;
-    ifstream file13;
     
     string sys_tsd = WD_dir+"read_result_TSD.txt";
     char *syst_tsd = new char[sys_tsd.length()+1];
@@ -131,10 +147,10 @@ int tsd_module(string WD_dir){
     //char *syst_readtag = new char[sys_readtag.length()+1];
     //strcpy(syst_readtag, sys_readtag.c_str());
     
-    string sys_tsd_info = WD_dir+"read_result_info.txt";
-    char *syst_tsd_info = new char[sys_tsd_info.length()+1];
-    strcpy(syst_tsd_info, sys_tsd_info.c_str());
-    file11.open(syst_tsd_info);
+    //string sys_tsd_info = WD_dir+"read_result_info.txt";
+    //char *syst_tsd_info = new char[sys_tsd_info.length()+1];
+    //strcpy(syst_tsd_info, sys_tsd_info.c_str());
+    //file11.open(syst_tsd_info);
     
     
     //cnv-related FP filter
@@ -143,9 +159,9 @@ int tsd_module(string WD_dir){
     strcpy(syst_tsd_junc, sys_tsd_junc.c_str());
     file12.open(syst_tsd_junc);
     
-    ofstream file21;
-    ofstream file22;
-    ofstream file23;
+    //ofstream file21;
+    //ofstream file22;
+    //ofstream file23;
     
     /*
     string sys_tsd_5_junc = WD_dir+"read_result_junction_5.txt";
@@ -164,12 +180,9 @@ int tsd_module(string WD_dir){
     strcpy(syst_tsd_ref, sys_tsd_3_junc.c_str());
     file23.open(syst_tsd_ref);
     */
-     
-    int J_BIN=13;
-    int BIN=6;
-    int BIN_3=3000;
-
+    
     for(int i=0;i!=line_read;i++){
+        /*
         int js1, js2, je1, je2;
         js1=loc[i][2]-J_BIN;
         if(js1<=0) js1=1;
@@ -186,13 +199,17 @@ int tsd_module(string WD_dir){
         left_j=new char[l1];
         for(int j=0;j!=l1;j++) left_j[j]='N';
         for(int j=0;j!=l2;j++) right_j[j]='N';
+        */
         
         int s1,s2,e1,e2;
-        s1=loc[i][2]-45;
+        s1=loc[i][2]-(BIN_5-5);
         if(s1<=0) s1=1;
         e1=loc[i][2]+5;
+        if(e1>loc[i][6]) e1=loc[i][6];
         s2=loc[i][3]-5;
-        e2=loc[i][3]+45;
+        if(s2<=0) s2=1;
+        e2=loc[i][3]+(BIN_5-5);
+        if(e2>loc[i][6]) e2=loc[i][6];
 
         int s_3_1,s_3_2,e_3_1,e_3_2;
         s_3_1=loc[i][2]-BIN_3;
@@ -200,6 +217,7 @@ int tsd_module(string WD_dir){
         e_3_1=loc[i][2];
         s_3_2=loc[i][3];
         e_3_2=loc[i][3]+BIN_3;
+        if(e_3_2>loc[i][6]) e_3_2=loc[i][6];
         
         int l3,l4,l5,l6;
         l3=e1-s1+1;
@@ -219,6 +237,45 @@ int tsd_module(string WD_dir){
         for(int j=0;j!=l5;j++) left_3[j]='N';
         for(int j=0;j!=l6;j++) right_3[j]='N';
         
+        int js1, js2, je1, je2;
+        js1=s1-J_BIN;
+        if(js1<=0) js1=1;
+        je1=e1+J_BIN_mer;
+        if(je1>loc[i][6]) je1=loc[i][6];
+        js2=s2-J_BIN_mer;
+        if(js2<=0) js2=1;
+        je2=e2+J_BIN;
+        if(je2>loc[i][6]) je2=loc[i][6];
+        
+        int l1,l2;
+        l1=je1-js1+1;
+        l2=je2-js2+1;
+        char *right_j;
+        right_j=new char[l2];
+        char *left_j;
+        left_j=new char[l1];
+        for(int j=0;j!=l1;j++) left_j[j]='N';
+        for(int j=0;j!=l2;j++) right_j[j]='N';
+        
+        int js_3_1,js_3_2,je_3_1,je_3_2;
+        js_3_1=s_3_1-J_BIN;
+        if(s_3_1<=0) s_3_1=1;
+        je_3_1=e_3_1;
+        js_3_2=s_3_2;
+        je_3_2=e_3_2+J_BIN;
+        if(je_3_2>loc[i][6]) je_3_2=loc[i][6];
+        
+        int l7,l8;
+        l7=je_3_1-js_3_1+1;
+        l8=je_3_2-js_3_2+1;
+        char *right_j_3;
+        right_j_3=new char[l8];
+        char *left_j_3;
+        left_j_3=new char[l7];
+        for(int j=0;j!=l7;j++) left_j_3[j]='N';
+        for(int j=0;j!=l8;j++) right_j_3[j]='N';
+        
+        
         for(int j=0;j!=line_region;j++){
             if(SEQ[j][0]==name[i]){
                 //file3.open(syst_seq);
@@ -235,11 +292,13 @@ int tsd_module(string WD_dir){
                 ss_seq>>seq;
                 
                 int n=1;
-                int le1,le2,le3,le4,le5,le6;
-                le1=le2=le3=le4=le5=le6=0;
+                int le1,le2,le3,le4,le5,le6,le7,le8;
+                le1=le2=le3=le4=le5=le6=le7=le8=0;
                 for(;seq!='E';){
                     if(n>=js1&&n<=je1) {left_j[le1]=seq;le1=le1+1;}
                     if(n>=js2&&n<=je2) {right_j[le2]=seq;le2=le2+1;}
+                    if(n>=js_3_1&&n<=je_3_1) {left_j_3[le7]=seq;le7=le7+1;}
+                    if(n>=js_3_2&&n<=je_3_2) {right_j_3[le8]=seq;le8=le8+1;}
                     
                     if(n>=s1&&n<=e1) {left[le3]=seq;le3=le3+1;}
                     if(n>=s2&&n<=e2) {right[le4]=seq;le4=le4+1;}
@@ -257,44 +316,42 @@ int tsd_module(string WD_dir){
             }
         }
         
-        file11<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t';
-        file12<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t';
+        //file11<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t';
+        file12<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
         if(info[i][1]=="+"){
             for(int w=0;w!=l1;w++){
-                file11<<left_j[w];
+                //file11<<left_j[w];
                 file12<<left_j[w];
                 //file21<<left_j[w];
             }
-            file11<<endl;
+            //file11<<endl;
             file12<<'\t';
             //file21<<endl;
             //test
-            for(int w=0;w!=(l2-J_BIN);w++){
-                file12<<right_j[w];
+            for(int w=0;w!=l8;w++){
+                file12<<right_j_3[w];
             }
-            for(int w=1;w!=l6;w++){
-                file12<<right_3[w];
-            }
-            file12<<endl;
+            //for(int w=1;w!=l6;w++){
+            //    file12<<right_3[w];
+            //}
+            file12<<'\t';
         }
         if(info[i][1]=="-"){
             for(int w=0;w!=l2;w++){
-                file11<<right_j[w];
+                //file11<<right_j[w];
                 file12<<right_j[w];
                 //file21<<right_j[w];
             }
-            file11<<endl;
+            //file11<<endl;
             file12<<'\t';
             //file21<<endl;
-            for(int w=0;w!=l5-1;w++){
-                file12<<left_3[w];
+            for(int w=0;w!=l7;w++){
+                file12<<left_j_3[w];
             }
-            //test
-            for(int w=(l1-J_BIN);w!=l1;w++){
-                file12<<left_j[w];
-            }
-            file12<<endl;
+            
+            file12<<'\t';
         }
+        file12<<loc_TP[i][0]<<'\t'<<loc_TP[i][1]<<'\t'<<loc_TP[i][2]<<'\t'<<loc_TP[i][3]<<'\t'<<loc_TP[i][4]<<'\t'<<loc_TP[i][5]<<'\t'<<loc_TP[i][6]<<endl;
         
         file7<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t';
         
@@ -325,10 +382,40 @@ int tsd_module(string WD_dir){
         ss_5<<loc[i][5];
         loc_5=ss_5.str();
         
+        string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
+        stringstream ss_TP_0;
+        ss_TP_0.clear();
+        ss_TP_0<<loc_TP[i][0];
+        loc_TP_0=ss_TP_0.str();
+        stringstream ss_TP_1;
+        ss_TP_1.clear();
+        ss_TP_1<<loc_TP[i][1];
+        loc_TP_1=ss_TP_1.str();
+        stringstream ss_TP_2;
+        ss_TP_2.clear();
+        ss_TP_2<<loc_TP[i][2];
+        loc_TP_2=ss_TP_2.str();
+        stringstream ss_TP_3;
+        ss_TP_3.clear();
+        ss_TP_3<<loc_TP[i][3];
+        loc_TP_3=ss_TP_3.str();
+        stringstream ss_TP_4;
+        ss_TP_4.clear();
+        ss_TP_4<<loc_TP[i][4];
+        loc_TP_4=ss_TP_4.str();
+        stringstream ss_TP_5;
+        ss_TP_5.clear();
+        ss_TP_5<<loc_TP[i][5];
+        loc_TP_5=ss_TP_5.str();
+        stringstream ss_TP_6;
+        ss_TP_6.clear();
+        ss_TP_6<<loc_TP[i][6];
+        loc_TP_6=ss_TP_6.str();
+        
         string seq_index;
         
         seq_index=".";
-        seq_index=seq_index+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][0]+"."+info[i][1];
+        seq_index=seq_index+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][0]+"."+info[i][1]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
         
         
         //file12.open(syst_readtag);
@@ -368,15 +455,10 @@ int tsd_module(string WD_dir){
                 file8<<right_3[w];
                 file7<<right_3[w];
             }
-            file7<<endl;
-            
-            file8.close();
-            file5.close();
-            file8.clear();
-            file5.clear();
+            file7<<'\t';
             
         }
-        if(info[i][1]=="-"){
+        else if(info[i][1]=="-"){
             
             for(int w=0;w!=l4;w++){
                 file7<<right[w];
@@ -388,39 +470,55 @@ int tsd_module(string WD_dir){
                 file8<<left_3[w];
                 file7<<left_3[w];
             }
-            file7<<endl;
-            
-            file8.close();
-            file5.close();
-            file8.clear();
-            file5.clear();
+            file7<<'\t';
         
         }
 
+        file7<<loc_TP[i][0]<<'\t'<<loc_TP[i][1]<<'\t'<<loc_TP[i][2]<<'\t'<<loc_TP[i][3]<<'\t'<<loc_TP[i][4]<<'\t'<<loc_TP[i][5]<<'\t'<<loc_TP[i][6]<<endl;
+        
+        file8.close();
+        file5.close();
+        file8.clear();
+        file5.clear();
         
 //Possible TSD finding & filtering
         
         
         int len_5, len_3;
         stringstream ss,ss1;
+        ss.clear();
+        ss1.clear();
         string s_len,s_len1;
         
+        int le_5,le_3;
+        string s_le_5,s_le_3;
+        le_5=BIN_5+1;
+        le_3=BIN_3+1;
+        
+        stringstream ss_le_5,ss_le_3;
+        ss_le_3.clear();
+        ss_le_5.clear();
+        ss_le_5<<le_5;
+        ss_le_5>>s_le_5;
+        ss_le_3<<le_3;
+        ss_le_3>>s_le_3;
+        
         if(info[i][1]=="+"){
-            ss<<51-e1+s1-1;
+            ss<<le_5-e1+s1-1;
             ss>>s_len;
             ss1<<e1-s1+1;
             ss1>>s_len1;
-            string sys_blastn = "blastn -task blastn -query "+sys_seq_5+" -subject "+sys_seq_3+" -word_size 6 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \""+name[i]+seq_index+"\","+(s_len)+"+$7,"+(s_len)+"+$8,$9,$10,"+s_len1+",\"3001\"}' >> "+WD_dir+"TSD_blastn_pre.txt";
+            string sys_blastn = "blastn -task blastn -query "+sys_seq_5+" -subject "+sys_seq_3+" -word_size 6 -evalue 50 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \""+name[i]+seq_index+"\","+(s_len)+"+$7,"+(s_len)+"+$8,$9,$10,"+s_len1+",\""+s_le_3+"\"}' >> "+WD_dir+"TSD_blastn_pre.txt";
             char *syst_blastn = new char[sys_blastn.length()+1];
             strcpy(syst_blastn, sys_blastn.c_str());
             system(syst_blastn);
         }
         else if(info[i][1]=="-"){
-            ss<<3001-e_3_1+s_3_1-1;
+            ss<<le_3-e_3_1+s_3_1-1;
             ss>>s_len;
             ss1<<e_3_1-s_3_1+1;
             ss1>>s_len1;
-            string sys_blastn = "blastn -task blastn -query "+sys_seq_5+" -subject "+sys_seq_3+" -word_size 6 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=85&&$4>=6&&($10-$9)>0) print \""+name[i]+seq_index+"\",$7,$8,"+(s_len)+"+$9,"+(s_len)+"+$10,\"51\","+s_len1+"}' >> "+WD_dir+"TSD_blastn_pre.txt";
+            string sys_blastn = "blastn -task blastn -query "+sys_seq_5+" -subject "+sys_seq_3+" -word_size 6 -evalue 50 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \""+name[i]+seq_index+"\",$7,$8,"+(s_len)+"+$9,"+(s_len)+"+$10,\""+s_le_5+"\","+s_len1+"}' >> "+WD_dir+"TSD_blastn_pre.txt";
             char *syst_blastn = new char[sys_blastn.length()+1];
             strcpy(syst_blastn, sys_blastn.c_str());
             system(syst_blastn);
@@ -439,10 +537,11 @@ int tsd_module(string WD_dir){
     for(int i=0;i!=line_read;i++){
         delete [] info[i];
         delete [] loc[i];
+        delete [] loc_TP[i];
     }
     delete [] info;
     delete [] loc;
-    
+    delete [] loc_TP;
     delete [] name;
     return 0;
 }

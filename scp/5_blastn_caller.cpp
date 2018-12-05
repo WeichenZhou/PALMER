@@ -84,14 +84,14 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     //ofstream file4;
     //file4.open(syst_cigar3);
     
-    string sys_readresult = WD_dir+"read_result.txt";
+    string sys_readresult = WD_dir+"read_result_pre.txt";
     char *syst_readresult =  new char[sys_readresult.length()+1];
     strcpy(syst_readresult, sys_readresult.c_str());
     
     ofstream file5;
     file5.open(syst_readresult);
     
-    ifstream file6;
+    //ifstream file6;
     
     int line;
     string input;
@@ -115,7 +115,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     
     int **bla;
     bla=new int*[blast];
-    for(int i=0;i!=blast;i++) bla[i]=new int[7];
+    for(int i=0;i!=blast;i++) bla[i]=new int[8];
     
     string *bla_name;
     bla_name=new string[blast];
@@ -128,6 +128,9 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     for(int i=0;i!=line;i++) read[i]=new string[3];
     int *read_loc;
     read_loc= new int[line];
+    int *read_le;
+    read_le= new int[line];
+    
     
     for(int i=0;i!=blast;i++){
         file2>>input;
@@ -147,6 +150,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         file3>>read[i][0];      //read name
         file3>>read[i][1];      //chr
         file3>>read_loc[i];     //pos
+        file3>>read_le[i];      //read length
     }
     for(int i=0;i!=blast;i++){
         int buff;
@@ -180,6 +184,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                 int number;
                 int bit;        //tag in ref
                 bit=read_loc[j]; //from the start pos
+                bla[i][7]=read_le[j]; //legnth of the read
                 insert_s=bit;
                 insert_e=bit;
                 int k=0;        //tag in read
@@ -222,7 +227,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                     else if(cig=='S'||cig=='I'){
                         k=k+number;
                     }
-                    else if(cig=='D'){
+                    else if(cig=='D'||cig=='N'){
                         bit=bit+number;
                     }
                     ss_cigar3>>number;
@@ -245,10 +250,11 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         bla[i][3]=r_e;
         bla[i][4]=insert_s;
         bla[i][5]=insert_e;
+        
         //file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<"chr"<<'\t'<<orient[i]<<chr<<endl;
     }
     
-//read_connector
+//in_read_connector
     
     //***********customized value***********
     int S=100;//Segmental hit gap in one read
@@ -274,6 +280,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
             int r_e_ex1=r_e-S;
             int r_e_ex2=r_e+S;
             bla[i][6]=1;
+            int le=bla[i][7];
             
             for(;flag_bn==1;){
                 flag_bn=0;
@@ -339,15 +346,148 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                 }
             }
             
-            
-            if(t=="LINE"&&L1_s<=5998&&L1_e>=6022){
-                file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<endl;
-            }
-            else if(t!="LINE"){
-                file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<endl;
+            //if(t=="LINE"){
+                // 3' reads
+                //if(L1_s<=5998&&L1_e>=6025){
+                    //file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<'\t'<<le<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
+               // }
+                //5' reads
+                //else if(r_e>=(le-1000)){
+                    //file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<'\t'<<le<<endl;
+                //}
+            //}
+            //else if(t!="LINE"){
+                file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<'\t'<<le<<endl;
+            //}
+        }
+    }
+    
+//Two priming module
+   
+    string sys_readresult_out = WD_dir+"read_result.txt";
+    char *syst_readresult_out =  new char[sys_readresult_out.length()+1];
+    strcpy(syst_readresult_out, sys_readresult_out.c_str());
+    
+    //cout<<syst_readresult_out<<endl;
+    
+    ofstream file15;
+    file15.open(syst_readresult_out);
+    
+    file5.close();
+    file5.clear();
+    
+    ifstream file6;
+    file6.open(syst_readresult);
+    
+    int line_read=0;
+    //string input;
+    for(int i=0;!file6.eof();i++){
+        getline(file6,input);
+        line_read=i;
+    }
+    //cout<<line_read<<endl;
+    
+    file6.close();
+    file6.clear();
+    file6.open(syst_readresult);
+    
+    string *name;
+    name=new string[line_read];
+    
+    string **info;
+    info=new string*[line_read];
+    for(int i=0;i!=line_read;i++) info[i]=new string[2];
+    
+    int **loc;
+    loc=new int*[line_read];
+    for(int i=0;i!=line_read;i++) loc[i]=new int[7];
+    
+    //int **loc_TP;
+    //loc_TP=new int*[line_read];
+    //for(int i=0;i!=line_read;i++) loc_TP[i]=new int[7];
+    
+    for(int i=0;i!=line_read;i++){
+        file6>>name[i];
+        file6>>loc[i][0];
+        file6>>loc[i][1];
+        file6>>loc[i][2];
+        file6>>loc[i][3];
+        file6>>loc[i][4];
+        file6>>loc[i][5];
+        file6>>info[i][0];
+        file6>>info[i][1];
+        file6>>loc[i][6];
+        //cout<<name[i]<<endl;
+    }
+    
+    int BIN=50;
+    if (t=="ALU"){
+        BIN=6;
+    }
+    
+    for(int i=0;i!=line_read;i++){
+        for(int j=0;j!=line_read;j++){
+            if(i!=j){
+                if(name[i]==name[j]&&info[i][0]==info[j][0]&&info[i][1]!=info[j][1]&&loc[i][6]==loc[j][6]){
+                    if((loc[i][0]+BIN)>loc[j][1]){
+                        if(info[i][1]=="+"){
+                            if((loc[i][2]-BIN/2)<=loc[j][3]&&(loc[i][2]+BIN/2)>=loc[j][3]){
+                                if((loc[i][4]-BIN/2)<=loc[j][5]&&(loc[i][4]+BIN/2)>=loc[j][5]){
+                                    if(t=="LINE"){
+                                        if(loc[i][0]<=5998&&loc[i][1]>=6025){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
+                                        }
+                                    }
+                                    else if(t!="LINE"){
+                                        file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
+                                    }
+                                    continue;
+                                }
+                            }
+                        }
+                        else if(info[i][1]=="-"){
+                            if((loc[j][2]-BIN/2)<=loc[i][3]&&(loc[j][2]+BIN/2)>=loc[i][3]){
+                                if((loc[j][4]-BIN/2)<=loc[i][5]&&(loc[j][4]+BIN/2)>=loc[i][5]){
+                                    if(t=="LINE"){
+                                        if(loc[i][0]<=5998&&loc[i][1]>=6025){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
+                                        }
+                                    }
+                                    else if(t!="LINE"){
+                                        file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
+                                    }
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+    
+    for(int i=0;i!=line_read;i++){
+        if(t=="LINE"){
+            //cout<<">????"<<endl;
+            if(loc[i][0]<=5998&&loc[i][1]>=6025){
+                file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
+            }
+        }
+        else if(t!="LINE"){
+            file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
+        }
+    }
+    
+    for(int i=0;i!=line_read;i++){
+        delete [] info[i];
+        delete [] loc[i];
+        //delete [] loc_TP[i];
+    }
+    delete [] info;
+    delete [] loc;
+    
+    delete [] name;
+    
     
     for(int i=0;i!=blast;i++){
         delete [] bla[i];
@@ -364,6 +504,18 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     delete [] bla_name;
     delete [] orient;
     delete [] read_loc;
+    delete [] read_le;
+    
+    file1.close();
+    file1.clear();
+    file2.close();
+    file2.clear();
+    file3.close();
+    file3.clear();
+    file6.close();
+    file6.clear();
+    file15.close();
+    file15.clear();
     
     return 0;
 }
