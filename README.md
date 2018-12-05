@@ -9,7 +9,7 @@ PALMER is used to detect non-reference MEI events within the masked sequence dat
 * After obtaining the pre-masked reads, PALMER searches against the insertion sequence library (e.g. L1Hs sequence, GenBank Accession: L19088) by using Blastn. Then it uses the cigar information in the reads and joint the truncated segments from Blastn into one in a single read. These reads with insertion sequence are considered as supporting reads. 
 * PALMER identifies the candidate TSD motif in 50bp 5’ upstream and 3kb 3’ downstream of insertion sequence for each read. 
 * It then runs a module for filtering the candidate TSD motif and identifying transduction/polyA sequence. PALMER will define the supporting read with/without valid TSD motif and with/without valid transduction and polyA sequence. The ideal structure of an event having transduction sequence should be 5’-TSD-L1Hs-polyA-TransD-polyA-TSD-3’. 
-* Afterwards, PALMER will cluster all supporting reads in one loci (or supporting one event) of the genome, as well as cluster the TSD motif among all supporting reads for one event and choose the most confident TSD motif with/without transduction/polyA sequence. PALMER will obtain two numbers for one event, the number of supporting reads and the number of supporting reads with predicted TSD motif. 
+* Afterwards, PALMER will cluster all supporting reads (SRs) in one loci (or supporting one event) of the genome, as well as cluster the TSD motif among all supporting reads for one event and choose the most confident TSD motif with/without transduction/polyA sequence. PALMER will obtain two numbers for one event, the number of supporting reads and the number of supporting reads with predicted TSD motif. 
 * Finally, PALMER will combine all events in each bin and output all candidate non-reference MEIs.
 
 
@@ -65,24 +65,48 @@ Example
 ./PALMER --input $DirPath/NA12878.washu.alignment_hs37d5.1.bam --workdir $DirPath/chr1.line.0406/ --ref_ver GRCh37 --output test --type LINE --chr chr3 --ref_fa $DirPath/hs37d5.fa
 ```
 
-## Output format 
-We have two outputs: 
+## Output 
+We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
-output.calls.txt & output.TSD_reads.txt.
+'output_calls.txt' is the summary for all non-ref MEI calls.
+
+'output_TSD_reads.txt' contains all details you want for the high confident (HC) SRs.
+
+* By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥4 SRs.
 
 ## Logs
+
+**Ver1.3** Dec.5th.2018
+
+* Highly optimized performance of LINE-1 calling using raw sub-reads
+	> Imported '5' inverted sequence detection' module (two priming mechanism induced)
+	
+	> Optimized 'CNV-related false positive exclusion' module by using raw sub-reads (deletion-, duplication-, insertion-, inversion-related false positives)
+	
+	> Optimized 'TSD finding' module
+	
+	> Optimized speed of calling MEIs (I/O related)
+* Optimized output files
+	> Add '5' inverted sequence' output
+	
+	> Add 'Length of poly-A tail' output
+	
+	> Add 'Number of high confident supporting reads' output
+* Minor bugs fixed
+
 **Ver1.2** Sep.5th.2018
 
 * Better performance for Alu calling
 * Import 'CNV-related false positive exclusion' module
 * Import genotyping module (not online yet)
-* Import 'customized sequence finding and genome masking' moudle
+* Import 'Customized sequence finding and genome masking' moudule
 * Several minor bugs fixed
 * Optimized output files
 * Optimized codes and annotations
 * LICENSE added
 
 **Ver1.1** Apr.24th.2018
+
 * Alu and SAV detection module online.
 
 **Ver1.0** Feb.14th.2018

@@ -193,8 +193,8 @@ int main(int argc, char *argv[]){
         cout<<endl;
         
         
-        cout<<"--output (default: output.txt)"<<endl;
-        cout<<"         name of output file"<<endl;
+        cout<<"--output (default: output)"<<endl;
+        cout<<"         prefix of output file"<<endl;
         cout<<endl;
         exit(1);
     }
@@ -790,15 +790,15 @@ int main(int argc, char *argv[]){
     
     //merge
     
-    string sys_final_title = WD+output+"calls.txt";
+    string sys_final_title = WD+output+"_calls.txt";
     char *syst_final_title = new char[sys_final_title.length()+1];
     strcpy(syst_final_title, sys_final_title.c_str());
     ofstream file3;
     file3.open(syst_final_title,ios::trunc);
     
-    file3<<"cluster_id"<<'\t'<<"chr start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Supporting_reads"<<'\t'<<"Supporting_reads_w_TSD"<<'\t'<<"Segmented_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<endl;
+    file3<<"cluster_id"<<'\t'<<"chr start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Potential_supporting_reads"<<'\t'<<"Ptential_segmental_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
     
-    string sys_final_tsd_title = WD+output+"TSD_reads.txt";
+    string sys_final_tsd_title = WD+output+"_TSD_reads.txt";
     char *syst_final_tsd_title = new char[sys_final_tsd_title.length()+1];
     strcpy(syst_final_tsd_title, sys_final_tsd_title.c_str());
     ofstream file31;

@@ -103,7 +103,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
     fp_ex(WD_tube, ref_fa, chr);
     cout<<"False positive exclusion step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
-    getchar();
+    //getchar();
     
 //8. Calling module
     

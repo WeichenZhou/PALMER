@@ -201,7 +201,7 @@ int ReadMasker(string WD_dir){
             else if (cig=='M') {M=M+number;F=1;}
             else if (cig=='='||cig=='X') {eq=eq+number;F=1;}
             else if (cig=='I') {I=I+number;F=1;}
-            else if (cig=='D') {D=D+number;F=1;}
+            else if (cig=='D'||cig=='N') {D=D+number;F=1;}
             else if (cig=='S'&&F==1) sc2=sc2+number;
             else if (cig=='H'&&F==1) h2=h2+number;
             ss_cigar1>>number;
@@ -210,7 +210,7 @@ int ReadMasker(string WD_dir){
         
         //file3.close();
         //file3.clear();
-        read_e=sam_loc[i][1]+M+D+eq;
+        read_e=sam_loc[i][1]+M+D+eq-1;
         
         
         if(sc1>=50||sc2>=50||I>=50){
@@ -268,7 +268,7 @@ int ReadMasker(string WD_dir){
                             }
                             k=k+number;
                         }
-                        else if(cig=='D') {bit=bit+number;
+                        else if(cig=='D'||cig=='N') {bit=bit+number;
                             //cout<<"D"<<endl;
                         }
                         else if(cig=='S'||cig=='I') {k=k+number;
@@ -288,7 +288,7 @@ int ReadMasker(string WD_dir){
             file6<<">"<<sam_info[i][0]<<'\t'<<sam_loc[i][1]<<endl;
             for(int x=0;x!=le;x++) file6<<seq[x];
             file6<<endl;
-            file7<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<endl;
+            file7<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<'\t'<<le<<endl;
         }
     }
     
