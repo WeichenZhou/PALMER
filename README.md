@@ -67,7 +67,9 @@ Example
 
 ## Output 
 We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
+
 'output_calls.txt' is the summary for all non-ref MEI calls.
+
 'output_TSD_reads.txt' contains all details you want for the high confident (HC) SRs.
 
 ** By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥4 SRs.
@@ -78,12 +80,17 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 * Highly optimized performance of LINE-1 calling using raw sub-reads
 	> Imported '5' inverted sequence detection' module (two priming mechanism induced)
+	
 	> Optimized 'CNV-related false positive exclusion' module by using raw sub-reads (deletion-, duplication-, insertion-, inversion-related false positives)
+	
 	> Optimized 'TSD finding' module
+	
 	> Optimized speed of calling MEIs (I/O related)
 * Optimized output files
 	> Add '5' inverted sequence' output
+	
 	> Add 'Length of poly-A tail' output
+	
 	> Add 'Number of high confident supporting reads' output
 * Minor bugs fixed
 
