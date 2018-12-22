@@ -1113,6 +1113,7 @@ int calling(string WD_dir, string t){
                         
                         //TSD seq
                         int read_seq=-1;
+                        string name_tag;
                         for(int j=0;j!=line;j++){
                             //file12.open(syst_readtag2);
                             //file12<<info[j][0]<<"_"<<loc[j][0]<<"_"<<loc[j][1]<<"_"<<loc[j][2]<<"_"<<loc[j][3]<<"_"<<loc[j][4]<<"_"<<loc[j][5]<<"_"<<info[j][1]<<"_"<<orien[j]<<endl;
@@ -1181,12 +1182,16 @@ int calling(string WD_dir, string t){
                             ss_TP_6<<loc_TP[j][6];
                             loc_TP_6=ss_TP_6.str();
                             
-                            string seq_index;
+                            string seq_index,seq_index_2;
                             
                             seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                             
+                            seq_index_2="";
+                            seq_index_2=seq_index_2+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                            
                             if(name_tsd[number_buff][w]==seq_index){
                                 read_seq=j;
+                                name_tag=seq_index_2;
                             }
                         }
                         if(read_seq==-1){
@@ -1232,6 +1237,51 @@ int calling(string WD_dir, string t){
                                 file4<<seq3[n];
                             }
                         }
+//5' 26mer output
+                        string kmer_0, kmer_1, kmer_2, kmer_3;
+                        stringstream ss_kmer_0;
+                        ss_kmer_0.clear();
+                        ss_kmer_0<<ls[number_buff][w];
+                        kmer_0=ss_kmer_0.str();
+                        
+                        stringstream ss_kmer_1;
+                        ss_kmer_1.clear();
+                        ss_kmer_1<<le[number_buff][w];
+                        kmer_1=ss_kmer_1.str();
+                        
+                        stringstream ss_kmer_2;
+                        ss_kmer_2.clear();
+                        ss_kmer_2<<rs[number_buff][w];
+                        kmer_2=ss_kmer_2.str();
+                        
+                        stringstream ss_kmer_3;
+                        ss_kmer_3.clear();
+                        ss_kmer_3<<re[number_buff][w];
+                        kmer_3=ss_kmer_3.str();
+                        
+                        string kmer_index;
+                        kmer_index=name_tag+"."+kmer_0.c_str()+"."+kmer_1.c_str()+"."+kmer_2.c_str()+"."+kmer_3.c_str()+".5kmer.fasta";
+                        
+                        //cout<<kmer_index<<endl;
+                        
+                        ifstream file26;
+                        
+                        string sys_kmer_index = WD_dir+kmer_index;
+                        char *syst_kmer_index = new char[sys_kmer_index.length()+1];
+                        strcpy(syst_kmer_index, sys_kmer_index.c_str());
+                        
+                        file26.open(syst_kmer_index);
+                        
+                        string input_kmer;
+                        file26>>input_kmer;
+                        file26>>input_kmer;
+                        
+                        file4<<'\t'<<input_kmer;
+                        
+                        file26.close();
+                        file26.clear();
+                        
+ //
                         
                         file4<<endl;
                         
@@ -1464,6 +1514,7 @@ int calling(string WD_dir, string t){
                         }
                         //TSD seq
                         int read_seq=-1;
+                        string name_tag;
                         for(int j=0;j!=line;j++){
                             //file12.open(syst_readtag2);
                             //file12<<info[j][0]<<"_"<<loc[j][0]<<"_"<<loc[j][1]<<"_"<<loc[j][2]<<"_"<<loc[j][3]<<"_"<<loc[j][4]<<"_"<<loc[j][5]<<"_"<<info[j][1]<<"_"<<orien[j]<<endl;
@@ -1532,12 +1583,16 @@ int calling(string WD_dir, string t){
                             ss_TP_6<<loc_TP[j][6];
                             loc_TP_6=ss_TP_6.str();
                             
-                            string seq_index;
+                            string seq_index,seq_index_2;
                             
                             seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                             
+                            seq_index_2="";
+                            seq_index_2=seq_index_2+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                            
                             if(name_tsd[number_buff][w]==seq_index){
                                 read_seq=j;
+                                name_tag=seq_index_2;
                             }
                         }
                         if(read_seq==-1){
@@ -1583,6 +1638,53 @@ int calling(string WD_dir, string t){
                                 file4<<seq3[n];
                             }
                         }
+                        
+//5' 26mer output
+                        string kmer_0, kmer_1, kmer_2, kmer_3;
+                        stringstream ss_kmer_0;
+                        ss_kmer_0.clear();
+                        ss_kmer_0<<ls[number_buff][w];
+                        kmer_0=ss_kmer_0.str();
+                        
+                        stringstream ss_kmer_1;
+                        ss_kmer_1.clear();
+                        ss_kmer_1<<le[number_buff][w];
+                        kmer_1=ss_kmer_1.str();
+                        
+                        stringstream ss_kmer_2;
+                        ss_kmer_2.clear();
+                        ss_kmer_2<<rs[number_buff][w];
+                        kmer_2=ss_kmer_2.str();
+                        
+                        stringstream ss_kmer_3;
+                        ss_kmer_3.clear();
+                        ss_kmer_3<<re[number_buff][w];
+                        kmer_3=ss_kmer_3.str();
+                        
+                        string kmer_index;
+                        kmer_index=name_tag+"."+kmer_0.c_str()+"."+kmer_1.c_str()+"."+kmer_2.c_str()+"."+kmer_3.c_str()+".5kmer.fasta";
+                        
+                        //cout<<kmer_index<<endl;
+                        
+                        ifstream file26;
+                        
+                        string sys_kmer_index = WD_dir+kmer_index;
+                        char *syst_kmer_index = new char[sys_kmer_index.length()+1];
+                        strcpy(syst_kmer_index, sys_kmer_index.c_str());
+                        
+                        file26.open(syst_kmer_index);
+                        
+                        string input_kmer;
+                        file26>>input_kmer;
+                        file26>>input_kmer;
+                        
+                        file4<<'\t'<<input_kmer;
+                        
+                        file26.close();
+                        file26.clear();
+//
+                        
+                        
                         
                         file4<<endl;
                         polyA_le=polyA_le+loc[read_seq][1]-6025;

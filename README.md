@@ -76,6 +76,12 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 ## Logs
 
+**Ver1.3.0** Dec.22th.2018
+
+* Frozen version for L1 false negative paper.
+* Output 26mer sequence at 5' junction
+* Minor bugs fixed
+
 **Ver1.3** Dec.5th.2018
 
 * Highly optimized performance of LINE-1 calling using raw sub-reads
