@@ -804,7 +804,7 @@ int main(int argc, char *argv[]){
     ofstream file31;
     file31.open(syst_final_tsd_title,ios::trunc);
     
-    file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<endl;
+    file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<endl;
     
     for(int i=0;i!=line_index;){
         file2>>chr;

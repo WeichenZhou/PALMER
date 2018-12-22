@@ -72,9 +72,15 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 'output_TSD_reads.txt' contains all details you want for the high confident (HC) SRs.
 
-* By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥4 SRs.
+* By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 SRs.
 
 ## Logs
+
+**Ver1.3.0** Dec.22th.2018
+
+* Frozen version for L1 false negative paper.
+* Output 26mer sequence at 5' junction
+* Minor bugs fixed
 
 **Ver1.3** Dec.5th.2018
 
