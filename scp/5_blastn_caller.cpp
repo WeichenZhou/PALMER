@@ -16,14 +16,7 @@
 using namespace std;
 
 int BlastnCaller(string WD_dir, string chr_fix, string t){
-//test
-//int main(){
-    //string WD_dir="/Users/zhouweichen/Documents/workspace/16.10.08.Pacbio_analysis/17.11.24.PALMER/v1.1.1/scp/IO_test/";
-    //string chr_fix="chr1";
-    //string t="LINE";
-    
-    
-    //cout<<"Blastn Caller Step is now running."<<endl;
+
     string sys_blastncaller;
     
     sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
@@ -76,13 +69,6 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         //exit(1);
         return 0;
     }
-
-    //string sys_cigar3 = WD_dir+"cigar.3";
-    //char *syst_cigar3 =  new char[sys_cigar3.length()+1];
-    //strcpy(syst_cigar3, sys_cigar3.c_str());
-    
-    //ofstream file4;
-    //file4.open(syst_cigar3);
     
     string sys_readresult = WD_dir+"read_result_pre.txt";
     char *syst_readresult =  new char[sys_readresult.length()+1];
@@ -178,8 +164,6 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
             if(bla_name[i]==read[j][0]){
                 flag_r=1;
                 
-                //file4<<read[j][2]<<endl;
-                //file6.open(syst_cigar3);
                 char cig;
                 int number;
                 int bit;        //tag in ref
@@ -233,11 +217,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                     ss_cigar3>>number;
                     ss_cigar3>>cig;
                 }
-                //file6.close();
-                //file6.clear();
-                //file4.close();
-                //file4.clear();
-                //file4.open(syst_cigar3);
+                
             }
         }
         if(M>=int(0.5*(r_e-r_s))){ 
@@ -251,7 +231,6 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         bla[i][4]=insert_s;
         bla[i][5]=insert_e;
         
-        //file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<"chr"<<'\t'<<orient[i]<<chr<<endl;
     }
     
 //in_read_connector
@@ -259,7 +238,10 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     //***********customized value***********
     int S=100;//Segmental hit gap in one read
     if (t=="ALU"){
-        S=6;
+        S=10;
+    }
+    else if (t=="SVA"){
+        S=25;
     }
     
     for(int i=0;i!=blast;i++){
@@ -345,20 +327,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                     }
                 }
             }
-            
-            //if(t=="LINE"){
-                // 3' reads
-                //if(L1_s<=5998&&L1_e>=6025){
-                    //file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<'\t'<<le<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
-               // }
-                //5' reads
-                //else if(r_e>=(le-1000)){
-                    //file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<'\t'<<le<<endl;
-                //}
-            //}
-            //else if(t!="LINE"){
                 file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<'\t'<<le<<endl;
-            //}
         }
     }
     
@@ -367,8 +336,6 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     string sys_readresult_out = WD_dir+"read_result.txt";
     char *syst_readresult_out =  new char[sys_readresult_out.length()+1];
     strcpy(syst_readresult_out, sys_readresult_out.c_str());
-    
-    //cout<<syst_readresult_out<<endl;
     
     ofstream file15;
     file15.open(syst_readresult_out);
@@ -380,12 +347,10 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     file6.open(syst_readresult);
     
     int line_read=0;
-    //string input;
     for(int i=0;!file6.eof();i++){
         getline(file6,input);
         line_read=i;
     }
-    //cout<<line_read<<endl;
     
     file6.close();
     file6.clear();
@@ -402,10 +367,6 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
     loc=new int*[line_read];
     for(int i=0;i!=line_read;i++) loc[i]=new int[7];
     
-    //int **loc_TP;
-    //loc_TP=new int*[line_read];
-    //for(int i=0;i!=line_read;i++) loc_TP[i]=new int[7];
-    
     for(int i=0;i!=line_read;i++){
         file6>>name[i];
         file6>>loc[i][0];
@@ -417,12 +378,14 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         file6>>info[i][0];
         file6>>info[i][1];
         file6>>loc[i][6];
-        //cout<<name[i]<<endl;
     }
     
     int BIN=50;
     if (t=="ALU"){
-        BIN=6;
+        BIN=10;
+    }
+    else if (t=="SVA"){
+        BIN=20;
     }
     
     for(int i=0;i!=line_read;i++){
@@ -438,7 +401,17 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                         }
                                     }
-                                    else if(t!="LINE"){
+                                    else if(t=="ALU"){
+                                        if(loc[i][0]<=262&&loc[i][1]>=272){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
+                                        }
+                                    }
+                                    else if(t=="SVA"){
+                                        if(loc[i][0]<=1340&&loc[i][1]>=1359){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
+                                        }
+                                    }
+                                    else if(t!="LINE"&&t!="ALU"&&t!="SVA"){
                                         file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                     }
                                     continue;
@@ -453,7 +426,17 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                         }
                                     }
-                                    else if(t!="LINE"){
+                                    else if(t=="ALU"){
+                                        if(loc[i][0]<=262&&loc[i][1]>=272){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
+                                        }
+                                    }
+                                    else if(t=="SVA"){
+                                        if(loc[i][0]<=1340&&loc[i][1]>=1360){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
+                                        }
+                                    }
+                                    else if(t!="LINE"&&t!="ALU"&&t!="SVA"){
                                         file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                     }
                                     continue;
@@ -473,7 +456,17 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                 file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
         }
-        else if(t!="LINE"){
+        else if(t=="ALU"){
+            if(loc[i][0]<=262&&loc[i][1]>=272){
+                file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
+            }
+        }
+        else if(t=="SVA"){
+            if(loc[i][0]<=1340&&loc[i][1]>=1360){
+                file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
+            }
+        }
+        else if(t!="LINE"&&t!="ALU"&&t!="SVA"){
             file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
         }
     }

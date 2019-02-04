@@ -17,9 +17,6 @@ using namespace std;
 
 int RMSelector(string WD, string WD_dir, string sys_region){
     
-    //cout<<"RMSelector Step is now running."<<endl;
-    
-    //string sys_region=WD+"buildup/LINEs.regions";
     char *syst_region =new char[sys_region.length()+1];
     strcpy(syst_region, sys_region.c_str());
     
@@ -75,11 +72,6 @@ int RMSelector(string WD, string WD_dir, string sys_region){
         file1.clear();
         file1.open(syst_region);
         for(int i=0;i!=line;i++){
-            //file1>>input;
-            //file1>>input;
-            //file1>>input;
-            //file1>>input;
-            //file1>>input;
             
             //##########hard code warming##########
             
@@ -161,12 +153,9 @@ int RMSelector(string WD, string WD_dir, string sys_region){
             }
             file1>>rm_loc[i][0];
             file1>>rm_loc[i][1];
-            //file1>>input;
-            //file1>>input;
             file1>>rm_info[i][3];
             rm_info[i][1]="RM";
             rm_info[i][2]="RM";
-            //getline(file1,input);
         }
         
         for(int i=0;i!=line;i++){

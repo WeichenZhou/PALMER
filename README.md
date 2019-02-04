@@ -76,6 +76,15 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 ## Logs
 
+**Ver1.3.3** Feb.3rd.2019
+
+* A steady, sensitive and quick version for detection all MEIs (LINE-1, Alu and SVA) in human genome.
+* Time consuming: to run PALMER on chr1, calling would cost ~26 hours/cpu (LINE-1), ~22 hours/cpu (Alu) or ~4 hours/cpu (SVA), for 8gb running memory minimun. Right now, PALMER does not support multi-thread processing.
+* Now PALMER can output whole structure of MEI sequence, including inserted main sequence as well as different characteristics (TSD, TD, polyA tail) that have been supported by previous version already.
+* A fatal bug related to PacBio read name from fastq data fixed. 
+* Minor bugs fixed.
+* Happy Lunar New Year! Year of the Pig!!^(*￣(oo)￣)^
+
 **Ver1.3.0** Dec.22th.2018
 
 * Frozen version for L1 false negative paper.
