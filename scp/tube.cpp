@@ -95,13 +95,13 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
 
 //6. TSD module
     
-    tsd_module(WD_tube);
+    tsd_module(WD_tube, type);
     cout<<"TSD_module step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
     //getchar();
 
 //7. Flase postive exclusion module
     
-    fp_ex(WD_tube, ref_fa, chr);
+    fp_ex(WD_tube, ref_fa, chr, type);
     cout<<"False positive exclusion step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
     //getchar();
     

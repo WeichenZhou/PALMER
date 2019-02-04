@@ -19,18 +19,6 @@
 #include <sys/wait.h>
 #include "scp/tube.cpp"
 
-//--#include "index/LINEs.regions.GRCh37.h"
-//#include "index/Alu.regions.GRCh37.h"
-//#include "index/SVA.regions.GRCh37.h"
-//---#include "index/region.split.index.GRCh37.h"
-//#include "index/LINEs.regions.GRCh38.h"
-//#include "index/Alu.regions.GRCh38.h"
-//#include "index/SVA.regions.GRCh38.h"
-//#include "index/region.split.index.GRCh38.h"
-//--#include "RM/L1.3.fasta.h"
-//--#include "RM/AluY.fasta.h"
-//--#include "RM/SVA_F.fasta.h"
-
 using namespace std;
 
 int main(int argc, char *argv[]){
@@ -178,7 +166,7 @@ int main(int argc, char *argv[]){
         cout<<"--ref_fa"<<endl;
         cout<<"         indexed fasta file of reference genome fasta file with directory path used for the aligned file"<<endl;
         cout<<endl;
-        cout<<"--type (options: LINE, ALU or SVA)"<<endl;
+        cout<<"--type (options: LINE, ALU, SVA, or coustomized (if you want to setup your costomized sequence))"<<endl;
         cout<<"         type of MEIs to detect"<<endl;
         cout<<endl;
         cout<<"--chr (default: whole genome; options: chr1, chr2, ...chrY)"<<endl;
@@ -804,7 +792,7 @@ int main(int argc, char *argv[]){
     ofstream file31;
     file31.open(syst_final_tsd_title,ios::trunc);
     
-    file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<endl;
+    file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
     
     for(int i=0;i!=line_index;){
         file2>>chr;
@@ -821,18 +809,7 @@ int main(int argc, char *argv[]){
         CHR_in="chr"+chr;
 
         if(ref_n==37&&CHR_in==CHR){
-            /*
-            string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+"chr"+chr+"/calls.txt";
-            //cout<<sys_merge<<endl;
-            char *syst_merge = new char[sys_merge.length()+1];
-            strcpy(syst_merge, sys_merge.c_str());
-            system(syst_merge);
             
-            string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+"chr"+chr+"/TSD_output.txt";
-            char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
-            strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
-            system(syst_merge_blastn);
-            */
             string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
             //cout<<sys_final<<endl;
             char *syst_final = new char[sys_final.length()+1];
@@ -848,19 +825,7 @@ int main(int argc, char *argv[]){
             i++;
         }
         else if((CHR==chr)&&(ref_n==19||ref_n==38)){
-            /*
-            string sys_merge="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+WD+chr+"/calls.txt";
-            //cout<<sys_merge<<endl;
-            char *syst_merge = new char[sys_merge.length()+1];
-            strcpy(syst_merge, sys_merge.c_str());
-            system(syst_merge);
-            
-            string sys_merge_blastn="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+WD+chr+"/TSD_output.txt";
-            char *syst_merge_blastn = new char[sys_merge_blastn.length()+1];
-            strcpy(syst_merge_blastn, sys_merge_blastn.c_str());
-            system(syst_merge_blastn);
-            */
-            
+           
             string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
             //cout<<sys_final<<endl;
             char *syst_final = new char[sys_final.length()+1];
@@ -877,25 +842,7 @@ int main(int argc, char *argv[]){
         }
     }
     
-    
-    /*
-    if(ref_n==37){
-        string sys_final="cat "+WD+"chr"+chr+"/calls.txt >> "+sys_final_title;
-        cout<<sys_final<<endl;
-        char *syst_final = new char[sys_final.length()+1];
-        strcpy(syst_final, sys_final.c_str());
-        system(syst_final);
-    }
-    else if(ref_n==19||ref_n==38){
-        string sys_final="cat "+WD+chr+"/calls.txt >> "+sys_final_title;
-        cout<<sys_final<<endl;
-        char *syst_final = new char[sys_final.length()+1];
-        strcpy(syst_final, sys_final.c_str());
-        system(syst_final);
-    }
-    */
     cout<<"Merging step completed."<<endl;
-    //cout<<"Almost finished there."<<endl;
     cout<<"Final calls finished."<<endl;
     cout<<"Results are in "+WD+output<<endl;
     

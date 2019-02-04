@@ -17,13 +17,22 @@
 #include <sys/wait.h>
 using namespace std;
 
-int fp_ex(string WD_dir, string fasta, string chr){
+int fp_ex(string WD_dir, string fasta, string chr, string t){
     
     
     int BIN_5=50;
     int J_BIN=50;
     int BIN_3=3500;
     int J_BIN_mer=13;
+    
+    if (t=="ALU"){
+        BIN_3=150;
+        //BIN_5=50;
+    }
+    else if (t=="SVA"){
+        BIN_3=2000;
+        BIN_5=2000;
+    }
     
     ifstream file2;
     //ifstream file3;
@@ -127,15 +136,6 @@ int fp_ex(string WD_dir, string fasta, string chr){
         loc_tsd[i][7]=-1;
         loc_tsd[i][8]=-1;
     }
-    /*
-    ofstream file31;
-    string sys_5_bl = WD_dir+"read_result_junc_5kmers.txt";
-    char *syst_5_bl = new char[sys_5_bl.length()+1];
-    strcpy(syst_5_bl, sys_5_bl.c_str());
-    file31.open(syst_5_bl,ios::trunc);
-    file31.clear();
-    file31.close();
-     */
 
 //FP_ex module
     for(int i=0;i!=line;i++){
@@ -274,28 +274,6 @@ int fp_ex(string WD_dir, string fasta, string chr){
         char *syst_ref_junc = new char[sys_ref_junc.length()+1];
         strcpy(syst_ref_junc, sys_ref_junc.c_str());
         system(syst_ref_junc);
-        
-        
-        /*
-        //5' 26mer identify
-        ofstream file21;
-        string sys_5_kmer = WD_dir+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str()+".5kmer.fasta";
-        char *syst_5_kmer = new char[sys_5_kmer.length()+1];
-        strcpy(syst_5_kmer, sys_5_kmer.c_str());
-        file21.open(syst_5_kmer);
-        
-        file21<<">"<<seq_index<<endl;
-        file21<<info[i][3]<<endl;
-        
-        string sys_5_blast = "blastn -evalue 0.05 -task blastn -query "+sys_5_kmer+" -subject "+ref_file+" -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=85&&$4>=22&&($10-$9)>0) print \"1\"}' |wc -l >> "+WD_dir+"read_result_junc_5kmers.txt";
-        char *syst_5_blast = new char[sys_5_blast.length()+1];
-        strcpy(syst_5_blast, sys_5_blast.c_str());
-        system(syst_5_blast);
-        //cout<<sys_5_blast<<endl;
-        //cout<<seq_index<<endl;
- //**************
-         */
-        
 
 //FP exclude module
         //3' 26mer identify based on TSD
@@ -322,44 +300,6 @@ int fp_ex(string WD_dir, string fasta, string chr){
                 ss_tsd_3.clear();
                 ss_tsd_3<<loc_tsd[w][3];
                 loc_tsd_3=ss_tsd_3.str();
-                
-                /*
-                ofstream file22;
-                string sys_3_kmer = WD_dir+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+".3kmer.fasta";
-                char *syst_3_kmer = new char[sys_3_kmer.length()+1];
-                strcpy(syst_3_kmer, sys_3_kmer.c_str());
-                file22.open(syst_3_kmer);
-                file22<<">"<<seq_index<<"."<<loc_0.c_str()<<"."<<loc_1.c_str()<<"."<<loc_2.c_str()<<"."<<loc_3.c_str()<<".3kmer.fasta"<<endl;
-                
-                char *seq3= new char[info[i][4].length()+1];
-                strcpy(seq3, info[i][4].c_str());
-                
-                if(info[i][2]=="+"){
-                    for(int n=loc_tsd[w][2]-(BIN_3+1-loc_tsd[w][5]);n!=(loc_tsd[w][2]-(BIN_3+1-loc_tsd[w][5])+2*J_BIN)&&n<info[i][4].length();n++){
-                        file22<<seq3[n];
-                    }
-                }
-                else if(info[i][2]=="-"){
-                    for(int n=loc_tsd[w][3]-J_BIN-(BIN_3+1-loc_tsd[w][5]);n!=(loc_tsd[w][3]-(BIN_3+1-loc_tsd[w][5])+J_BIN)&&n<info[i][4].length();n++){
-                        file22<<seq3[n];
-                    }
-                }
-                file22<<endl;
-                
-                string sys_3_blast = "blastn -evalue 0.05 -task blastn -query "+sys_3_kmer+" -subject "+ref_file+" -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=85&&$4>=22&&($10-$9)>0) print \"1\"}' |wc -l > "+WD_dir+"read_result_junc_3kmers.txt";
-                char *syst_3_blast = new char[sys_3_blast.length()+1];
-                strcpy(syst_3_blast, sys_3_blast.c_str());
-                system(syst_3_blast);
-                
-                //cout<<sys_3_blast<<endl;
-                
-                
-                string sys_3_bl = WD_dir+"read_result_junc_3kmers.txt";
-                char *syst_3_bl = new char[sys_3_bl.length()+1];
-                strcpy(syst_3_bl, sys_3_bl.c_str());
-                ifstream file23;
-                file23.open(syst_3_bl);
-                */
                 
                 char *seq3= new char[info[i][4].length()+1];
                 strcpy(seq3, info[i][4].c_str());
@@ -485,83 +425,7 @@ int fp_ex(string WD_dir, string fasta, string chr){
         file21.close();
         file21.clear();
     }
-    /*
-    ifstream file32;
-    file32.open(syst_5_bl);
-    for(int i=0;i!=line;i++){
-        
-        int int_5_bl;
-        file32>>int_5_bl;
-        
-        string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
-        stringstream ss_0;
-        ss_0.clear();
-        ss_0<<loc[i][0];
-        loc_0=ss_0.str();
-        stringstream ss_1;
-        ss_1.clear();
-        ss_1<<loc[i][1];
-        loc_1=ss_1.str();
-        stringstream ss_2;
-        ss_2.clear();
-        ss_2<<loc[i][2];
-        loc_2=ss_2.str();
-        stringstream ss_3;
-        ss_3.clear();
-        ss_3<<loc[i][3];
-        loc_3=ss_3.str();
-        stringstream ss_4;
-        ss_4.clear();
-        ss_4<<loc[i][4];
-        loc_4=ss_4.str();
-        stringstream ss_5;
-        ss_5.clear();
-        ss_5<<loc[i][5];
-        loc_5=ss_5.str();
-        
-        string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
-        stringstream ss_TP_0;
-        ss_TP_0.clear();
-        ss_TP_0<<loc_TP[i][0];
-        loc_TP_0=ss_TP_0.str();
-        stringstream ss_TP_1;
-        ss_TP_1.clear();
-        ss_TP_1<<loc_TP[i][1];
-        loc_TP_1=ss_TP_1.str();
-        stringstream ss_TP_2;
-        ss_TP_2.clear();
-        ss_TP_2<<loc_TP[i][2];
-        loc_TP_2=ss_TP_2.str();
-        stringstream ss_TP_3;
-        ss_TP_3.clear();
-        ss_TP_3<<loc_TP[i][3];
-        loc_TP_3=ss_TP_3.str();
-        stringstream ss_TP_4;
-        ss_TP_4.clear();
-        ss_TP_4<<loc_TP[i][4];
-        loc_TP_4=ss_TP_4.str();
-        stringstream ss_TP_5;
-        ss_TP_5.clear();
-        ss_TP_5<<loc_TP[i][5];
-        loc_TP_5=ss_TP_5.str();
-        stringstream ss_TP_6;
-        ss_TP_6.clear();
-        ss_TP_6<<loc_TP[i][6];
-        loc_TP_6=ss_TP_6.str();
-        
-        string seq_index;
-        
-        seq_index=info[i][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
-        for(int w=0;w!=line_tsd;w++){
-            if(info_tsd[w]==seq_index){
-//*****new module anchor
-                //loc_tsd[w][6]=int_5_bl;
-                loc_tsd[w][6]=0;
-//*****new module anchor
-            }
-        }
-    }
-    */
+    
     for(int w=0;w!=line_tsd;w++){
         file11<<info_tsd[w]<<'\t'<<loc_tsd[w][0]<<'\t'<<loc_tsd[w][1]<<'\t'<<loc_tsd[w][2]<<'\t'<<loc_tsd[w][3]<<'\t'<<loc_tsd[w][4]<<'\t'<<loc_tsd[w][5]<<'\t'<<loc_tsd[w][6]<<'\t'<<loc_tsd[w][7]<<'\t'<<loc_tsd[w][8]<<endl;
     }
