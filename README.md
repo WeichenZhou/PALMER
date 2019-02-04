@@ -76,7 +76,7 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 ## Logs
 
-**Ver1.3.3** Feb.3rd.2019 Happy Lunar New Year! Year of the Pig!!^(*￣(oo)￣)^
+**Ver1.3.3** Feb.3rd.2019 ^^^(*￣(oo)￣)^^^ Happy Lunar New Year! Year of the Pig!! ^^^(*￣(oo)￣)^^^ 
 
 * A steady, sensitive and quick version for detection all MEIs (LINE-1, Alu and SVA) in human genome.
 * Time consuming: to run PALMER on chr1, calling would cost ~26 hours/cpu (LINE-1), ~22 hours/cpu (Alu) or ~4 hours/cpu (SVA), for 8gb running memory minimun. Right now, PALMER does not support multi-thread processing.
