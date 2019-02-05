@@ -1166,7 +1166,7 @@ int calling(string WD_dir, string t){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=re_new;n!=info[read_seq][3].length()-1;n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();n++){
                                 file4<<seq3[n];
                             }
                         }
@@ -1232,11 +1232,11 @@ int calling(string WD_dir, string t){
                         
                         else if(orien[i]=="-"){
                             
-                            for(int n=re_new;n!=info[read_seq][3].length()-1;n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();n++){
                                 file4<<seq3[n];
                             }
                             
-                            for(int n=0;n!=info_line[read_seq][2].length()-1;n++){
+                            for(int n=1;n!=info_line[read_seq][2].length()-1;n++){
                                 file4<<seq_line[n];
                             }
                             
@@ -1596,7 +1596,7 @@ int calling(string WD_dir, string t){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=re_new;n!=info[read_seq][3].length()-1;n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();n++){
                                 file4<<seq3[n];
                             }
                         }
@@ -1663,11 +1663,11 @@ int calling(string WD_dir, string t){
                         
                         else if(orien[i]=="-"){
                             
-                            for(int n=re_new;n!=info[read_seq][3].length()-1;n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();n++){
                                 file4<<seq3[n];
                             }
                             
-                            for(int n=0;n!=info_line[read_seq][2].length()-1;n++){
+                            for(int n=1;n!=info_line[read_seq][2].length()-1;n++){
                                 file4<<seq_line[n];
                             }
                             
