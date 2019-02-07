@@ -279,13 +279,13 @@ int tsd_module(string WD_dir, string t){
         file99<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
         
         if(info[i][1]=="+"){
-            for(int w=5;w!=l_line;w++){
+            for(int w=5;w<l_line;w++){
                 file99<<line_seq[w];
             }
             file99<<'\t';
         }
         if(info[i][1]=="-"){
-            for(int w=0;w!=l_line-5;w++){
+            for(int w=0;w<l_line-5;w++){
                 file99<<line_seq[w];
             }
             file99<<'\t';
