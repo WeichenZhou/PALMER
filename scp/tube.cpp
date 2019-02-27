@@ -26,7 +26,7 @@
 #include "8_calling.cpp"
 using namespace std;
 
-int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc, string ref_fa){
+int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc, string ref_fa, int tsd){
     
 //building working directory
     int start1, end1;
@@ -61,15 +61,15 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     string sys_RMloc = WD_tube+"RM.loc";
     char *syst_RMloc = new char[sys_RMloc.length()+1];
     strcpy(syst_RMloc, sys_RMloc.c_str());
-    
+    /*
     string chr_fix;
     chr_fix=chr;
     if(ref_n==37){
         chr_fix="chr"+chr;
     }
-    
+    */
     file1.open(syst_RMloc);
-    file1<<chr_fix<<'\t'<<(start-100000)<<'\t'<<(end+100000)<<endl;
+    file1<<chr<<'\t'<<(start-100000)<<'\t'<<(end+100000)<<endl;
 
 //2. Repeat region selector
     
@@ -80,6 +80,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
     ReadMasker(WD_tube);
     //cout<<"3. Read Masker Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
+    cout<<"Pre-masking step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
  
 //4. Blastn
     
@@ -88,21 +89,32 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
 //5. Blastn caller
     
-    BlastnCaller(WD_tube, chr_fix, type);
+    BlastnCaller(WD_tube, chr, type);
     //cout<<"5. Blastn Caller Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
  
-    cout<<"Pre-masking step & single read calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
+    cout<<"Single read calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
 
 //6. TSD module
     
-    tsd_module(WD_tube, type);
-    cout<<"TSD_module step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
+    tsd_module(WD_tube, type, tsd);
+    if(tsd==1){
+        cout<<"TSD_module step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
+    }
+    else if(tsd==0){
+        cout<<"Skipped TSD_module step for "+chr+"_"+s_start+"_"+s_end+"."<<endl;
+    }
     //getchar();
 
 //7. Flase postive exclusion module
     
-    fp_ex(WD_tube, ref_fa, chr, type);
-    cout<<"False positive exclusion step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
+    fp_ex(WD_tube, ref_fa, chr, type, tsd);
+    if(tsd==1){
+        cout<<"False positive exclusion step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
+    }
+    else if(tsd==0){
+        cout<<"Skipped false positive exclusion step for "+chr+"_"+s_start+"_"+s_end+"."<<endl;
+    }
+    
     //getchar();
     
 //8. Calling module
