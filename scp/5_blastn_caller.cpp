@@ -15,7 +15,7 @@
 
 using namespace std;
 
-int BlastnCaller(string WD_dir, string chr_fix, string t){
+int BlastnCaller(string WD_dir, string chr, string t){
 
     string sys_blastncaller;
     
@@ -241,7 +241,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         S=10;
     }
     else if (t=="SVA"){
-        S=25;
+        S=50;
     }
     
     for(int i=0;i!=blast;i++){
@@ -327,7 +327,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
                     }
                 }
             }
-                file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr_fix<<'\t'<<orient[i]<<'\t'<<le<<endl;
+                file5<<bla_name[i]<<'\t'<<L1_s<<'\t'<<L1_e<<'\t'<<r_s<<'\t'<<r_e<<'\t'<<insert_s<<'\t'<<insert_e<<'\t'<<chr<<'\t'<<orient[i]<<'\t'<<le<<endl;
         }
     }
     
@@ -385,7 +385,7 @@ int BlastnCaller(string WD_dir, string chr_fix, string t){
         BIN=10;
     }
     else if (t=="SVA"){
-        BIN=20;
+        BIN=25;
     }
     
     for(int i=0;i!=line_read;i++){

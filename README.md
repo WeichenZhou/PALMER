@@ -2,21 +2,15 @@
 
 Pre-mAsking Long reads for Mobile Element inseRtion
 
-PALMER is used to detect non-reference MEI events within the masked sequence data. It uses the indexed reference-aligned BAM files from long-read technology as inputs. 
-
-* It delineates large genome data into small bins (100kb bins), which will be processed separately, to increase the efficiency of program. 
-* The track from Repeatmasker (https://www.girinst.org/) is used to mask the portions of reads that aligned to these repeats. Or you can customize your own repeats track to mask the genome.
-* After obtaining the pre-masked reads, PALMER searches against the insertion sequence library (e.g. L1Hs sequence, GenBank Accession: L19088) by using Blastn. Then it uses the cigar information in the reads and joint the truncated segments from Blastn into one in a single read. These reads with insertion sequence are considered as supporting reads. 
-* PALMER identifies the candidate TSD motif in 50bp 5’ upstream and 3kb 3’ downstream of insertion sequence for each read. 
-* It then runs a module for filtering the candidate TSD motif and identifying transduction/polyA sequence. PALMER will define the supporting read with/without valid TSD motif and with/without valid transduction and polyA sequence. The ideal structure of an event having transduction sequence should be 5’-TSD-L1Hs-polyA-TransD-polyA-TSD-3’. 
-* Afterwards, PALMER will cluster all supporting reads (SRs) in one loci (or supporting one event) of the genome, as well as cluster the TSD motif among all supporting reads for one event and choose the most confident TSD motif with/without transduction/polyA sequence. PALMER will obtain two numbers for one event, the number of supporting reads and the number of supporting reads with predicted TSD motif. 
-* Finally, PALMER will combine all events in each bin and output all candidate non-reference MEIs.
+* PALMER detects non-reference MEI events (LINE, Alu and SVA) and other insertions, by using the indexed reference-aligned BAM files from long-read technology as inputs. It uses the track from Repeatmasker (https://www.girinst.org/) to mask the portions of reads that aligned to these repeats, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
+* The ideal structure of an MEI event should be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’. 
 
 
 Required resources:
 ```
   samtools/1.3.1  https://github.com/samtools/samtools
   ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+  Git LFS for downloading large files in the archive
 ```
 
 ## Getting started
@@ -38,23 +32,27 @@ Usage:
 --workdir
          the user's working directory
 
---ref_ver (options: hg19, GRCh37 or GRCh38)
-         reference genome used for the aligned file (only human genome rightnow)
+--ref_ver (options: hg19, GRCh37, GRCh38 or other)
+         reference genome used for the aligned file ('other' option for the cusmized genome out of hg19, GRCh37 or GRCh38)
 
 --ref_fa
-         indexed fasta file of reference genome fasta file with directory path used for the aligned file
+         indexed fasta file of reference genome fasta file with directory path used for the aligned bam file (wrong reference will cause error infromation)
 
---type (options: LINE, ALU or SVA)
-         type of MEIs to detect
+--type (options: LINE, ALU, SVA, or CUSTOMIZED (if you want to setup your costomized sequence))
+         type of MEIs or other kind of insertion to detect
 
---chr (default: whole genome; options: chr1, chr2, ...chrY)
-         chr name for PALMER to run (if running for whole genome, don't need to assign)
+--chr (default: ALL (for whole genome); options: chromosome1, chromosome2, ...chromosomeY)
+         chromosome name for PALMER to run (if running for whole genome, don't need to assign). !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
 
 --custom_seq (default:no input)
-         fasta file with directory path to customize your insertion finding
+         .fasta file with directory path to customize your insertion finding
 
---custom_index (default:no input, if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)
+--custom_index (default:no input; if you have both '--ref_ver other' and '--type LINE/ALU/SVA', you must give PALMER a index file (format: "CHR'	'START'	'END'	'MEI_NAME'
+'" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)
          index file with directory path to mask the genome for your insertion finding
+
+--TSD_finding (Fixed:TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)
+         whether to run TSD motif finding module for your insertion calling
 
 --output (default: output)
          prefix of output file
@@ -70,16 +68,25 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 'output_calls.txt' is the summary for all non-ref MEI calls.
 
-'output_TSD_reads.txt' contains all details you want for the high confident (HC) SRs.
+'output_TSD_reads.txt' contains all details you want for the high confident (HC) supporting reads (SRs).
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 SRs.
 
 ## Logs
 
+**Ver1.4** Feb.27th.2019
+
+* Highly improved calling for SVA.
+* Now PALMER supports other reference based bam files besides GRCh37, GRCh38 and hg19.
+* Time consuming: to run PALMER on chr1/GRCh37, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimun.
+* A fatal bug fixed.
+* Optimized scripts and outputs.
+* Minor bugs fixed.
+
 **Ver1.3.3** Feb.3rd.2019 ^^^(*￣(oo)￣)^^^ Happy Lunar New Year! Year of the Pig!! ^^^(*￣(oo)￣)^^^ 
 
 * A steady and sensitive version for detection all MEIs (LINE-1, Alu and SVA) in human genome.
-* Time consuming: to run PALMER on chr1, calling would cost ~50 hours (LINE-1), ~24 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimun. Right now, PALMER does not support multi-thread processing.
+* Time consuming: to run PALMER on chr1, calling would cost ~150 hours (LINE-1), ~20 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimun. Right now, PALMER does not support multi-thread processing.
 * Now PALMER can output whole structure of MEI sequence, including inserted main sequence as well as different characteristics (TSD, TD, polyA tail) that have been supported by previous version already.
 * A fatal bug related to PacBio read name from fastq data fixed. 
 * Minor bugs fixed.
