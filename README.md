@@ -10,7 +10,6 @@ Required resources:
 ```
   samtools/1.3.1  https://github.com/samtools/samtools
   ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
-  Git LFS for downloading large files in the archive
 ```
 
 ## Getting started
@@ -61,6 +60,10 @@ Usage:
 Example
 ```
 ./PALMER --input $DirPath/NA12878.washu.alignment_hs37d5.1.bam --workdir $DirPath/chr1.line.0406/ --ref_ver GRCh37 --output test --type LINE --chr chr3 --ref_fa $DirPath/hs37d5.fa
+```
+```
+A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Project trio derived from the Genome in a Bottle (GIAB) Consortium] using PALMER is available under:
+ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
 
 ## Output 
