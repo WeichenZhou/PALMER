@@ -173,7 +173,7 @@ int main(int argc, char *argv[]){
         if(flag_T==2&&flag_cus==0){
             cout<<"***ERROR*** PLEASE ASSIGN 'CUSTOMIZED' TYPE YOUR CUSTOMIZED SEQUENCE"<<endl;}
         if(flag_wd==0){
-            cout<<"***ERROR*** PLEASE SET UP A WORKING DIRECOTY!"<<endl;}
+            cout<<"***ERROR*** PLEASE SET UP A WORKING DIRECTORY!"<<endl;}
         if(flag_inputf==0){
             cout<<"***ERROR*** PLEASE INPUT A FILE!"<<endl;}
         if(ref_n==0||flag_reffa==0){
