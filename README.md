@@ -91,7 +91,7 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 **Ver1.4.1** Nov.14th.2019
 
-* Added one more option for adjustable length of of putative LINE-1 aligned to L1.3 sequences.
+* Added one more option for an adjustable length of putative LINE-1 aligned to L1.3 sequences.
 
 **Ver1.4** Feb.27th.2019
 
