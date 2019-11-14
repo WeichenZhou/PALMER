@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 
 //parameters_start
     
-    string T, WD, inputF, output, SP, ref, CHR, ref_fa, cus, cusin, tsd_pass;
+    string T, WD, inputF, output, SP, ref, CHR, ref_fa, cus, cusin, tsd_pass, LL_len;
     //int NUM_threads=30;
     int NUM_threads=10;
     ifstream file1;
@@ -41,6 +41,7 @@ int main(int argc, char *argv[]){
     int flag_cusin=0;
     int flag_tsd=1;
     int help=0;
+    int L_len=25;
     output="output.txt";
     SP="Human";
     //T="LINE";
@@ -57,6 +58,11 @@ int main(int argc, char *argv[]){
         }
         if(strncmp(argv[i],"--chr",5)==0){
             CHR=argv[i+1];
+        }
+        if(strncmp(argv[i],"--L_len",7)==0){
+            LL_len=argv[i+1];
+            int L_len = 6023- std::stoi(LL_len);
+            //L_len=L_len;
         }
         if(strncmp(argv[i],"--ref_ver",9)==0){
             ref=argv[i+1];
@@ -215,6 +221,10 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"--TSD_finding (Fixed:TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)"<<endl;
         cout<<"         whether to run TSD motif finding module for your insertion calling"<<endl;
+        cout<<endl;
+        
+        cout<<"--L_len (default: 25bp)"<<endl;
+        cout<<"         the minimum length of putative LINE-1 aligned to L1.3 sequences"<<endl;
         cout<<endl;
         
         cout<<"--output (default: output)"<<endl;
@@ -515,7 +525,7 @@ int main(int argc, char *argv[]){
             
             //getchar();
             //****
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd);
+            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len);
         }
         /*ver1.3
         if(chr_index==1){
