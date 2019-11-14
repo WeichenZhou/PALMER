@@ -1,3 +1,5 @@
+## This is a stable fork from https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
+
 # PALMER
 
 Pre-mAsking Long reads for Mobile Element inseRtion
@@ -10,6 +12,7 @@ Required resources:
 ```
   samtools/1.3.1  https://github.com/samtools/samtools
   ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+  git-lfs
 ```
 
 ## Getting started
@@ -53,15 +56,24 @@ Usage:
 --TSD_finding (Fixed:TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)
          whether to run TSD motif finding module for your insertion calling
 
+--L_len (default: 25bp)
+         the minimum length of putative LINE-1 aligned to L1.3 sequences\
+
 --output (default: output)
          prefix of output file
 ```
 
-Example
+Examples
 ```
-./PALMER --input $DirPath/NA12878.washu.alignment_hs37d5.1.bam --workdir $DirPath/chr1.line.0406/ --ref_ver GRCh37 --output test --type LINE --chr chr3 --ref_fa $DirPath/hs37d5.fa
+1) Running PALMER on chromosome3 of your aligned bam based on GRCh37 reference genome to call LINE-1 insertions
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.outpur.prefix --type LINE --chr chr3 --ref_fa $your.reference.file.path/hs37d5.fa
 ```
 ```
+2) Running PALMER on whole genome of your aligned bam based on GRCh38 reference genome to call SVA insertions
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh38 --output your.outpur.prefix --type SVA --chr ALL --ref_fa $your.reference.file.path/GRCh38.fa
+```
+```
+3)
 A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Project trio derived from the Genome in a Bottle (GIAB) Consortium] using PALMER is available under:
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
@@ -76,6 +88,10 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 SRs.
 
 ## Logs
+
+**Ver1.4.1** Nov.14th.2019
+
+* Added one more option for adjustable length of of putative LINE-1 aligned to L1.3 sequences.
 
 **Ver1.4** Feb.27th.2019
 
