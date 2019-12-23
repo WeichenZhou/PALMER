@@ -1,18 +1,19 @@
 ## This is a stable fork from https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
 
+
 # PALMER
 
 Pre-mAsking Long reads for Mobile Element inseRtion
 
-* PALMER detects non-reference MEI events (LINE, Alu and SVA) and other insertions, by using the indexed reference-aligned BAM files from long-read technology as inputs. It uses the track from Repeatmasker (https://www.girinst.org/) to mask the portions of reads that aligned to these repeats, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
+* PALMER detects non-reference MEI events (LINE, Alu and SVA) and other insertions, by using the indexed reference-aligned BAM files from long-read technology as inputs. It uses the track from [Repeatmasker](https://www.girinst.org/) to mask the portions of reads that aligned to these repeats, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
 * The ideal structure of an MEI event should be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’. 
 
 
 Required resources:
 ```
-  samtools/1.3.1  https://github.com/samtools/samtools
-  ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
-  git-lfs
+ samtools/1.3.1  https://github.com/samtools/samtools
+ ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+ git-lfs
 ```
 
 ## Getting started
@@ -86,6 +87,15 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 'output_TSD_reads.txt' contains all details you want for the high confident (HC) supporting reads (SRs).
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 SRs.
+
+
+## Citation
+Please cite 
+
+* Weichen Zhou, Sarah B Emery, Diane A Flasch, Yifan Wang, Kenneth Y Kwan, Jeffrey M Kidd, John V Moran, Ryan E Mills,
+[Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), 
+Nucleic Acids Research, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
+
 
 ## Logs
 
