@@ -8,8 +8,8 @@ Pre-mAsking Long reads for Mobile Element inseRtion
 
 Required resources:
 ```
-  samtools/1.3.1  https://github.com/samtools/samtools
-  ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+  [samtools/1.3.1](https://github.com/samtools/samtools)
+  [ncbi-blast++/2.4.0](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)
   git-lfs
 ```
 
