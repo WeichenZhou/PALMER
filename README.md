@@ -90,11 +90,10 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 
 ## Citation
-Please cite 
 
 * Weichen Zhou, Sarah B Emery, Diane A Flasch, Yifan Wang, Kenneth Y Kwan, Jeffrey M Kidd, John V Moran, Ryan E Mills,
 [Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), 
-Nucleic Acids Research, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
+Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 
 ## Logs
