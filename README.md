@@ -16,6 +16,7 @@ Required resources:
  git-lfs
 ```
 
+
 ## Getting started
 
 Download and Install
@@ -33,7 +34,7 @@ Usage:
          aligned long-read sequencing BAM file with directory path
 
 --workdir
-         the user's working directory
+         the user's working directory. Please follow the format /your/woking/directory/ !!don't forget the last '/'!!
 
 --ref_ver (options: hg19, GRCh37, GRCh38 or other)
          reference genome used for the aligned file ('other' option for the cusmized genome out of hg19, GRCh37 or GRCh38)
@@ -44,8 +45,8 @@ Usage:
 --type (options: LINE, ALU, SVA, or CUSTOMIZED (if you want to setup your costomized sequence))
          type of MEIs or other kind of insertion to detect
 
---chr (default: ALL (for whole genome); options: chromosome1, chromosome2, ...chromosomeY)
-         chromosome name for PALMER to run (if running for whole genome, don't need to assign). !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
+--chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
+         chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
 
 --custom_seq (default:no input)
          .fasta file with directory path to customize your insertion finding
@@ -58,7 +59,7 @@ Usage:
          whether to run TSD motif finding module for your insertion calling
 
 --L_len (default: 25bp)
-         the minimum length of putative LINE-1 aligned to L1.3 sequences\
+         the minimum length of putative LINE-1 aligned to L1.3 sequences
 
 --output (default: output)
          prefix of output file
@@ -66,15 +67,19 @@ Usage:
 
 Examples
 ```
-1) Running PALMER on chromosome3 of your aligned bam based on GRCh37 reference genome to call LINE-1 insertions
-./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.outpur.prefix --type LINE --chr chr3 --ref_fa $your.reference.file.path/hs37d5.fa
+1) Running PALMER on your aligned bam based on GRCh37 reference genome to call LINE-1 insertions in chromosome3
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.output.prefix --type LINE --chr 3 --ref_fa $your.reference.file.path/hs37d5.fa
 ```
 ```
-2) Running PALMER on whole genome of your aligned bam based on GRCh38 reference genome to call SVA insertions
-./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh38 --output your.outpur.prefix --type SVA --chr ALL --ref_fa $your.reference.file.path/GRCh38.fa
+2) Running PALMER on your aligned bam based on GRCh38 reference genome to call SVA insertions in chromosome3
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh38 --output your.output.prefix --type SVA --chr chr3 --ref_fa $your.reference.file.path/GRCh38.fa
 ```
 ```
-3)
+3) Running PALMER on your aligned bam to call Alu insertions in chromosome2a of Champanzee genome
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa --custom_index reference.Alu.coordinates.in.your.reference.Chimpanzee.genome 
+```
+```
+4)
 A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Project trio derived from the Genome in a Bottle (GIAB) Consortium] using PALMER is available under:
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
