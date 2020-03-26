@@ -31,7 +31,7 @@ Usage:
          aligned long-read sequencing BAM file with directory path
 
 --workdir
-         the user's working directory. Please follow the format /your/woking/directory/ (don't forget the last '/')
+         the user's working directory. Please follow the format /your/woking/directory/ !!don't forget the last '/'!!
 
 --ref_ver (options: hg19, GRCh37, GRCh38 or other)
          reference genome used for the aligned file ('other' option for the cusmized genome out of hg19, GRCh37 or GRCh38)
