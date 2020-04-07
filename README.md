@@ -49,7 +49,7 @@ Usage:
          chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
 
 --custom_seq (default:no input)
-         .fasta file with directory path to customize your insertion finding
+         .fasta file with directory path to customize your insertion finding. e.g. NUMTs, MEIs in other species.
 
 --custom_index (default:no input; if you have both '--ref_ver other' and '--type LINE/ALU/SVA', you must give PALMER a index file (format: "CHR'	'START'	'END'	'MEI_NAME'
 '" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)
