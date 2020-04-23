@@ -52,7 +52,7 @@ Usage:
          .fasta file with directory path to customize your insertion finding. e.g. NUMTs, MEIs in other species.
 
 --custom_index (default:no input; if you have both '--ref_ver other' and '--type LINE/ALU/SVA', you must give PALMER a index file (format: "CHR'	'START'	'END'	'MEI_NAME'
-'" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)
+'" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without the masking step)
          index file with directory path to mask the genome for your insertion finding
 
 --TSD_finding (Fixed:TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)
@@ -79,7 +79,15 @@ Examples
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa --custom_index reference.Alu.coordinates.in.your.reference.Chimpanzee.genome 
 ```
 ```
-4)
+4) Running PALMER on your aligned bam to call NumtS in chromosome5 of Champanzee genome
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt --custom_index $your.custom_index.file.path/Chimp_ref_NumtS.bed
+```
+```
+5) Running PALMER on your aligned bam to call LINE-1 insertions in chromosomeX of mice genome
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --custom_index $your.custom_index.file.path/mm10_ucsc_repeatmasker_LINE.bed --TSD_finding TRUE
+```
+```
+6)
 A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Project trio derived from the Genome in a Bottle (GIAB) Consortium] using PALMER is available under:
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
