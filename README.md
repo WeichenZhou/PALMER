@@ -85,6 +85,7 @@ Examples
 4) Running PALMER on your aligned bam to call NumtS in chromosome5 of Champanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt --custom_index $your.custom_index.file.path/Chimp_ref_NumtS.bed
 ```
+>>>>>>> 1d8f384a525d7c754a52444876a46b5870799ab3
 ```
 5) Running PALMER on your aligned bam to call LINE-1 insertions in chromosomeX of mice genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --custom_index $your.custom_index.file.path/mm10_ucsc_repeatmasker_LINE.bed --TSD_finding TRUE --len_custom_seq (int)
