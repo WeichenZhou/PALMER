@@ -16,7 +16,10 @@
 using namespace std;
 
 int ReadMasker(string WD_dir){
-  
+    
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(0);
+    
     ifstream file1;
     ifstream file2;
     ifstream file3;
@@ -66,7 +69,7 @@ int ReadMasker(string WD_dir){
     
     int line=0;
     
-    for(int i=0;!file1.eof();i++){
+    for(int i=0;!file1.eof();++i){
         getline(file1,input);
         line=i;
     }
@@ -76,13 +79,13 @@ int ReadMasker(string WD_dir){
 
     string **sam_info;
     sam_info=new string*[line];
-    for(int i=0;i!=line;i++) sam_info[i]=new string[6];
+    for(int i=0;i!=line;++i) sam_info[i]=new string[6];
     
     int **sam_loc;
     sam_loc=new int*[line];
-    for(int i=0;i!=line;i++) sam_loc[i]=new int[5];
+    for(int i=0;i!=line;++i) sam_loc[i]=new int[5];
     
-    for(int i=0;i!=line;i++){
+    for(int i=0;i!=line;++i){
         file1>>sam_info[i][0];        //QNAME
         //getline(file1,sam_info[i][0],'\t'); //QNAME
         file1>>sam_loc[i][0];         //FLAG
@@ -105,10 +108,10 @@ int ReadMasker(string WD_dir){
         line_rm=1;
         
         rm_loc=new int*[line_rm];
-        for(int i=0;i!=line_rm;i++) rm_loc[i]=new int[2];
+        for(int i=0;i!=line_rm;++i) rm_loc[i]=new int[2];
         
         rm_info=new string*[line_rm];
-        for(int i=0;i!=line_rm;i++) rm_info[i]=new string[4];
+        for(int i=0;i!=line_rm;++i) rm_info[i]=new string[4];
         
         rm_info[0][0]="null";           //chr
         rm_loc[0][0]=0;            //start
@@ -120,7 +123,7 @@ int ReadMasker(string WD_dir){
     }
     else {
         line_rm=0;
-        for(int i=0;!file2.eof();i++){
+        for(int i=0;!file2.eof();++i){
             getline(file2,input);
             line_rm=i;
         }
@@ -129,12 +132,12 @@ int ReadMasker(string WD_dir){
         file2.open(syst_RMselec);
         
         rm_loc=new int*[line_rm];
-        for(int i=0;i!=line_rm;i++) rm_loc[i]=new int[2];
+        for(int i=0;i!=line_rm;++i) rm_loc[i]=new int[2];
         
         rm_info=new string*[line_rm];
-        for(int i=0;i!=line_rm;i++) rm_info[i]=new string[4];
+        for(int i=0;i!=line_rm;++i) rm_info[i]=new string[4];
         
-        for(int i=0;i!=line_rm;i++){
+        for(int i=0;i!=line_rm;++i){
             file2>>rm_info[i][0];           //chr
             file2>>rm_loc[i][0];            //start
             file2>>rm_loc[i][1];            //end
@@ -145,7 +148,7 @@ int ReadMasker(string WD_dir){
     }
     
 //cout<<"region reading complete"<<endl;
-    for(int i=0;i!=line;i++){
+    for(int i=0;i!=line;++i){
         //cout<<i<<endl;
         int number=0;
         int sc1, sc2, I, M, D, F, h1, h2, eq;
@@ -161,12 +164,16 @@ int ReadMasker(string WD_dir){
         ss_cigar1.str(cigar1);
         
 //reads cigar&seq
+        int le=sam_info[i][4].length();
+        char *seq =new char[sam_info[i][4].length()+1];
+        strcpy(seq,sam_info[i][4].c_str());
         
-        const int le=sam_info[i][4].length();
+        /*
+        int le=sam_info[i][4].length();
         char seq[le];
-        const char *cseq=sam_info[i][4].c_str();
+        char *cseq=sam_info[i][4].c_str();
         strcpy(seq,cseq);
-        
+        */
         ss_cigar1>>number;
         ss_cigar1>>cig;
         
@@ -182,7 +189,7 @@ int ReadMasker(string WD_dir){
             ss_cigar1>>number;
             ss_cigar1>>cig;
         }
-       read_e=sam_loc[i][1]+M+D+eq-1;
+        read_e=sam_loc[i][1]+M+D+eq-1;
         
         
         if(sc1>=50||sc2>=50||I>=50){
@@ -191,7 +198,7 @@ int ReadMasker(string WD_dir){
             int start=0;
             int end=0;
             
-            for(int j=0;j!=line_rm;j++){
+            for(int j=0;j!=line_rm;++j){
                 if(!((read_s>rm_loc[j][1])||(read_e<rm_loc[j][0]))){
                     
                     stringstream ss_cigar1;
@@ -215,17 +222,17 @@ int ReadMasker(string WD_dir){
                             bit=bit+number;
                             
                             if(bit>=start&&bit<=end&&(bit-number)>=start){
-                                for(int x=0;x!=number;x++){
+                                for(int x=0;x!=number;++x){
                                     seq[k+x]='N';
                                 }
                             }
                             else if(bit>=start&&bit<=end&&(bit-number)<start){
-                                for(int x=start-bit+number;x!=number;x++){
+                                for(int x=start-bit+number;x!=number;++x){
                                     seq[k+x]='N';
                                 }
                             }
                             else if((bit-number)>=start&&(bit-number)<=end&&bit>end){
-                                for(int x=0;x!=end-bit+number+1;x++){
+                                for(int x=0;x!=end-bit+number+1;++x){
                                     seq[k+x]='N';
                                 }
                             }
@@ -243,20 +250,21 @@ int ReadMasker(string WD_dir){
 //output
             file5<<sam_info[i][2]<<"0E"<<endl;
             file6<<">"<<sam_info[i][0]<<'\t'<<sam_loc[i][1]<<endl;
-            for(int x=0;x!=le;x++) file6<<seq[x];
+            for(int x=0;x!=le;++x) file6<<seq[x];
             file6<<endl;
             file7<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<'\t'<<le<<endl;
         }
+        delete [] seq;
     }
     
-    for(int i=0;i!=line;i++){
+    for(int i=0;i!=line;++i){
         delete [] sam_info[i];
         delete [] sam_loc[i];
     }
     delete [] sam_info;
     delete [] sam_loc;
     
-    for(int i=0;i!=line_rm;i++){
+    for(int i=0;i!=line_rm;++i){
         delete [] rm_info[i];
         delete [] rm_loc[i];
     }

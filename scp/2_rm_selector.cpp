@@ -17,6 +17,9 @@ using namespace std;
 
 int RMSelector(string WD, string WD_dir, string sys_region){
     
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(0);
+    
     char *syst_region =new char[sys_region.length()+1];
     strcpy(syst_region, sys_region.c_str());
     
@@ -36,7 +39,7 @@ int RMSelector(string WD, string WD_dir, string sys_region){
         
         string input;
         int line;
-        for(int i=0;!file1.eof();i++){
+        for(int i=0;!file1.eof();++i){
             getline(file1,input);
             line=i;
         }
@@ -63,15 +66,15 @@ int RMSelector(string WD, string WD_dir, string sys_region){
         
         string **rm_info;
         rm_info= new string*[line];
-        for(int i=0;i!=line;i++) rm_info[i]=new string[4];
+        for(int i=0;i!=line;++i) rm_info[i]=new string[4];
         
         int **rm_loc;
         rm_loc=new int*[line];
-        for(int i=0;i!=line;i++) rm_loc[i]=new int[2];
+        for(int i=0;i!=line;++i) rm_loc[i]=new int[2];
         file1.close();
         file1.clear();
         file1.open(syst_region);
-        for(int i=0;i!=line;i++){
+        for(int i=0;i!=line;++i){
             
             file1>>rm_info[i][0];
             file1>>rm_loc[i][0];
@@ -81,7 +84,7 @@ int RMSelector(string WD, string WD_dir, string sys_region){
             rm_info[i][2]="RM";
         }
         
-        for(int i=0;i!=line;i++){
+        for(int i=0;i!=line;++i){
             if(rm_info[i][0]==chr){
                 if(!((rm_loc[i][0]>end)||(rm_loc[i][1]<start))){
                     file2<<rm_info[i][0]<<'\t'<<rm_loc[i][0]<<'\t'<<rm_loc[i][1]<<'\t'<<rm_info[i][1]<<'\t'<<rm_info[i][2]<<'\t'<<rm_info[i][3]<<endl;
@@ -89,7 +92,7 @@ int RMSelector(string WD, string WD_dir, string sys_region){
             }
         }
         
-        for(int i=0;i!=line;i++){
+        for(int i=0;i!=line;++i){
             delete [] rm_info[i];
             delete [] rm_loc[i];
         }

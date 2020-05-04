@@ -24,8 +24,11 @@ using namespace std;
 int main(int argc, char *argv[]){
 
 //parameters_start
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(0);
     
-    string T, WD, inputF, output, SP, ref, CHR, ref_fa, cus, cusin, tsd_pass, LL_len;
+    string T, WD, inputF, output, SP, ref, CHR, ref_fa, cus, cusin, tsd_pass, LL_len, s_cus_seq_len;
+    
     //int NUM_threads=30;
     int NUM_threads=10;
     ifstream file1;
@@ -42,6 +45,8 @@ int main(int argc, char *argv[]){
     int flag_tsd=1;
     int help=0;
     int L_len=25;
+    int seq_len=-1;
+    int flag_cus_seq_len=0;
     output="output.txt";
     SP="Human";
     //T="LINE";
@@ -51,7 +56,7 @@ int main(int argc, char *argv[]){
     string dir;
     dir=argv[0];
     
-    for(int i=1;i!=argc;i++){
+    for(int i=1;i!=argc;++i){
         if(strncmp(argv[i],"--workdir",9)==0){
             WD=argv[i+1];
             flag_wd=1;
@@ -59,11 +64,13 @@ int main(int argc, char *argv[]){
         if(strncmp(argv[i],"--chr",5)==0){
             CHR=argv[i+1];
         }
+        
         if(strncmp(argv[i],"--L_len",7)==0){
             LL_len=argv[i+1];
             int L_len = 6023- std::stoi(LL_len);
             //L_len=L_len;
         }
+        
         if(strncmp(argv[i],"--ref_ver",9)==0){
             ref=argv[i+1];
             if(ref=="GRCh37") ref_n=37;
@@ -148,6 +155,16 @@ int main(int argc, char *argv[]){
             
             tsd_pass=argv[i+1];
         }
+        if(strncmp(argv[i],"--len_custom_seq",16)==0){
+            s_cus_seq_len=argv[i+1];
+            
+            seq_len = std::stoi(s_cus_seq_len);
+            //strstream sss;
+            //sss << string_cus_seq_len;
+            //sss >> cus_seq_len;
+            //cus_seq_len=stoi(string_cus_seq_len)
+            flag_cus_seq_len=1;
+        }
         if(strncmp(argv[i],"--help",6)==0){
             
             help=1;
@@ -171,7 +188,7 @@ int main(int argc, char *argv[]){
     }
     
     
-    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==1&&ref_n==-1&&flag_cusin==0)||(flag_T==2&&flag_cus==0)){
+    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==1&&ref_n==-1&&flag_cusin==0)||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_cusin==0)||(flag_T==2&&flag_cus==1&&flag_cusin==1&&flag_tsd==1&flag_cus_seq_len==0)){
         if(flag_T==0&&flag_cus==0){
             cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA"<<endl;}
         if(flag_T==1&&flag_cus==1){
@@ -186,10 +203,15 @@ int main(int argc, char *argv[]){
             cout<<"***ERROR*** PLEASE ASSIGN A CORRECT REFERENCE version/fasta!"<<endl;}
         if(flag_T==1&&ref_n==-1&&flag_cusin==0){
             cout<<"***ERROR*** PLEASE ASSIGN A INDEX FILE FOR RUNNING MASKING MODULE ON YOUR MEI CALLING ON OTHER REFERENCE!"<<endl;}
+        if(flag_T==2&&flag_cus==1&&flag_cusin==0){
+        cout<<"***ERROR*** PLEASE ASSIGN 'CUSTOMIZED_INDEX' WHILE YOU CHOOSE YOUR CUSTOMIZED TYPE"<<endl;}
+        if(flag_T==2&&flag_cus==1&&flag_cusin==1&&flag_tsd==1&flag_cus_seq_len==0){
+        cout<<"***ERROR*** PLEASE ASSIGN 'CUSTOMIZD_SEQUENCE_LENGTH' WHILE YOU ACTIVATE TSD_FINDING FOR YOUR CUSTOMIZED TYPE"<<endl;}
+        
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: 1.4"<<endl;
+        cout<<"Version: 1.5"<<endl;
         cout<<"Presented by Weichen Zhou @ Mills Lab. Feb.28th.2019"<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
@@ -198,29 +220,33 @@ int main(int argc, char *argv[]){
         cout<<"         aligned long-read sequencing BAM file with directory path"<<endl;
         cout<<endl;
         cout<<"--workdir"<<endl;
-        cout<<"         the user's working directory"<<endl;
+        cout<<"         the user's working directory. Please follow the format /your/woking/directory/ !!don't forget the last '/'!!"<<endl;
         cout<<endl;
         cout<<"--ref_ver (options: hg19, GRCh37, GRCh38 or other)"<<endl;
         cout<<"         reference genome used for the aligned file ('other' option for the cusmized genome out of hg19, GRCh37 or GRCh38)"<<endl;
         cout<<endl;
         cout<<"--ref_fa"<<endl;
-        cout<<"         indexed fasta file of reference genome fasta file with directory path used for the aligned bam file (wrong reference will cause error infromation)"<<endl;
+        cout<<"         indexed fasta file of reference genome fasta file with directory path used for the aligned bam file (wrong reference will cause error information)"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU, SVA, or CUSTOMIZED (if you want to setup your costomized sequence))"<<endl;
-        cout<<"         type of MEIs or other kind of insertion to detect"<<endl;
+        cout<<"         type of MEIs or other kind of insertions to detect"<<endl;
         cout<<endl;
         cout<<"--chr (default: ALL (for whole genome); options: chromosome1, chromosome2, ...chromosomeY)"<<endl;
         cout<<"         chromosome name for PALMER to run (if running for whole genome, don't need to assign). !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'"<<endl;
         cout<<endl;
         
         cout<<"--custom_seq (default:no input)"<<endl;
-        cout<<"         .fasta file with directory path to customize your insertion finding"<<endl;
+        cout<<"         .fasta file with directory path to customize your insertion finding. e.g. NUMTs, MEIs in other species."<<endl;
         cout<<endl;
         cout<<"--custom_index (default:no input; if you have both '--ref_ver other' and '--type LINE/ALU/SVA', you must give PALMER a index file (format: \"CHR'\t'START'\t'END'\t'MEI_NAME'\n'\" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)"<<endl;
         cout<<"         index file with directory path to mask the genome for your insertion finding"<<endl;
         cout<<endl;
         cout<<"--TSD_finding (Fixed:TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)"<<endl;
         cout<<"         whether to run TSD motif finding module for your insertion calling"<<endl;
+        cout<<endl;
+        
+        cout<<"--len_custom_seq (MUST set up when activate TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)"<<endl;
+        cout<<"         integer value for the length of your customized sequence WITHOUT polyA tact"<<endl;
         cout<<endl;
         
         cout<<"--L_len (default: 25bp)"<<endl;
@@ -284,6 +310,10 @@ int main(int argc, char *argv[]){
         T=cus;
     }
     
+    //cout<<T<<endl;
+    //cout<<seq_len<<endl;
+    //cout<<flag_cus_seq_len<<endl;
+    //getchar();
     
     if(ref_n==37){
         
@@ -383,11 +413,11 @@ int main(int argc, char *argv[]){
     int line_chr;
     int line_len;
     string input_inde;
-    for(int i=0;!file91.eof();i++){
+    for(int i=0;!file91.eof();++i){
         getline(file91,input_inde);
         line_chr=i;
     }
-    for(int i=0;!file92.eof();i++){
+    for(int i=0;!file92.eof();++i){
         getline(file92,input_inde);
         line_len=i;
     }
@@ -406,10 +436,10 @@ int main(int argc, char *argv[]){
     string chr_inde[line_chr];
     int len_inde[line_len];
     
-    for(int i=0;i!=line_chr;i++){
+    for(int i=0;i!=line_chr;++i){
         file91>>chr_inde[i];
     }
-    for(int i=0;i!=line_len;i++){
+    for(int i=0;i!=line_len;++i){
         file92>>len_inde[i];
     }
     
@@ -430,7 +460,7 @@ int main(int argc, char *argv[]){
         file93.open(syst_region_index,ios::trunc);
         
         int bin=1000000;
-        for(int i=0;i!=line_chr;i++){
+        for(int i=0;i!=line_chr;++i){
             int j=i;
             int sec;
                 //last;
@@ -475,11 +505,11 @@ int main(int argc, char *argv[]){
         file2>>input_index;
         if(CHR=="ALL"){
             line_index=i;
-            i++;
+            ++i;
         }
         else if(CHR==input_index){
             line_index=i;
-            i++;
+            ++i;
         }
         file2>>input_index;
         file2>>input_index;
@@ -521,11 +551,11 @@ int main(int argc, char *argv[]){
             
         }
         if(chr_index==1){
-            i++;
+            ++i;
             
             //getchar();
             //****
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len);
+            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len);
         }
         /*ver1.3
         if(chr_index==1){
@@ -539,7 +569,7 @@ int main(int argc, char *argv[]){
     cout<<"Merging step is initiated."<<endl;
     //mkdir
     /*
-    for(int i=0;i!=line_chr;i++){
+    for(int i=0;i!=line_chr;++i){
         string WD_chr=WD+chr_inde[i]+"/";
         string WD_chr="mkdir "+WD+chr_inde[i]+"/";
         
@@ -595,11 +625,18 @@ int main(int argc, char *argv[]){
             char *syst_final_tsd = new char[sys_final_tsd.length()+1];
             strcpy(syst_final_tsd, sys_final_tsd.c_str());
             system(syst_final_tsd);
-            i++;
+            ++i;
         }
     }
     
     cout<<"Merging step completed."<<endl;
+    
+    //colapse for the redundant calls
+    
+    //kmer
+    
+    
+    
     cout<<"Final calls finished."<<endl;
     cout<<"Results are in "+WD+output<<endl;
     

@@ -26,7 +26,10 @@
 #include "8_calling.cpp"
 using namespace std;
 
-int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len){
+int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len){
+    
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(0);
     
 //building working directory
     int start1, end1;
@@ -38,8 +41,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     ss2 << end1;
     string s_end =ss2.str();
     
-    string WD_tube;
-    WD_tube=working_dir+chr+"_"+s_start+"_"+s_end+"/";
+    string WD_tube=working_dir+chr+"_"+s_start+"_"+s_end+"/";
     
     string sys_mkdir="mkdir "+WD_tube;
     
@@ -51,8 +53,8 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
  
 //1. samtools view
     
-    samtools(working_dir, WD_tube, input_bam, chr, s_start, s_end);
-    cout<<"1. Samtools Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
+    samtools(WD_tube, input_bam, chr, s_start, s_end);
+    cout<<"1. Samtools Step for region "+chr+"_"+s_start+"_"+s_end+" now completed."<<endl;
     
 //Repeat region output
     
@@ -84,12 +86,12 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
  
 //4. Blastn
     
-    blastn(working_dir, WD_tube, type, direc);
+    blastn(WD_tube, type, direc);
     //cout<<"4. Blastn Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
     
 //5. Blastn caller
     
-    BlastnCaller(WD_tube, chr, type, L_len);
+    BlastnCaller(WD_tube, chr, type, L_len, cus_seq_len);
     //cout<<"5. Blastn Caller Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
  
     cout<<"Single read calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
