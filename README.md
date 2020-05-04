@@ -114,7 +114,7 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 ## Logs
 
-**Ver1.5** May.4th.2020 "MAY THE FORCE BE WITH YOU!""
+**Ver1.5** May.4th.2020 "MAY THE FORCE BE WITH YOU!"
 
 * Added one more option for the length of customized insertion sequence.
 * Optimized the performance for customized insertion sequence finding!
