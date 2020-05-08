@@ -16,7 +16,10 @@
 using namespace std;
 
 int calling(string WD_dir, string t){
-
+    
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
+    
     int BIN_5=50;
     int J_BIN=50;
     int BIN_3=3000;
@@ -43,12 +46,25 @@ int calling(string WD_dir, string t){
     
     file1.open(syst_input);
     
+    if (!file1.is_open())
+    {
+        cout <<"CANNOT OPEN FILE, 'read_result_TSD.txt'"<< endl;
+        //exit(1);
+        return 0;
+    }
+    
     ifstream file99;
     string sys_line = WD_dir+"read_result_ins_seq.txt";
     char *syst_line = new char[sys_line.length()+1];
     strcpy(syst_line, sys_line.c_str());
     file99.open(syst_line);
     
+    if (!file99.is_open())
+    {
+        cout <<"CANNOT OPEN FILE, 'read_result_ins_seq.txt'"<< endl;
+        //exit(1);
+        return 0;
+    }
     
     ofstream file2;
     
@@ -57,16 +73,9 @@ int calling(string WD_dir, string t){
     strcpy(syst_calls, sys_calls.c_str());
     file2.open(syst_calls);
     
-    if (!file1.is_open()||!file99.is_open())
-    {
-        cout <<"CANNOT OPEN FILE, 'read_result_TSD.txt' or 'read_result_ins_seq.txt'"<< endl;
-        //exit(1);
-        return 0;
-    }
-    
     int line;
     string input;
-    for(int i=0;!file1.eof();i++){
+    for(int i=0;!file1.eof();++i){
         getline(file1,input);
         line=i;
     }
@@ -77,7 +86,7 @@ int calling(string WD_dir, string t){
     
     int line_seq;
     //string input;
-    for(int i=0;!file99.eof();i++){
+    for(int i=0;!file99.eof();++i){
         getline(file99,input);
         line_seq=i;
     }
@@ -88,13 +97,13 @@ int calling(string WD_dir, string t){
     
     string **info_line;
     info_line=new string *[line_seq];
-    for(int i=0;i!=line_seq;i++) info_line[i]=new string[3];
+    for(int i=0;i!=line_seq;++i) info_line[i]=new string[3];
     
     int **loc_TP_line;
     loc_TP_line=new int*[line_seq];
-    for(int i=0;i!=line_seq;i++) loc_TP_line[i]=new int[7];
+    for(int i=0;i!=line_seq;++i) loc_TP_line[i]=new int[7];
     
-    for(int i=0;i!=line;i++){
+    for(int i=0;i!=line;++i){
         file99>>info_line[i][0];  //probe name
         file99>>input;
         file99>>input;
@@ -118,20 +127,20 @@ int calling(string WD_dir, string t){
     
     string **info;
     info=new string *[line];
-    for(int i=0;i!=line;i++) info[i]=new string[4];
+    for(int i=0;i!=line;++i) info[i]=new string[4];
     
     int **loc;
     loc=new int*[line];
-    for(int i=0;i!=line;i++) loc[i]=new int[7];
+    for(int i=0;i!=line;++i) loc[i]=new int[7];
     
     int **loc_TP;
     loc_TP=new int*[line];
-    for(int i=0;i!=line;i++) loc_TP[i]=new int[7];
+    for(int i=0;i!=line;++i) loc_TP[i]=new int[7];
     
     string *orien;
     orien= new string[line];
     
-    for(int i=0;i!=line;i++){
+    for(int i=0;i!=line;++i){
         file1>>info[i][0];  //probe name
         file1>>loc[i][0];   //L_loc
         file1>>loc[i][1];   //L_loc
@@ -174,7 +183,7 @@ int calling(string WD_dir, string t){
     file4.open(syst_output_TSD);
     
     int line_tsd;
-    for(int i=0;!file3.eof();i++){
+    for(int i=0;!file3.eof();++i){
         getline(file3,input);
         line_tsd=i;
     }
@@ -187,9 +196,12 @@ int calling(string WD_dir, string t){
     
     int **loc_tsd;
     loc_tsd=new int*[line_tsd];
-    for(int i=0;i!=line_tsd;i++) loc_tsd[i]=new int[12];
+    for(int i=0;i!=line_tsd;++i) loc_tsd[i]=new int[12];
     
-    for(int i=0;i!=line_tsd;i++){
+    string *kmer_tsd;
+    kmer_tsd= new string[line_tsd];
+    
+    for(int i=0;i!=line_tsd;++i){
         file3>>info_tsd[i];
         file3>>loc_tsd[i][0];
         file3>>loc_tsd[i][1];
@@ -203,6 +215,7 @@ int calling(string WD_dir, string t){
         file3>>loc_tsd[i][9]; //5' FP kmer
         file3>>loc_tsd[i][10];  //junction FP
         file3>>loc_tsd[i][11];  //junction FP _2
+        file3>>kmer_tsd[i];
     }
     
     //calling
@@ -221,7 +234,7 @@ int calling(string WD_dir, string t){
         L=25;
     }
     
-    for(int i=0;i!=line;i++){
+    for(int i=0;i!=line;++i){
         if(loc[i][6]!=-1){
             
             int start1=loc[i][4]-S;
@@ -305,12 +318,12 @@ int calling(string WD_dir, string t){
             ss_TP_6<<loc_TP[i][6];
             loc_TP_6=ss_TP_6.str();
             
-            string seq_index;
+            string seq_index_a;
             
-            seq_index=info[i][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+orien[i]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+            seq_index_a=info[i][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+orien[i]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
             
-            for(int w=0;w!=line_tsd;w++){
-                if(info_tsd[w]==seq_index){
+            for(int w=0;w!=line_tsd;++w){
+                if(info_tsd[w]==seq_index_a){
                     loc_tsd[w][8]=1;
                 }
             }
@@ -321,7 +334,7 @@ int calling(string WD_dir, string t){
             for(;flag==1;){
                 flag=0;
                 
-                for(int j=0;j!=line;j++){
+                for(int j=0;j!=line;++j){
 
                     if(info[i][0]==info[j][0]&&loc[j][6]==0&&info[i][1]==info[j][1]&&loc[i][0]==loc[j][0]&&loc[i][1]==loc[j][1]&&loc[i][2]==loc[j][2]&&loc[i][3]==loc[j][3]&&loc[i][4]==loc[j][4]&&loc[i][5]==loc[j][5]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]&&loc_TP[i][1]==loc_TP[j][1]&&loc_TP[i][2]==loc_TP[j][2]&&loc_TP[i][3]==loc_TP[j][3]&&loc_TP[i][4]==loc_TP[j][4]&&loc_TP[i][5]==loc_TP[j][5]&&loc_TP[i][6]==loc_TP[j][6]){
                         loc[j][6]=-1;
@@ -412,12 +425,12 @@ int calling(string WD_dir, string t){
                                 ss_TP_6<<loc_TP[j][6];
                                 loc_TP_6=ss_TP_6.str();
                                 
-                                string seq_index;
+                                string seq_index_b;
                                 
-                                seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                seq_index_b=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                                 
-                                for(int w=0;w!=line_tsd;w++){
-                                    if(info_tsd[w]==seq_index){
+                                for(int w=0;w!=line_tsd;++w){
+                                    if(info_tsd[w]==seq_index_b){
                                         loc_tsd[w][8]=1;
                                     }
                                 }
@@ -496,13 +509,13 @@ int calling(string WD_dir, string t){
                                     ss_TP_6<<loc_TP[j][6];
                                     loc_TP_6=ss_TP_6.str();
                                     
-                                    string seq_index;
+                                    string seq_index_b;
                                     
-                                    seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                    seq_index_b=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                                     
                                     
-                                    for(int w=0;w!=line_tsd;w++){
-                                        if(info_tsd[w]==seq_index){
+                                    for(int w=0;w!=line_tsd;++w){
+                                        if(info_tsd[w]==seq_index_b){
                                             loc_tsd[w][8]=1;
                                         }
                                     }
@@ -577,13 +590,13 @@ int calling(string WD_dir, string t){
                                     ss_TP_6<<loc_TP[j][6];
                                     loc_TP_6=ss_TP_6.str();
                                     
-                                    string seq_index;
+                                    string seq_index_b;
                                     
-                                    seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                    seq_index_b=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                                     
                                     
-                                    for(int w=0;w!=line_tsd;w++){
-                                        if(info_tsd[w]==seq_index){
+                                    for(int w=0;w!=line_tsd;++w){
+                                        if(info_tsd[w]==seq_index_b){
                                             loc_tsd[w][8]=1;
                                         }
                                     }
@@ -662,13 +675,13 @@ int calling(string WD_dir, string t){
                                     ss_TP_6<<loc_TP[j][6];
                                     loc_TP_6=ss_TP_6.str();
                                     
-                                    string seq_index;
+                                    string seq_index_b;
                                     
-                                    seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                    seq_index_b=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                                     
                                     
-                                    for(int w=0;w!=line_tsd;w++){
-                                        if(info_tsd[w]==seq_index){
+                                    for(int w=0;w!=line_tsd;++w){
+                                        if(info_tsd[w]==seq_index_b){
                                             loc_tsd[w][8]=1;
                                         }
                                     }
@@ -743,13 +756,13 @@ int calling(string WD_dir, string t){
                                     ss_TP_6<<loc_TP[j][6];
                                     loc_TP_6=ss_TP_6.str();
                                     
-                                    string seq_index;
+                                    string seq_index_b;
                                     
-                                    seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                    seq_index_b=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                                     
                                     
-                                    for(int w=0;w!=line_tsd;w++){
-                                        if(info_tsd[w]==seq_index){
+                                    for(int w=0;w!=line_tsd;++w){
+                                        if(info_tsd[w]==seq_index_b){
                                             loc_tsd[w][8]=1;
                                         }
                                     }
@@ -761,7 +774,7 @@ int calling(string WD_dir, string t){
             }
             
             //calculate the number of 'left&right'
-            for(int j=0;j!=line;j++){
+            for(int j=0;j!=line;++j){
             
                 
           //for SVA
@@ -824,15 +837,15 @@ int calling(string WD_dir, string t){
                         ss_TP_6<<loc_TP[j][6];
                         loc_TP_6=ss_TP_6.str();
                         
-                        string seq_index;
+                        string seq_index_c;
                         
-                        seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                        seq_index_c=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                         
                         
                         int flag_number=0;
                         int flag_true_number=0;
-                        for(int w=0;w!=line_tsd;w++){
-                            if(info_tsd[w]==seq_index&&loc_tsd[w][8]==1){
+                        for(int w=0;w!=line_tsd;++w){
+                            if(info_tsd[w]==seq_index_c&&loc_tsd[w][8]==1){
                                 loc_tsd[w][4]=1;
                                 flag_number=1;
                                 //*******
@@ -856,6 +869,8 @@ int calling(string WD_dir, string t){
 //for ALU and LINE and CUSTOMIZED
                 else {
                     if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)&&(loc[j][4]>=start1&&loc[j][4]<=start2)&&(loc[j][5]>=end1&&loc[j][5]<=end2)&&loc[j][6]==-1&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]&&(loc_TP[j][1]>=L1_s_TP1&&loc_TP[j][1]<=L1_s_TP2)&&(loc_TP[j][2]>=L1_e_TP1&&loc_TP[j][2]<=L1_e_TP2)&&(loc_TP[j][5]>=start_TP1&&loc_TP[j][5]<=start_TP2)&&(loc_TP[j][6]>=end_TP1&&loc_TP[j][6]<=end_TP2)){
+                        
+                        //cout<<"get in one time"<<endl;
                         
                         string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                         stringstream ss_0;
@@ -913,17 +928,23 @@ int calling(string WD_dir, string t){
                         ss_TP_6<<loc_TP[j][6];
                         loc_TP_6=ss_TP_6.str();
                         
-                        string seq_index;
+                        string seq_index_c;
                         
-                        seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                        seq_index_c=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
                         
                         
                         int flag_number=0;
                         int flag_true_number=0;
-                        for(int w=0;w!=line_tsd;w++){
-                            if(info_tsd[w]==seq_index&&loc_tsd[w][8]==1){
+                        //cout<<"Try to get in as "<<seq_index_c<<endl;
+                        for(int w=0;w!=line_tsd;++w){
+                            
+                            //cout<<"Try to test as "<<info_tsd[w]<<" and "<<loc_tsd[w][8]<<endl;
+                            
+                            
+                            if(info_tsd[w]==seq_index_c&&loc_tsd[w][8]==1){
                                 loc_tsd[w][4]=1;
                                 flag_number=1;
+                                //cout<<"get in one time "<<seq_index_c<<endl;
                                 //*******
                                 if(loc_tsd[w][10]>0&&loc_tsd[w][11]>0){
                                     //&&loc_tsd[w][10]==0){
@@ -943,36 +964,41 @@ int calling(string WD_dir, string t){
             }
             
 //note for above: we only need "number_all" here
-            //cout<<"number is "<<number_true<<endl;
+            //cout<<"number is "<<number<<endl;
+            //cout<<"number_ture is "<<number_true<<endl;
             //cout<<"number_all is "<<number_all<<endl;
             
             
 //TSD_indentifier
             string **name_tsd;
             name_tsd =new string*[line_tsd];
-            for(int j=0;j!=line_tsd;j++) name_tsd[j]= new string[number];
+            for(int j=0;j!=line_tsd;++j) name_tsd[j]= new string[number];
             
             int **ls;
             ls =new int*[line_tsd];
-            for(int j=0;j!=line_tsd;j++) ls[j]= new int[number];
+            for(int j=0;j!=line_tsd;++j) ls[j]= new int[number];
             int **le;
             le =new int*[line_tsd];
-            for(int j=0;j!=line_tsd;j++) le[j]= new int[number];
+            for(int j=0;j!=line_tsd;++j) le[j]= new int[number];
             int **rs;
             rs =new int*[line_tsd];
-            for(int j=0;j!=line_tsd;j++) rs[j]= new int[number];
+            for(int j=0;j!=line_tsd;++j) rs[j]= new int[number];
             int **re;
             re =new int*[line_tsd];
-            for(int j=0;j!=line_tsd;j++) re[j]= new int[number];
+            for(int j=0;j!=line_tsd;++j) re[j]= new int[number];
             int **len_5;
             len_5 =new int*[line_tsd];
-            for(int j=0;j!=line_tsd;j++) len_5[j]= new int[number];
+            for(int j=0;j!=line_tsd;++j) len_5[j]= new int[number];
             int **len_3;
             len_3 =new int*[line_tsd];
-            for(int j=0;j!=line_tsd;j++) len_3[j]= new int[number];
+            for(int j=0;j!=line_tsd;++j) len_3[j]= new int[number];
+            
+            string **kmerseq_tsd;
+            kmerseq_tsd =new string*[line_tsd];
+            for(int j=0;j!=line_tsd;++j) kmerseq_tsd[j]= new string[number];
             
             //loc_tsd[][5]
-            for(int w=0;w!=line_tsd;w++){
+            for(int w=0;w!=line_tsd;++w){
 //*********
                 if(loc_tsd[w][4]==1&&loc_tsd[w][10]>0&&loc_tsd[w][11]>0){
                    //&&loc_tsd[w][10]==0){
@@ -985,8 +1011,9 @@ int calling(string WD_dir, string t){
                     re[w][loc_tsd[w][5]-1]=loc_tsd[w][3];
                     len_5[w][loc_tsd[w][5]-1]=loc_tsd[w][6];
                     len_3[w][loc_tsd[w][5]-1]=loc_tsd[w][7];
+                    kmerseq_tsd[w][loc_tsd[w][5]-1]=kmer_tsd[w];
                     
-                    for(int w2=0;w2!=line_tsd;w2++){
+                    for(int w2=0;w2!=line_tsd;++w2){
                         
                         int flag_name=0;
                         for(int w_name=0;w_name!=loc_tsd[w][5];w_name++){
@@ -1019,7 +1046,7 @@ int calling(string WD_dir, string t){
                                     re[w][loc_tsd[w][5]-1]=loc_tsd[w2][3];
                                     len_5[w][loc_tsd[w][5]-1]=loc_tsd[w2][6];
                                     len_3[w][loc_tsd[w][5]-1]=loc_tsd[w2][7];
-                                    
+                                    kmerseq_tsd[w][loc_tsd[w][5]-1]=kmer_tsd[w2];
                                 }
                             }
                         }
@@ -1037,7 +1064,7 @@ int calling(string WD_dir, string t){
                 
                 //best subreads cluster candidate
                 int p=0;
-                for(int w=0;w!=line_tsd;w++){
+                for(int w=0;w!=line_tsd;++w){
 //************
                     if(loc_tsd[w][4]==1&&loc_tsd[w][10]>0&&loc_tsd[w][11]>0){
                        //&&loc_tsd[w][10]==0){
@@ -1047,22 +1074,26 @@ int calling(string WD_dir, string t){
                 
                 //cout<<"p="<<p<<endl;
                 if(p==0){
-                    for(int j=0;j!=line_tsd;j++) {delete [] name_tsd[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] name_tsd[j];}
                     delete [] name_tsd;
                     
-                    for(int j=0;j!=line_tsd;j++) {delete [] ls[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] ls[j];}
                     delete [] ls;
-                    for(int j=0;j!=line_tsd;j++) {delete [] le[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] le[j];}
                     delete [] le;
-                    for(int j=0;j!=line_tsd;j++) {delete [] re[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] re[j];}
                     delete [] re;
-                    for(int j=0;j!=line_tsd;j++) {delete [] rs[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] rs[j];}
                     delete [] rs;
-                    for(int j=0;j!=line_tsd;j++) {delete [] len_5[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] len_5[j];}
                     delete [] len_5;
-                    for(int j=0;j!=line_tsd;j++) {delete [] len_3[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] len_3[j];}
                     delete [] len_3;
-                    for(int w=0;w!=line_tsd;w++){
+                    
+                    for(int j=0;j!=line_tsd;++j) {delete [] kmerseq_tsd[j];}
+                    delete [] kmerseq_tsd;
+                    
+                    for(int w=0;w!=line_tsd;++w){
                         loc_tsd[w][5]=0;
                         loc_tsd[w][4]=0;
                         loc_tsd[w][8]=0;
@@ -1092,7 +1123,7 @@ int calling(string WD_dir, string t){
                 }
                 
                 //find the most connected-SR and nearest one
-                for(int w2=0;w2!=line_tsd;w2++){
+                for(int w2=0;w2!=line_tsd;++w2){
 //*******
                     if(loc_tsd[w2][4]==1&&loc_tsd[w2][5]==p&&loc_tsd[w2][10]>0&&loc_tsd[w2][11]>0){
                        //&&loc_tsd[w2][10]==0){
@@ -1131,7 +1162,7 @@ int calling(string WD_dir, string t){
                     int polyA_le=0;
                     //int flag_singleA=0;
                     
-                    for(int w=0;w!=p;w++){
+                    for(int w=0;w!=p;++w){
                         int ls_new, le_new, rs_new, re_new;
                         
                         if(orien[i]=="+"){
@@ -1150,7 +1181,7 @@ int calling(string WD_dir, string t){
                         //TSD seq
                         int read_seq=-1;
                         string name_tag;
-                        for(int j=0;j!=line;j++){
+                        for(int j=0;j!=line;++j){
                             
                             string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                             stringstream ss_0;
@@ -1238,35 +1269,37 @@ int calling(string WD_dir, string t){
                         file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<name_tsd[number_buff][w]<<'\t';
                         
                         if(orien[i]=="+"){
-                            for(int n=ls_new-1;n!=le_new;n++){
+                            for(int n=ls_new-1;n!=le_new;++n){
                                 file4<<seq5[n];
                             }
                             file4<<'\t';
                             
-                            for(int n=rs_new-1;n!=re_new;n++){
+                            for(int n=rs_new-1;n!=re_new;++n){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=0;n!=rs_new-1;n++){
+                            for(int n=0;n!=rs_new-1;++n){
                                 file4<<seq3[n];
                             }
                         }
                         
                         else if(orien[i]=="-"){
-                            for(int n=ls_new-1;n!=le_new;n++){
+                            for(int n=ls_new-1;n!=le_new;++n){
                                 file4<<seq5[n];
                             }
                             file4<<'\t';
                             
-                            for(int n=rs_new-1;n!=re_new;n++){
+                            for(int n=rs_new-1;n!=re_new;++n){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=re_new;n!=info[read_seq][3].length();n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();++n){
                                 file4<<seq3[n];
                             }
                         }
 //5' 26mer output
+                        file4<<'\t'<<kmerseq_tsd[number_buff][w]<<'\t';
+                        /*
                         string kmer_0, kmer_1, kmer_2, kmer_3;
                         stringstream ss_kmer_0;
                         ss_kmer_0.clear();
@@ -1309,34 +1342,34 @@ int calling(string WD_dir, string t){
                         
                         file26.close();
                         file26.clear();
-                        
+                        */
 //whole insertin sequence output
                         
                         if(orien[i]=="+"){
-                            for(int n=le_new;n!=info[read_seq][2].length();n++){
+                            for(int n=le_new;n!=info[read_seq][2].length();++n){
                                 file4<<seq5[n];
                             }
                             
-                            for(int n=0;n!=info_line[read_seq][2].length()-1;n++){
+                            for(int n=0;n!=info_line[read_seq][2].length()-1;++n){
                                 file4<<seq_line[n];
                             }
                             
-                            for(int n=0;n!=rs_new-1;n++){
+                            for(int n=0;n!=rs_new-1;++n){
                                 file4<<seq3[n];
                             }
                         }
                         
                         else if(orien[i]=="-"){
                             
-                            for(int n=re_new;n!=info[read_seq][3].length();n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();++n){
                                 file4<<seq3[n];
                             }
                             
-                            for(int n=1;n!=info_line[read_seq][2].length()-1;n++){
+                            for(int n=1;n!=info_line[read_seq][2].length()-1;++n){
                                 file4<<seq_line[n];
                             }
                             
-                            for(int n=0;n!=ls_new-1;n++){
+                            for(int n=0;n!=ls_new-1;++n){
                                 file4<<seq5[n];
                             }
                             
@@ -1393,27 +1426,30 @@ int calling(string WD_dir, string t){
                     }
                     
                     //return
-                    for(int w=0;w!=line_tsd;w++){
+                    for(int w=0;w!=line_tsd;++w){
                         loc_tsd[w][5]=0;
                         loc_tsd[w][4]=0;
                         loc_tsd[w][8]=0;
                     }
                     
-                    for(int j=0;j!=line_tsd;j++) {delete [] name_tsd[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] name_tsd[j];}
                     delete [] name_tsd;
                     
-                    for(int j=0;j!=line_tsd;j++) {delete [] ls[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] ls[j];}
                     delete [] ls;
-                    for(int j=0;j!=line_tsd;j++) {delete [] le[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] le[j];}
                     delete [] le;
-                    for(int j=0;j!=line_tsd;j++) {delete [] re[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] re[j];}
                     delete [] re;
-                    for(int j=0;j!=line_tsd;j++) {delete [] rs[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] rs[j];}
                     delete [] rs;
-                    for(int j=0;j!=line_tsd;j++) {delete [] len_5[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] len_5[j];}
                     delete [] len_5;
-                    for(int j=0;j!=line_tsd;j++) {delete [] len_3[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] len_3[j];}
                     delete [] len_3;
+                    
+                    for(int j=0;j!=line_tsd;++j) {delete [] kmerseq_tsd[j];}
+                    delete [] kmerseq_tsd;
                 }
                 
                 else {
@@ -1425,7 +1461,7 @@ int calling(string WD_dir, string t){
                     int flag_PA=0;
                     
                     // polyA
-                    for(int w=0;w!=p;w++){
+                    for(int w=0;w!=p;++w){
                         int ls_new, le_new, rs_new, re_new;
                         
                         if(orien[i]=="+"){
@@ -1442,7 +1478,7 @@ int calling(string WD_dir, string t){
                         }
                         //TSD seq
                         int read_seq=-1;
-                        for(int j=0;j!=line;j++){
+                        for(int j=0;j!=line;++j){
                             
                             string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                             stringstream ss_0;
@@ -1522,7 +1558,7 @@ int calling(string WD_dir, string t){
                         int singleA=0;
                         
                         if(orien[i]=="+"){
-                            for(int n=rs_new-10;n!=rs_new;n++){
+                            for(int n=rs_new-10;n!=rs_new;++n){
                                 if(seq3[n]=='A'||seq3[n]=='a'){
                                     singleA=singleA+1;
                                 }
@@ -1530,7 +1566,7 @@ int calling(string WD_dir, string t){
                         }
                         
                         else if(orien[i]=="-"){
-                            for(int n=re_new;n!=re_new+10;n++){
+                            for(int n=re_new;n!=re_new+10;++n){
                                 if(seq3[n]=='T'||seq3[n]=='t'){
                                     singleA=singleA+1;
                                 }
@@ -1563,7 +1599,7 @@ int calling(string WD_dir, string t){
                         continue;
                     }
                     
-                    for(int w=0;w!=p;w++){
+                    for(int w=0;w!=p;++w){
                         int ls_new, le_new, rs_new, re_new;
                         
                         if(orien[i]=="+"){
@@ -1581,7 +1617,7 @@ int calling(string WD_dir, string t){
                         //TSD seq
                         int read_seq=-1;
                         string name_tag;
-                        for(int j=0;j!=line;j++){
+                        for(int j=0;j!=line;++j){
                             
                             string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                             stringstream ss_0;
@@ -1669,36 +1705,39 @@ int calling(string WD_dir, string t){
                         file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<name_tsd[number_buff][w]<<'\t';
                         
                         if(orien[i]=="+"){
-                            for(int n=ls_new-1;n!=le_new;n++){
+                            for(int n=ls_new-1;n!=le_new;++n){
                                 file4<<seq5[n];
                             }
                             file4<<'\t';
                             
-                            for(int n=rs_new-1;n!=re_new;n++){
+                            for(int n=rs_new-1;n!=re_new;++n){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=0;n!=rs_new-1;n++){
+                            for(int n=0;n!=rs_new-1;++n){
                                 file4<<seq3[n];
                             }
                         }
                         
                         else if(orien[i]=="-"){
-                            for(int n=ls_new-1;n!=le_new;n++){
+                            for(int n=ls_new-1;n!=le_new;++n){
                                 file4<<seq5[n];
                             }
                             file4<<'\t';
                             
-                            for(int n=rs_new-1;n!=re_new;n++){
+                            for(int n=rs_new-1;n!=re_new;++n){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=re_new;n!=info[read_seq][3].length();n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();++n){
                                 file4<<seq3[n];
                             }
                         }
                         
 //5' 26mer output
+                        file4<<'\t'<<kmerseq_tsd[number_buff][w]<<'\t';
+                        
+                        /*
                         string kmer_0, kmer_1, kmer_2, kmer_3;
                         stringstream ss_kmer_0;
                         ss_kmer_0.clear();
@@ -1741,34 +1780,34 @@ int calling(string WD_dir, string t){
                         
                         file26.close();
                         file26.clear();
-                        
+                        */
 //whole insertin sequence output
                         
                         if(orien[i]=="+"){
-                            for(int n=le_new;n!=info[read_seq][2].length();n++){
+                            for(int n=le_new;n!=info[read_seq][2].length();++n){
                                 file4<<seq5[n];
                             }
                             
-                            for(int n=0;n!=info_line[read_seq][2].length()-1;n++){
+                            for(int n=0;n!=info_line[read_seq][2].length()-1;++n){
                                 file4<<seq_line[n];
                             }
                             
-                            for(int n=0;n!=rs_new-1;n++){
+                            for(int n=0;n!=rs_new-1;++n){
                                 file4<<seq3[n];
                             }
                         }
                         
                         else if(orien[i]=="-"){
                             
-                            for(int n=re_new;n!=info[read_seq][3].length();n++){
+                            for(int n=re_new;n!=info[read_seq][3].length();++n){
                                 file4<<seq3[n];
                             }
                             
-                            for(int n=1;n!=info_line[read_seq][2].length()-1;n++){
+                            for(int n=1;n!=info_line[read_seq][2].length()-1;++n){
                                 file4<<seq_line[n];
                             }
                             
-                            for(int n=0;n!=ls_new-1;n++){
+                            for(int n=0;n!=ls_new-1;++n){
                                 file4<<seq5[n];
                             }
                             
@@ -1823,49 +1862,57 @@ int calling(string WD_dir, string t){
                     }
                     
                     //return
-                    for(int w=0;w!=line_tsd;w++){
+                    for(int w=0;w!=line_tsd;++w){
                         loc_tsd[w][5]=0;
                         loc_tsd[w][4]=0;
                         loc_tsd[w][8]=0;
                     }
                     
-                    for(int j=0;j!=line_tsd;j++) {delete [] name_tsd[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] name_tsd[j];}
                     delete [] name_tsd;
                     
-                    for(int j=0;j!=line_tsd;j++) {delete [] ls[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] ls[j];}
                     delete [] ls;
-                    for(int j=0;j!=line_tsd;j++) {delete [] le[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] le[j];}
                     delete [] le;
-                    for(int j=0;j!=line_tsd;j++) {delete [] re[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] re[j];}
                     delete [] re;
-                    for(int j=0;j!=line_tsd;j++) {delete [] rs[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] rs[j];}
                     delete [] rs;
-                    for(int j=0;j!=line_tsd;j++) {delete [] len_5[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] len_5[j];}
                     delete [] len_5;
-                    for(int j=0;j!=line_tsd;j++) {delete [] len_3[j];}
+                    for(int j=0;j!=line_tsd;++j) {delete [] len_3[j];}
                     delete [] len_3;
+                    
+                    for(int j=0;j!=line_tsd;++j) {delete [] kmerseq_tsd[j];}
+                    delete [] kmerseq_tsd;
                     
                 }                
             }
         }
     }
     
-    for(int i=0;i!=line;i++){
+    for(int i=0;i!=line;++i){
         delete [] info[i];
         delete [] loc[i];
         delete [] loc_TP[i];
+        delete [] loc_TP_line[i];
+        delete [] info_line[i];
     }
     delete [] info;
     delete [] loc;
+    delete [] loc_TP_line;
+    delete [] info_line;
+    delete [] loc_TP;
     
-    for(int i=0;i!=line_tsd;i++){
+    for(int i=0;i!=line_tsd;++i){
         delete [] loc_tsd[i];
         //delete [] loc[i];
     }
     delete [] loc_tsd;
-    delete [] loc_TP;
     delete [] orien;
     delete [] info_tsd;
+    delete [] kmer_tsd;
     
     return 0;
 }
