@@ -17,8 +17,8 @@ using namespace std;
 
 int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len){
     
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
     int C_len=0;
     if(cus_seq_len!=-1){
@@ -410,7 +410,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                             if((loc[i][2]-BIN/2)<=loc[j][3]&&(loc[i][2]+BIN/2)>=loc[j][3]){
                                 if((loc[i][4]-BIN/2)<=loc[j][5]&&(loc[i][4]+BIN/2)>=loc[j][5]){
                                     if(t=="LINE"){
-                                        if(loc[i][0]<=L_len&&loc[i][1]>=6025){
+                                        if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6025){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                         }
                                     }
@@ -437,7 +437,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                             if((loc[j][2]-BIN/2)<=loc[i][3]&&(loc[j][2]+BIN/2)>=loc[i][3]){
                                 if((loc[j][4]-BIN/2)<=loc[i][5]&&(loc[j][4]+BIN/2)>=loc[i][5]){
                                     if(t=="LINE"){
-                                        if(loc[i][0]<=L_len&&loc[i][1]>=6025){
+                                        if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6025){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                         }
                                     }
@@ -469,7 +469,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     for(int i=0;i!=line_read;++i){
         if(t=="LINE"){
             //cout<<">????"<<endl;
-            if(loc[i][0]<=L_len&&loc[i][1]>=6025){
+            if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6025){
                 file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
         }

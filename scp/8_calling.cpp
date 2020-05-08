@@ -17,8 +17,8 @@ using namespace std;
 
 int calling(string WD_dir, string t){
     
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
     int BIN_5=50;
     int J_BIN=50;

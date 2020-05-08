@@ -19,8 +19,8 @@ int samtools(string working_dir, string input_bam, string chr, string start, str
     
     //cout<<"Samtools Step is now running."<<endl;
     //##########hard code warming########## -q -F ##########
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
     string sys;
     sys="samtools view -q 10 -F 0x100 -F 0x200 -F 0x800 -F 0x400 "+input_bam+" "+chr+":"+start+"-"+end+" |sed -e 's/[ ][ ]*/_/g'  > "+working_dir+"region.sam";

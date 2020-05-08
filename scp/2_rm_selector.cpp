@@ -17,8 +17,8 @@ using namespace std;
 
 int RMSelector(string WD, string WD_dir, string sys_region){
     
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
     char *syst_region =new char[sys_region.length()+1];
     strcpy(syst_region, sys_region.c_str());

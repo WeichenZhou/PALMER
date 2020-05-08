@@ -17,8 +17,8 @@ using namespace std;
 
 int blastn(string WD_dir, string t, string direc){
     
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
     //cout<<"Blastn Step is now running."<<endl;
     
@@ -74,7 +74,7 @@ int blastn(string WD_dir, string t, string direc){
     
     char *syst_blastn = new char[sys_blastn.length()+1];
     strcpy(syst_blastn, sys_blastn.c_str());
-    
+    //cout<<sys_blastn<<endl;
     system(syst_blastn);
     return 0;
 }

@@ -17,8 +17,8 @@ using namespace std;
 
 int ReadMasker(string WD_dir){
     
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
     ifstream file1;
     ifstream file2;

@@ -19,8 +19,8 @@ using namespace std;
 
 int tsd_module(string WD_dir, string t, int tsd_index){
     
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
     int BIN_5=50;
     int J_BIN=50;

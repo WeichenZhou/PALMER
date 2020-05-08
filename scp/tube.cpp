@@ -28,8 +28,8 @@ using namespace std;
 
 int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len){
     
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+    //std::ios::sync_with_stdio(false);
+    //std::cin.tie(0);
     
 //building working directory
     int start1, end1;
@@ -88,6 +88,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
     blastn(WD_tube, type, direc);
     //cout<<"4. Blastn Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
+    cout<<"Blastn Step for region "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
     
 //5. Blastn caller
     

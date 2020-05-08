@@ -12,7 +12,7 @@ Pre-mAsking Long reads for Mobile Element inseRtion
 Required resources:
 ```
  samtools/1.3.1  https://github.com/samtools/samtools
- ncbi-blast++/2.4.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+ ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
  git-lfs
 ```
 
@@ -70,27 +70,33 @@ Usage:
 
 Examples
 ```
-1) Running PALMER on your aligned bam based on GRCh37 reference genome to call LINE-1 insertions in chromosome3
+1) Running PALMER on example bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
+./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --chr 19 --ref_fa $your.reference.file.path/GRCh38.fa
+
+Results (sample_calls.txt & sample_TSD_reads.txt)  from example bam file can also be found under the 'example' folder.
+```
+```
+2) Running PALMER on your aligned bam based on GRCh37 reference genome to call LINE-1 insertions in chromosome3
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.output.prefix --type LINE --chr 3 --ref_fa $your.reference.file.path/hs37d5.fa
 ```
 ```
-2) Running PALMER on your aligned bam based on GRCh38 reference genome to call SVA insertions in chromosome3
+3) Running PALMER on your aligned bam based on GRCh38 reference genome to call SVA insertions in chromosome3
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh38 --output your.output.prefix --type SVA --chr chr3 --ref_fa $your.reference.file.path/GRCh38.fa
 ```
 ```
-3) Running PALMER on your aligned bam to call Alu insertions in chromosome2a of Champanzee genome
+4) Running PALMER on your aligned bam to call Alu insertions in chromosome2a of Champanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa --custom_index reference.Alu.coordinates.in.your.reference.Chimpanzee.genome 
 ```
 ```
-4) Running PALMER on your aligned bam to call NumtS in chromosome5 of Champanzee genome
+5) Running PALMER on your aligned bam to call NumtS in chromosome5 of Champanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt --custom_index $your.custom_index.file.path/Chimp_ref_NumtS.bed
 ```
 ```
-5) Running PALMER on your aligned bam to call LINE-1 insertions in chromosomeX of mice genome
+6) Running PALMER on your aligned bam to call LINE-1 insertions in chromosomeX of mice genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --custom_index $your.custom_index.file.path/mm10_ucsc_repeatmasker_LINE.bed --TSD_finding TRUE --len_custom_seq (int)
 ```
 ```
-6)
+7)
 A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Project trio derived from the Genome in a Bottle (GIAB) Consortium] using PALMER is available under:
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
@@ -113,6 +119,14 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 
 ## Logs
+
+**Ver1.5.1** May.7th.2020
+
+* Highly optimized the performance of calling customized insertion sequences (non-humman genomes, non-MEIs)!!
+* Sample bam file added, example updated, results from sample bam updated!!
+* A fatal bug fixed calling L1NE-1 since Ver1.4.1.
+* A fatal bug fixed related to the environment of computing clusters and the version of BLASTn. Now require the version ncbi-blast++/2.10.0.
+* Minor bugs fixed.
 
 **Ver1.5** May.4th.2020 "MAY THE FORCE BE WITH YOU!"
 
