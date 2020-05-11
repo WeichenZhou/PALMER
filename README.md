@@ -5,15 +5,14 @@
 
 Pre-mAsking Long reads for Mobile Element inseRtion
 
-* PALMER detects non-reference MEI events (LINE, Alu and SVA) and other insertions, by using the indexed reference-aligned BAM files from long-read technology as inputs. It uses the track from [Repeatmasker](https://www.girinst.org/) to mask the portions of reads that aligned to these repeats, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
-* The ideal structure of an MEI event should be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’. 
+* PALMER detects non-reference MEI events (LINE, Alu and SVA) and other insertions by using the indexed reference-aligned BAM files from long-read technology as inputs. It uses the track from [Repeatmasker](https://www.girinst.org/) to mask the portions of reads that aligned to these repeats, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
 
 
 Required resources:
 ```
  samtools/1.3.1  https://github.com/samtools/samtools
- ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (lower version will introduce fatal bugs.)
- git lfs (when index files are text pointers, or choose 'Download ZIP' if you don't want to install git-lfs)
+ ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
+ git-lfs (Use when index files are text pointers. Or simply choose 'Download ZIP' if you don't want to install git-lfs.)
 ```
 
 
@@ -117,6 +116,9 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 [Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), 
 Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
+## Contact
+
+* arthurz@med.umich.edu
 
 ## Logs
 
