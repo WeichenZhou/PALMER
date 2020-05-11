@@ -1,0 +1,2 @@
+cluster_id	chr start1	start2	end1	end2	start1_inVariant	start2_inVariant	end1_inVariant	end2_inVariant	Confident_supporting_reads	Potential_supporting_reads	Ptential_segmental_supporting_reads	orientation	polyA-tail_size	5'_TSD_size	3'_TSD_size	Predicted_transD_size	Has_5'_inverted_sequence?	5'_inverted_seq_end	5'_seq_start
+cluster5_chr19_4879460_4879460_4879460_4879460	chr19	4879460	4879460	4879460	4879460	5803	5803	6058	6058	1	1	0	+	33	6	6	1629	0	0	0
