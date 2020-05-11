@@ -13,7 +13,6 @@ Required resources:
 ```
  samtools/1.3.1  https://github.com/samtools/samtools
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
- git-lfs
 ```
 
 
@@ -119,6 +118,10 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 
 ## Logs
+
+**Ver2.0** May.11th.2020
+
+* Frozen version for "Refining polymorphic retrotransposon insertions in human genomes". Good Luck!
 
 **Ver1.5.1** May.7th.2020
 
