@@ -6,7 +6,7 @@
 Pre-mAsking Long reads for Mobile Element inseRtion
 
 * PALMER detects non-reference MEI events (LINE, Alu and SVA) and other insertions by using the indexed reference-aligned BAM files from long-read technology as inputs. It uses the track from [Repeatmasker](https://www.girinst.org/) to mask the portions of reads that aligned to these repeats, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
-
+* The ideal structure of an MEI event would be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’.
 
 Required resources:
 ```
