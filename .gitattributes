@@ -1,3 +1,0 @@
-*.h filter=lfs diff=lfs merge=lfs -text
-*.GRCh37 filter=lfs diff=lfs merge=lfs -text
-*.GRCh38 filter=lfs diff=lfs merge=lfs -text
