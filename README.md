@@ -122,6 +122,10 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 ## Logs
 
+**Ver1.6** May.19th.2020
+
+* Fixed a bug when calling customized insertion sequences without TSD finding module.
+
 **Ver1.6** May.11th.2020
 
 * Frozen version for "Refining polymorphic retrotransposon insertions in human genomes". Good Luck!

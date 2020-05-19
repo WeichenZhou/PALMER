@@ -491,6 +491,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             //file5.clear();
             
     //Possible TSD finding & filtering
+            //cout <<tsd_index<<endl;
             
             if(tsd_index==1){
 
@@ -643,9 +644,17 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 
                 
             }
+            
+            
             else if(tsd_index==0){
+                //cout<< "yes"<<endl;
+                file14.open(syst_tsd_bl);
                 file14<<name[i]<<seq_index<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
+            
+            //else {
+                //cout<< "wut??"<<endl;
+            //}
         }
     //}
     /*

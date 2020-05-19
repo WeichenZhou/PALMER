@@ -15,7 +15,7 @@
 
 using namespace std;
 
-int calling(string WD_dir, string t){
+int calling(string WD_dir, string t, int tsd_index){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
@@ -969,6 +969,8 @@ int calling(string WD_dir, string t){
             //cout<<"number_all is "<<number_all<<endl;
             
             
+            if(tsd_index==1){
+            
 //TSD_indentifier
             string **name_tsd;
             name_tsd =new string*[line_tsd];
@@ -1055,6 +1057,9 @@ int calling(string WD_dir, string t){
                     //cout<<"loc_tsd[w][5]="<<loc_tsd[w][5]<<endl;
                 }
             }
+            
+            
+           
             
             //transD ployA
             int flag_ployA=0;
@@ -1889,6 +1894,12 @@ int calling(string WD_dir, string t){
                     
                 }                
             }
+            }
+            else if (tsd_index==0){
+                file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<number_all<<'\t'<<(number_all-number)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
+                file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
+            }
+                
         }
     }
     

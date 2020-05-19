@@ -555,6 +555,7 @@ int main(int argc, char *argv[]){
             
             //getchar();
             //****
+            //cout<<flag_tsd<<endl;
             tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len);
         }
         /*ver1.3
