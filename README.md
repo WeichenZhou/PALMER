@@ -42,7 +42,7 @@ Usage:
          indexed fasta file of reference genome fasta file with directory path used for the aligned bam file (wrong reference will cause error information)
 
 --type (options: LINE, ALU, SVA, or CUSTOMIZED (if you want to setup your costomized sequence))
-         type of MEIs or other kind of insertions to detect
+         type of MEIs or other kinds of insertions to detect
 
 --chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
          chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
@@ -54,17 +54,17 @@ Usage:
 '" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without the masking step)
          index file with directory path to mask the genome for your insertion finding
 
---TSD_finding (Fixed:TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)
+--TSD_finding (Fixed: TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)
          whether to run TSD motif finding module for your insertion calling
 
---len_custom_seq (MUST set up when activate TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)
-         integer value for the length of your customized sequence WITHOUT polyA tact
+--len_custom_seq (MUST set up when activating TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)
+         interger value for the length of your customized sequence WITHOUT polyA tact
 
 --L_len (default: 25bp)
          the minimum length of putative LINE-1 aligned to L1.3 sequences
 
 --output (default: output)
-         prefix of output file
+         the prefix of the output file
 ```
 
 Examples
@@ -122,7 +122,11 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 ## Logs
 
-**Ver1.6** May.19th.2020
+**Ver1.6.2** May.19th.2020
+
+* Fixed a bug that would crash the software when the read names are not unique in the raw fastq regarding the PacBio subreads.
+
+**Ver1.6.1** May.19th.2020
 
 * Fixed a bug when calling customized insertion sequences without TSD finding module.
 
@@ -140,7 +144,7 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 **Ver1.5** May.4th.2020 "MAY THE FORCE BE WITH YOU!"
 
-* Added one more option for the length of customized insertion sequence.
+* Added one more option for the length of the customized insertion sequence.
 * Optimized the performance for customized insertion sequence finding!
 * Minor bugs fixed.
 
@@ -151,17 +155,17 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 **Ver1.4** Feb.27th.2019
 
 * Highly improved calling for SVA.
-* Now PALMER supports other reference based bam files besides GRCh37, GRCh38 and hg19.
-* Time consuming: to run PALMER on chr1/GRCh37, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimun.
+* Now PALMER supports other reference-based bam files besides GRCh37, GRCh38, and hg19.
+* Time consumption: to run PALMER on chr1/GRCh37, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimum.
 * A fatal bug fixed.
 * Optimized scripts and outputs.
 * Minor bugs fixed.
 
 **Ver1.3.3** Feb.3rd.2019 ^^^(*￣(oo)￣)^^^ Happy Lunar New Year! Year of the Pig!! ^^^(*￣(oo)￣)^^^ 
 
-* A steady and sensitive version for detection all MEIs (LINE-1, Alu and SVA) in human genome.
-* Time consuming: to run PALMER on chr1, calling would cost ~150 hours (LINE-1), ~20 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimun. Right now, PALMER does not support multi-thread processing.
-* Now PALMER can output whole structure of MEI sequence, including inserted main sequence as well as different characteristics (TSD, TD, polyA tail) that have been supported by previous version already.
+* A steady and sensitive version for detection all MEIs (LINE-1, Alu, and SVA) in human genome.
+* Time consumption: to run PALMER on chr1, calling would cost ~150 hours (LINE-1), ~20 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimum. Right now, PALMER does not support multi-thread processing.
+* Now PALMER can output whole structure of MEI sequence, including inserted main sequence as well as different characteristics (TSD, TD, polyA tail) that have been supported by the previous version already.
 * A fatal bug related to PacBio read name from fastq data fixed. 
 * Minor bugs fixed.
 
@@ -194,7 +198,7 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 * Better performance for Alu calling
 * Import 'CNV-related false positive exclusion' module
 * Import genotyping module (not online yet)
-* Import 'Customized sequence finding and genome masking' moudule
+* Import 'Customized sequence finding and genome masking' module
 * Several minor bugs fixed
 * Optimized output files
 * Optimized codes and annotations

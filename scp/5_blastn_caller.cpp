@@ -127,7 +127,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     string **read;
     read=new string*[line];
-    for(int i=0;i!=line;++i) read[i]=new string[3];
+    for(int i=0;i!=line;++i) read[i]=new string[4];
     int *read_loc;
     read_loc= new int[line];
     int *read_le;
@@ -149,10 +149,15 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     }
     for(int i=0;i!=line;++i){
         file1>>read[i][2];      //cigar
+        file1>>input;   //tag #
         file3>>read[i][0];      //read name
         file3>>read[i][1];      //chr
         file3>>read_loc[i];     //pos
         file3>>read_le[i];      //read length
+        file3>>input;   //tag #
+        string nametag;
+        nametag = std::to_string(read_loc[i]);
+        read[i][3]=read[i][0]+"_"+nametag+"_"+input;
     }
     for(int i=0;i!=blast;++i){
         int buff;
@@ -177,7 +182,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         int flag_r=0;
         
         for(int j=0;j!=line&&flag_r==0;++j){
-            if(bla_name[i]==read[j][0]){
+            if(bla_name[i]==read[j][3]){
                 flag_r=1;
                 
                 char cig;

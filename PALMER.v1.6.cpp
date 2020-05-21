@@ -211,7 +211,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: 1.5"<<endl;
+        cout<<"Version: 1.6.2"<<endl;
         cout<<"Presented by Weichen Zhou @ Mills Lab. Feb.28th.2019"<<endl;
         cout<<endl;
         cout<<"Usage:"<<endl;
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]){
         cout<<"         indexed fasta file of reference genome fasta file with directory path used for the aligned bam file (wrong reference will cause error information)"<<endl;
         cout<<endl;
         cout<<"--type (options: LINE, ALU, SVA, or CUSTOMIZED (if you want to setup your costomized sequence))"<<endl;
-        cout<<"         type of MEIs or other kind of insertions to detect"<<endl;
+        cout<<"         type of MEIs or other kinds of insertions to detect"<<endl;
         cout<<endl;
         cout<<"--chr (default: ALL (for whole genome); options: chromosome1, chromosome2, ...chromosomeY)"<<endl;
         cout<<"         chromosome name for PALMER to run (if running for whole genome, don't need to assign). !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'"<<endl;
@@ -241,12 +241,12 @@ int main(int argc, char *argv[]){
         cout<<"--custom_index (default:no input; if you have both '--ref_ver other' and '--type LINE/ALU/SVA', you must give PALMER a index file (format: \"CHR'\t'START'\t'END'\t'MEI_NAME'\n'\" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)"<<endl;
         cout<<"         index file with directory path to mask the genome for your insertion finding"<<endl;
         cout<<endl;
-        cout<<"--TSD_finding (Fixed:TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)"<<endl;
+        cout<<"--TSD_finding (Fixed: TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)"<<endl;
         cout<<"         whether to run TSD motif finding module for your insertion calling"<<endl;
         cout<<endl;
         
         cout<<"--len_custom_seq (MUST set up when activate TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)"<<endl;
-        cout<<"         integer value for the length of your customized sequence WITHOUT polyA tact"<<endl;
+        cout<<"         interger value for the length of your customized sequence WITHOUT polyA tact"<<endl;
         cout<<endl;
         
         cout<<"--L_len (default: 25bp)"<<endl;
@@ -254,7 +254,7 @@ int main(int argc, char *argv[]){
         cout<<endl;
         
         cout<<"--output (default: output)"<<endl;
-        cout<<"         prefix of output file"<<endl;
+        cout<<"         the prefix of the output file"<<endl;
         cout<<endl;
         exit(1);
     }

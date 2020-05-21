@@ -158,6 +158,8 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
         kmer_tsd[i]="";
     }
 
+    
+    //cout<<"ready to process this"<<endl;
 //FP_ex module
     if(tsd_index==1){
         for(int i=0;i!=line;++i){
