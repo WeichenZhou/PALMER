@@ -1,0 +1,5 @@
+workdir
+*.fa
+*.fa.fai
+*.o
+.vscode

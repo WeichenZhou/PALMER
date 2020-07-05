@@ -22,6 +22,8 @@ Download and Install
 ```
 git clone https://github.com/mills-lab/PALMER.git
 cd PALMER
+git submodule init && git submodule update
+cd samtools && ./configure && make && sudo make install && cd ..
 make
 ```
 

@@ -19,10 +19,15 @@
 #include <sys/wait.h>
 #include "scp/tube.cpp"
 
+#include "extension/samview.h"
+#include "extension/helper.h"
+
 using namespace std;
 
 int main(int argc, char *argv[]){
 
+    Ticker ticker = Ticker();
+    Samview samview = Samview();
 //parameters_start
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
@@ -556,7 +561,10 @@ int main(int argc, char *argv[]){
             //getchar();
             //****
             //cout<<flag_tsd<<endl;
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len);
+            
+            ticker.Start();
+            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, &samview);
+            ticker.End();
         }
         /*ver1.3
         if(chr_index==1){
