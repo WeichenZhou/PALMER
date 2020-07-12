@@ -20,6 +20,7 @@
 #include "htslib/khash.h"
 #include "htslib/kstring.h"
 #include "htslib/thread_pool.h"
+#include "htslib/header.h"
 
 #include "extension/extern-samview.h"
 #include "extension/samline.h"
@@ -31,15 +32,21 @@ class Samview
 {
 private:
     samview_settings_t settings;
+    sam_global_args ga;
 
 public:
     std::vector<SamLine> regionLines;
+    std::vector<string> headerChr;
+    std::vector<int> headerLength;
 
 public:
     Samview(/* args */);
     ~Samview();
 
     int SamViewCommand(int argc, char *argv[], const char *inFileName, int argMinMapQ, const char *argRegion);
+    int SamViewHeaderOnly(const char *inFileName);
+
+private:
     int check_sam_write1(const sam_hdr_t *h, const bam1_t *b);
     int process_aln_palmer(const sam_hdr_t *h, bam1_t *b, samview_settings_t *settings);
 };

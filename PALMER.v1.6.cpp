@@ -264,7 +264,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     
-    
+
     string parameter[6];
     parameter[0]=T;
     parameter[1]=WD;
@@ -375,7 +375,6 @@ int main(int argc, char *argv[]){
     else if(ref_n==-1){
         //sys_line_region=cusin;
         
-        
         buildup=WD+"index/";
         
         string sys_build;
@@ -385,76 +384,15 @@ int main(int argc, char *argv[]){
         strcpy(syst_build, sys_build.c_str());
         system(syst_build);
         
-        string sys1;
-        sys1="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $3}' >"+buildup+"chr.list";
+        if(samview.SamViewHeaderOnly(inputF.c_str())!=0){
+            cout << "CANNOT READ HEADER INFO FROM FILE<" << inputF << ">" << endl;
+            return 1;
+        };
         
-        string sys2;
-        sys2="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $5}' >"+buildup+"length.list";
-        
-        char *syst1 = new char[sys1.length()+1];
-        strcpy(syst1, sys1.c_str());
-        system(syst1);
-        
-        char *syst2 = new char[sys2.length()+1];
-        strcpy(syst2, sys2.c_str());
-        system(syst2);
-        
-        sys_region_index_chr=buildup+"chr.list";
-        sys_region_index_length=buildup+"length.list";
         sys_region_index=buildup+"region.split.index";
     }
-    //cout<<sys_region_index<<" "<<sys_line_region<<endl;
- //original
-    char *syst_region_index_chr =new char[sys_region_index_chr.length()+1];
-    strcpy(syst_region_index_chr, sys_region_index_chr.c_str());
-    char *syst_region_index_length =new char[sys_region_index_length.length()+1];
-    strcpy(syst_region_index_length, sys_region_index_length.c_str());
-    
-    ifstream file91;
-    ifstream file92;
-    file91.open(syst_region_index_chr);
-    file92.open(syst_region_index_length);
-    
-    int line_chr;
-    int line_len;
-    string input_inde;
-    for(int i=0;!file91.eof();++i){
-        getline(file91,input_inde);
-        line_chr=i;
-    }
-    for(int i=0;!file92.eof();++i){
-        getline(file92,input_inde);
-        line_len=i;
-    }
-    
-    //cout<<"line_chr="<<line_chr<<endl;
-    //cout<<"line_length="<<line_len<<endl;
-    
-    file92.close();
-    file91.close();
-    file92.clear();
-    file91.clear();
-    
-    file91.open(syst_region_index_chr);
-    file92.open(syst_region_index_length);
-    
-    string chr_inde[line_chr];
-    int len_inde[line_len];
-    
-    for(int i=0;i!=line_chr;++i){
-        file91>>chr_inde[i];
-    }
-    for(int i=0;i!=line_len;++i){
-        file92>>len_inde[i];
-    }
-    
-    file92.close();
-    file91.close();
-    file92.clear();
-    file91.clear();
     ifstream file2;
     
-    //char *syst_region_index ;
     char *syst_region_index =new char[sys_region_index.length()+1];
     strcpy(syst_region_index, sys_region_index.c_str());
     
@@ -465,16 +403,16 @@ int main(int argc, char *argv[]){
         file93.open(syst_region_index,ios::trunc);
         
         int bin=1000000;
-        for(int i=0;i!=line_chr;++i){
+        for(int i=0;i!=samview.headerChr.size();++i){
             int j=i;
             int sec;
                 //last;
-            sec=int(len_inde[j]/bin);
+            sec=int(samview.headerLength[j]/bin);
                 //last=len_inde[j]%bin;
             for(int k=0;k!=sec;k++){
-                file93<<chr_inde[i]<<'\t'<<(1+k*bin)<<'\t'<<(k*bin+bin)<<endl;
+                file93<<samview.headerChr[i]<<'\t'<<(1+k*bin)<<'\t'<<(k*bin+bin)<<endl;
             }
-            file93<<chr_inde[i]<<'\t'<<(1+sec*bin)<<'\t'<<len_inde[j]<<endl;
+            file93<<samview.headerChr[i]<<'\t'<<(1+sec*bin)<<'\t'<<samview.headerLength[j]<<endl;
             
         }
         //ifstream file2;
