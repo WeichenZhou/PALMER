@@ -2,8 +2,8 @@ TARGET 			= 	PALMER
 CPP_FILES 		= 	$(shell ls *.cpp)
 BASE 			= 	$(basename $(CPP_FILES))
 
-CPP_FLAGS 		= 	-I. -fpermissive -lpthread
-C_FLAGS   		= 	-g -w -O3
+CPP_FLAGS 		= 	-I. -fpermissive -lpthread -std=c++11
+C_FLAGS   		= 	-g -w -O0
 
 SAMTOOLS_DIR		= 	samtools
 HTSLIB_DIR 			= 	htslib
@@ -35,7 +35,7 @@ include $(HTSLIB_DIR)/htslib.mk
 OBJS = samview.o $(HTSLIB_LIB) 
 
 $(TARGET): $(OBJS)
-	g++ -o $(TARGET) $(BASE).cpp $(OBJS) $(SAMTOOLS_OBJS) -std=c++11 $(ALL_CPPFLAGS) 
+	g++ -o $(TARGET) $(BASE).cpp $(OBJS) $(SAMTOOLS_OBJS) $(ALL_CPPFLAGS) 
 
 samview.o: extension/samview.cpp $(HTSLIB_PUBLIC_HEADERS) 
 	g++ $(ALL_CPPFLAGS) -c $^ 
