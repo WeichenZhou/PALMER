@@ -59,6 +59,9 @@ int samtools(string working_dir, string input_bam, string chr, string start, str
         cout << "samview.regionLines.size() = " << samview->regionLines.size() << endl;
     }
 
+    free(argv[ARG_SIZE - 2]);
+    free(argv[ARG_SIZE - 1]);
+
     //string sys_replace;
     //sys_replace="sed -e 's/[ ][ ]*/_/g' "+working_dir+"region.pre.sam"+" > "+working_dir+"region.sam";
 

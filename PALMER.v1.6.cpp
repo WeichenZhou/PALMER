@@ -282,12 +282,10 @@ int main(int argc, char *argv[]){
     
 //Buildup & index or HG version chose
     string sys_dir="dirname "+dir;
-    char *syst_dir=new char[sys_dir.length()+1];
-    strcpy(syst_dir, sys_dir.c_str());
     
     vector<string> dir_conv;
     dir_conv.clear();
-    FILE *pp =popen(syst_dir,"r");
+    FILE *pp =popen(sys_dir.c_str(),"r");
     char tmp[1024];
     while (fgets(tmp, sizeof(tmp), pp) != NULL) {
         if (tmp[strlen(tmp) - 1] == '\n') {
@@ -393,14 +391,10 @@ int main(int argc, char *argv[]){
     }
     ifstream file2;
     
-    char *syst_region_index =new char[sys_region_index.length()+1];
-    strcpy(syst_region_index, sys_region_index.c_str());
-    
-    
     if(ref_n==-1){
         
         ofstream file93;
-        file93.open(syst_region_index,ios::trunc);
+        file93.open(sys_region_index.c_str(),ios::trunc);
         
         int bin=1000000;
         for(int i=0;i!=samview.headerChr.size();++i){
@@ -423,7 +417,7 @@ int main(int argc, char *argv[]){
     else {
     //string sys_region_index=buildup+"region.split.index";
         
-        file2.open(syst_region_index);
+        file2.open(sys_region_index.c_str());
         
         if (!file2.is_open())
         {
@@ -440,7 +434,7 @@ int main(int argc, char *argv[]){
 //parameters_end
     
 //multiple threads
-    file2.open(syst_region_index);
+    file2.open(sys_region_index.c_str());
     string input_index;
     int line_index=0;
     for(int i=1;!file2.eof();){
@@ -465,7 +459,7 @@ int main(int argc, char *argv[]){
     
     file2.close();
     file2.clear();
-    file2.open(syst_region_index);
+    file2.open(sys_region_index.c_str());
     
     int NUM_circle;
     NUM_circle=(line_index/(NUM_threads+1))+1;
@@ -529,26 +523,22 @@ int main(int argc, char *argv[]){
     */
     file2.close();
     file2.clear();
-    file2.open(syst_region_index);
+    file2.open(sys_region_index.c_str());
     
     //merge
     
     string sys_final_title = WD+output+"_calls.txt";
-    char *syst_final_title = new char[sys_final_title.length()+1];
-    strcpy(syst_final_title, sys_final_title.c_str());
     ofstream file3;
-    file3.open(syst_final_title,ios::trunc);
+    file3.open(sys_final_title.c_str(),ios::trunc);
     
     file3<<"cluster_id"<<'\t'<<"chr start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Potential_supporting_reads"<<'\t'<<"Ptential_segmental_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
     
     string sys_final_tsd_title = WD+output+"_TSD_reads.txt";
-    char *syst_final_tsd_title = new char[sys_final_tsd_title.length()+1];
-    strcpy(syst_final_tsd_title, sys_final_tsd_title.c_str());
     ofstream file31;
-    file31.open(syst_final_tsd_title,ios::trunc);
+    file31.open(sys_final_tsd_title.c_str(),ios::trunc);
     
     file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
-    
+
     for(int i=0;i!=line_index;){
         file2>>chr;
         file2>>start;
@@ -562,16 +552,10 @@ int main(int argc, char *argv[]){
         
         if(CHR==chr){
             string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
-            //cout<<sys_final<<endl;
-            char *syst_final = new char[sys_final.length()+1];
-            strcpy(syst_final, sys_final.c_str());
-            system(syst_final);
+            system(sys_final.c_str());
             
             string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
-            //cout<<sys_final<<endl;
-            char *syst_final_tsd = new char[sys_final_tsd.length()+1];
-            strcpy(syst_final_tsd, sys_final_tsd.c_str());
-            system(syst_final_tsd);
+            system(sys_final_tsd.c_str());
             ++i;
         }
     }
@@ -586,5 +570,4 @@ int main(int argc, char *argv[]){
     
     cout<<"Final calls finished."<<endl;
     cout<<"Results are in "+WD+output<<endl;
-    
 }

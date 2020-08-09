@@ -3,7 +3,7 @@ CPP_FILES 		= 	$(shell ls *.cpp)
 BASE 			= 	$(basename $(CPP_FILES))
 
 CPP_FLAGS 		= 	-I. -fpermissive -lpthread -std=c++11
-C_FLAGS   		= 	-g -w -O0
+C_FLAGS   		= 	-g -w -O3
 
 SAMTOOLS_DIR		= 	samtools
 HTSLIB_DIR 			= 	htslib

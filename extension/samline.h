@@ -65,7 +65,10 @@ public:
         }
         // printf("[SamLine] UNKNOWNs.size = %d\n", UNKNOWNs.size());
     };
-    ~SamLine(){};
+    ~SamLine()
+    {
+        UNKNOWNs.clear();
+    };
 };
 
 #endif

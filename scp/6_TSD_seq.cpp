@@ -66,7 +66,7 @@ int tsd_module(string WD_dir, string t, int tsd_index, Samview *samview){
     file66.open(syst_cigar);
     
     string **ci;
-    ci=new string*[line_cigar];
+    ci=new string*[line_cigar]; // mem_leak
     for(int i=0;i!=line_cigar;++i) ci[i]=new string[2];
     
     for(int i=0;i!=line_cigar;++i){
@@ -663,10 +663,7 @@ int tsd_module(string WD_dir, string t, int tsd_index, Samview *samview){
                     //string sys_blastn = "blastn -task blastn -query <( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -subject ( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -word_size 6 -evalue 50 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \"1\"}' >> "+WD_dir+"TSD_blastn_pre.txt ";
                     string sys_blastn = "bash -c \"blastn -task blastn -query <(echo -e \\\">"+seq_index+"\\\\n"+(fasta5_str)+"\\\") -subject <(echo -e \\\">"+seq_index+"\\\\n"+(fasta3_str)+"\\\") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
-                    //cout<<sys_blastn <<endl;
-                    char *syst_blastn = new char[sys_blastn.length()+1];
-                    strcpy(syst_blastn, sys_blastn.c_str());
-                    system(syst_blastn);
+                    system(sys_blastn.c_str());
                 }
                 else if(info[i][1]=="-"){
                     ss<<le_3-e_3_1+s_3_1-1;
@@ -676,10 +673,7 @@ int tsd_module(string WD_dir, string t, int tsd_index, Samview *samview){
                     //string sys_blastn = "blastn -task blastn -query <(echo -e \">"+seq_index+"'\\n'"+fasta5_str+"\") -subject <(echo -e \">"+seq_index+"'\\n'"+fasta3_str+"\")";
                     string sys_blastn = "bash -c \"blastn -task blastn -query <(echo -e \\\">"+seq_index+"\\\\n"+(fasta5_str)+"\\\") -subject <(echo -e \\\">"+seq_index+"\\\\n"+(fasta3_str)+"\\\") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
-                    //cout<<sys_blastn <<endl;
-                    char *syst_blastn = new char[sys_blastn.length()+1];
-                    strcpy(syst_blastn, sys_blastn.c_str());
-                    system(syst_blastn);
+                    system(sys_blastn.c_str());
                 }
                 
                 //delete [] fasta5;
@@ -699,6 +693,16 @@ int tsd_module(string WD_dir, string t, int tsd_index, Samview *samview){
                 //cout<< "wut??"<<endl;
             //}
 //cout<<"finish this "<<i<<endl;
+            delete[] line_seq;
+            delete[] chunk_seq;
+            delete[] left;
+            delete[] left_3;
+            delete[] right;
+            delete[] right_3;
+            delete[] right_j;
+            delete[] left_j;
+            delete[] right_j_3;
+            delete[] left_j_3;
 
         }
     //}
@@ -784,11 +788,24 @@ int tsd_module(string WD_dir, string t, int tsd_index, Samview *samview){
         delete [] loc[i];
         delete [] loc_TP[i];
     }
+
+    for(int i = 0; i<line_cigar; i++){
+        delete [] ci[i];
+    }
+    delete [] ci;
+
     delete [] info;
     delete [] loc;
     delete [] loc_TP;
     delete [] name;
     
+    delete [] syst_cigar;
+    delete [] syst_readres;
+    delete [] syst_tsd;
+    delete [] syst_tsd_junc;
+    delete [] syst_tsd_bl;
+    delete [] syst_chunk;
+    delete [] syst_line;
     //cout<< "check TSD_blastn_pre.txt"<<endl;
     //getchar();
     

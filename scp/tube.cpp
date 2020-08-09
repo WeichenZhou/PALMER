@@ -29,7 +29,6 @@
 
 using namespace std;
 
-
 int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len, Samview *samview)
 {
     //std::ios::sync_with_stdio(false);
@@ -51,9 +50,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
 
     cout << "Working in the direcotry " << sys_mkdir << "." << endl;
 
-    char *syst_mkdir = new char[sys_mkdir.length() + 1];
-    strcpy(syst_mkdir, sys_mkdir.c_str());
-    system(syst_mkdir);
+    system(sys_mkdir.c_str());
 
     //1. samtools view
 
@@ -65,8 +62,6 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     ofstream file1;
 
     string sys_RMloc = WD_tube + "RM.loc";
-    char *syst_RMloc = new char[sys_RMloc.length() + 1];
-    strcpy(syst_RMloc, sys_RMloc.c_str());
     /*
     string chr_fix;
     chr_fix=chr;
@@ -74,7 +69,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
         chr_fix="chr"+chr;
     }
     */
-    file1.open(syst_RMloc);
+    file1.open(sys_RMloc.c_str());
     file1 << chr << '\t' << (start - 100000) << '\t' << (end + 100000) << endl;
 
     //2. Repeat region selector

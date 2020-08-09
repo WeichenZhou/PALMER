@@ -30,6 +30,9 @@ Samview::Samview(/* args */)
 
 Samview::~Samview()
 {
+    this->headerChr.clear();
+    this->headerLength.clear();
+    this->regionLines.clear();
     // close files, free and return
     free(settings.library);
     if (settings.bed)
@@ -66,8 +69,13 @@ int Samview::check_sam_write1(const sam_hdr_t *h, const bam1_t *b)
     // NewCode
     kstring_t kstr = KS_INITIALIZE;
     int ret = sam_format1(h, b, &kstr);
-    regionLines.push_back(SamLine(kstr.s));
+    SamLine sl = SamLine(kstr.s);
+    regionLines.push_back(sl);
     // printf("sam_write:: %d\n", ret);
+
+    if (kstr.s)
+        free(kstr.s);
+
     return 0;
 }
 
@@ -144,8 +152,14 @@ int Samview::process_aln_palmer(const sam_hdr_t *h, bam1_t *b, samview_settings_
 
 int Samview::SamViewHeaderOnly(const char *inFileName)
 {
+    int ret = 0;
+
     sam_hdr_t *header = NULL;
     samFile *in = 0;
+    char *fn_in = 0;
+
+    fn_in = strdup(inFileName);
+
     if ((in = sam_open_format(inFileName, "r", &ga.in)) == 0)
     {
         print_error_errno("[SamView]", "failed to open \"%s\" for reading", inFileName);
@@ -168,10 +182,16 @@ int Samview::SamViewHeaderOnly(const char *inFileName)
     while (true)
     {
         pos_SQ = str.find("@SQ", pos);
-        if (pos_SQ == string::npos) { break;}
+        if (pos_SQ == string::npos)
+        {
+            break;
+        }
 
         pos_lineEnd = str.find("\n", pos_SQ);
-        if (pos_lineEnd == string::npos) { pos_lineEnd = str.length();}
+        if (pos_lineEnd == string::npos)
+        {
+            pos_lineEnd = str.length();
+        }
         pos = pos_lineEnd;
 
         string SQLine = str.substr(pos_SQ, pos_lineEnd - pos_SQ);
@@ -181,22 +201,26 @@ int Samview::SamViewHeaderOnly(const char *inFileName)
         this->headerLength.push_back(std::stoi(SQLine.substr(j + 4, SQLine.length())));
     }
 
-    return 0;
+    if (in)
+        check_sam_close("view", in, inFileName, "standard input", &ret);
+    if (fn_in)
+        free(fn_in);
+    if (header)
+        sam_hdr_destroy(header);
+
+    return ret;
 }
 
 int Samview::SamViewCommand(int argc, char *argv[], const char *inFileName, int argMinMapQ, const char *argRegion)
 {
-    regionLines.clear();
+    this->regionLines.clear();
 
-    int64_t count = 0;
     int ret = 0;
+    int64_t count = 0;
     samFile *in = 0;
     sam_hdr_t *header = NULL;
-    char *fn_in = 0, *fn_list = 0, *q;
+    char *fn_in = 0;
     char *arg_list = NULL;
-
-    htsThreadPool p = {NULL, 0};
-    int filter_state = ALL, filter_op = 0;
 
     /* fake argument parse */
     // -F
@@ -300,13 +324,11 @@ view_end:
     // close files, free and return
     if (in)
         check_sam_close("view", in, fn_in, "standard input", &ret);
+    if (fn_in)
+        free(fn_in);
 
-    free(fn_list);
     if (header)
         sam_hdr_destroy(header);
-
-    if (p.pool)
-        hts_tpool_destroy(p.pool);
 
     if (arg_list)
         free(arg_list);

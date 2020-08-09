@@ -31,34 +31,19 @@ int ReadMasker(string WD_dir, Samview *samview)
     ofstream file7;
 
     string sys_regionsam = WD_dir+"region.sam";
-    char *syst_regionsam = new char[sys_regionsam.length()+1];
-    strcpy(syst_regionsam, sys_regionsam.c_str());
-    
-    // file1.open(syst_regionsam);
+    // file1.open(sys_regionsam.c_str());
     
     string sys_RMselec = WD_dir+"RM.selected";
-    char *syst_RMselec = new char[sys_RMselec.length()+1];
-    strcpy(syst_RMselec, sys_RMselec.c_str());
-    
-    file2.open(syst_RMselec);
+    file2.open(sys_RMselec.c_str());
     
     string sys_cigar2 = WD_dir+"cigar.2";
-    char *syst_cigar2 = new char[sys_cigar2.length()+1];
-    strcpy(syst_cigar2, sys_cigar2.c_str());
-    
-    file5.open(syst_cigar2);
+    file5.open(sys_cigar2.c_str());
     
     string sys_SEQ = WD_dir+"SEQ.masked";
-    char *syst_SEQ = new char[sys_SEQ.length()+1];
-    strcpy(syst_SEQ, sys_SEQ.c_str());
-    
-    file6.open(syst_SEQ);
+    file6.open(sys_SEQ.c_str());
     
     string sys_selecinfo = WD_dir+"selected.reads.info";
-    char *syst_selecinfo = new char[sys_selecinfo.length()+1];
-    strcpy(syst_selecinfo, sys_selecinfo.c_str());
-    
-    file7.open(syst_selecinfo);
+    file7.open(sys_selecinfo.c_str());
 
     // if (!file1.is_open())
     // {
@@ -132,7 +117,7 @@ if (!file2.is_open()){
         }
         file2.close();
         file2.clear();
-        file2.open(syst_RMselec);
+        file2.open(sys_RMselec.c_str());
         
         rm_loc=new int*[line_rm];
         for(int i=0;i!=line_rm;++i) rm_loc[i]=new int[2];
