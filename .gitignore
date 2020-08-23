@@ -3,3 +3,6 @@ workdir
 *.fa.fai
 *.o
 .vscode
+testdata
+
+0*/

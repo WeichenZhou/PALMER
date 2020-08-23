@@ -3,12 +3,18 @@
 
 ```bash
 export PALMER_Path=.
-export DirPath=./workdir
+export DirPath=./0001
 mkdir $DirPath
 
 ./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --chr chr19 --ref_fa $PALMER_Path/example/GRCh38.fa
 
 ./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --chr chr19 --ref_fa $PALMER_Path/example/GRCh38.fa > hello.log 2>&1
+
+./PALMER --input $PALMER_Path/testdata/output.sorted.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --chr chrX --ref_fa $PALMER_Path/testdata/GRCh38_BSM.fa > 0000.log 2>&1
+
+./PALMER --input $PALMER_Path/testdata/output.sorted.bam --workdir $DirPath/ --ref_ver GRCh38 --ref_fa $PALMER_Path/testdata/GRCh38_BSM.fa --output sample --type CUSTOMIZED --chr chrX --custom_seq $PALMER_Path/testdata/MT.fa --custom_index $PALMER_Path/testdata/refNumts.38.bed > 0001.log 2>&1
+
+./PALMER --input merged.sorted.NA19434.chrX.0131.bam --workdir Youe_dir --output output --ref_ver GRCh38 --ref_fa The_ref  --type CUSTOMIZED --chr chrX --custom_seq Seq_that_will_be_sent_to_you --custom_index Index_that_will_be_sent_to_you
 
 valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --show-reachable=yes ./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --chr chr19 --ref_fa $PALMER_Path/example/GRCh38.fa > ./log/valgrind.log 2>&1
 ```
