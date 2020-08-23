@@ -3,10 +3,11 @@ CPP_FILES 		= 	$(shell ls *.cpp)
 BASE 			= 	$(basename $(CPP_FILES))
 
 CPP_FLAGS 		= 	-I. -fpermissive -lpthread -std=c++11
-C_FLAGS   		= 	-g -w -O3
+C_FLAGS   		= 	-g -w -O3 
+#C_FLAGS   		= 	-g -w -fno-inline
 
-SAMTOOLS_DIR		= 	samtools
-HTSLIB_DIR 			= 	htslib
+SAMTOOLS_DIR	= 	samtools
+HTSLIB_DIR 		= 	htslib
 
 HTSLIB 			= 	$(HTSLIB_DIR)/libhts.a
 HTSLIB_LIB 		= 	$(HTSLIB) $(HTSLIB_static_LIBS)
@@ -41,4 +42,5 @@ samview.o: extension/samview.cpp $(HTSLIB_PUBLIC_HEADERS)
 	g++ $(ALL_CPPFLAGS) -c $^ 
 
 clean :
-	rm -rf $(TARGET) *.o workdir/*
+	rm -rf $(TARGET) *.o
+	#rm -rf $(TARGET) *.o workdir/*
