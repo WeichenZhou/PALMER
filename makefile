@@ -24,9 +24,12 @@ SAMTOOLS_OBJS			=	$(SAMTOOLS_DIR)/sample.o \
 							$(SAMTOOLS_DIR)/bedidx.o \
 							$(SAMTOOLS_DIR)/sam_opts.o
 
-LZ4OBJS  =  $(LZ4_DIR)/lz4.o
+LZ4_OBJS  	=  	$(LZ4_DIR)/lz4.o
 
-ALL_CPPFLAGS 	= 	$(SAMTOOLS_CPPFLAGS) $(HTSLIB_CPPFLAGS) $(CPP_FLAGS) $(C_FLAGS)
+LZ_LDFLAGS	=	-L/usr/local/opt/zlib/lib
+LZ_CPPFLAGS	=	-I/usr/local/opt/zlib/include
+
+ALL_CPPFLAGS 	= 	$(SAMTOOLS_CPPFLAGS) $(HTSLIB_CPPFLAGS) $(CPP_FLAGS) $(C_FLAGS) $(LZ_LDFLAGS) $(LZ_CPPFLAGS)
 
 all: $(TARGET) samview.o
 
@@ -37,7 +40,7 @@ include $(HTSLIB_DIR)/htslib.mk
 OBJS = samview.o $(HTSLIB_LIB) 
 
 $(TARGET): $(OBJS)
-	g++ -o $(TARGET) $(BASE).cpp $(OBJS) $(SAMTOOLS_OBJS) $(LZ4OBJS) $(ALL_CPPFLAGS) 
+	g++ -o $(TARGET) $(BASE).cpp $(OBJS) $(SAMTOOLS_OBJS) $(LZ4_OBJS) $(ALL_CPPFLAGS) 
 
 samview.o: extension/samview.cpp $(HTSLIB_PUBLIC_HEADERS) 
 	g++ $(ALL_CPPFLAGS) -c $^ 
