@@ -26,7 +26,6 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
-    Ticker ticker = Ticker();
     Samview samview = Samview();
 //parameters_start
     //std::ios::sync_with_stdio(false);
@@ -416,7 +415,6 @@ int main(int argc, char *argv[]){
     
     else {
     //string sys_region_index=buildup+"region.split.index";
-        
         file2.open(sys_region_index.c_str());
         
         if (!file2.is_open())
@@ -464,49 +462,23 @@ int main(int argc, char *argv[]){
     int NUM_circle;
     NUM_circle=(line_index/(NUM_threads+1))+1;
 
-    //pid_t p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
-    //, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30;
-    
     string input;
     string chr;
     int start, end;
 
-//no multithread
+    //no multithread
     for(int i=0;i!=line_index;){
-        //cout<<"right call"<<endl;
-        //cout<<chr<<endl;
-        
         file2>>chr;
         file2>>start;
         file2>>end;
-        int chr_index=0;
-        if(CHR=="ALL"){
-            chr_index=1;
-        }
-        else if(CHR==chr){
-            chr_index=1;
-            
-        }
-        if(chr_index==1){
-            ++i;
-            
-            //getchar();
-            //****
-            //cout<<flag_tsd<<endl;
-            
-            ticker.Start();
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, &samview);
-            ticker.End();
-        }
-        /*ver1.3
-        if(chr_index==1){
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_file);
-        }*/
-    }
-    
-   
-//merge and calling
 
+        if ( CHR=="ALL" || CHR==chr ) {
+            ++i;
+            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, &samview);
+        }
+    }
+   
+    //merge and calling
     cout<<"Merging step is initiated."<<endl;
     //mkdir
     /*

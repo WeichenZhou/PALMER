@@ -32,7 +32,7 @@ private:
     clock_t end;
 
 public:
-    Ticker(/* args */) { start = clock(); };
+    Ticker(/* args */) {};
     ~Ticker(){};
     int Start()
     {

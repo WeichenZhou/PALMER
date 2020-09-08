@@ -3,19 +3,17 @@ CPP_FILES 		= 	$(shell ls *.cpp)
 BASE 			= 	$(basename $(CPP_FILES))
 
 CPP_FLAGS 		= 	-I. -fpermissive -lpthread -std=c++11
-C_FLAGS   		= 	-g -w -O3 
-# C_FLAGS   		= 	-g -w -fno-inline
+C_FLAGS   		= 	-g -w -O3
 
 SAMTOOLS_DIR	= 	samtools
 HTSLIB_DIR 		= 	htslib
-LZ4_DIR 		= 	$(SAMTOOLS_DIR)/lz4
 
 HTSLIB 			= 	$(HTSLIB_DIR)/libhts.a
 HTSLIB_LIB 		= 	$(HTSLIB) $(HTSLIB_static_LIBS)
 HTSLIB_LDFLAGS 	= 	$(HTSLIB_static_LDFLAGS)
 HTSLIB_CPPFLAGS =	-I$(HTSLIB_DIR)
 
-SAMTOOLS_CPPFLAGS 		=	-I$(SAMTOOLS_DIR) -I$(LZ4_DIR) -L$(HTSLIB_DIR) -L$(LZ4_DIR)
+SAMTOOLS_CPPFLAGS 		=	-I$(SAMTOOLS_DIR) -L$(HTSLIB_DIR)
 SAMTOOLS_OBJS			=	$(SAMTOOLS_DIR)/sample.o \
 							$(SAMTOOLS_DIR)/sam.o \
 							$(SAMTOOLS_DIR)/sam_utils.o \
@@ -24,12 +22,7 @@ SAMTOOLS_OBJS			=	$(SAMTOOLS_DIR)/sample.o \
 							$(SAMTOOLS_DIR)/bedidx.o \
 							$(SAMTOOLS_DIR)/sam_opts.o
 
-LZ4_OBJS  	=  	$(LZ4_DIR)/lz4.o
-
-LZ_LDFLAGS	=	-L/usr/local/opt/zlib/lib
-LZ_CPPFLAGS	=	-I/usr/local/opt/zlib/include
-
-ALL_CPPFLAGS 	= 	$(SAMTOOLS_CPPFLAGS) $(HTSLIB_CPPFLAGS) $(CPP_FLAGS) $(C_FLAGS) $(LZ_LDFLAGS) $(LZ_CPPFLAGS)
+ALL_CPPFLAGS 	= 	$(SAMTOOLS_CPPFLAGS) $(HTSLIB_CPPFLAGS) $(CPP_FLAGS) $(C_FLAGS) 
 
 all: $(TARGET) samview.o
 
@@ -40,11 +33,10 @@ include $(HTSLIB_DIR)/htslib.mk
 OBJS = samview.o $(HTSLIB_LIB) 
 
 $(TARGET): $(OBJS)
-	g++ -o $(TARGET) $(BASE).cpp $(OBJS) $(SAMTOOLS_OBJS) $(LZ4_OBJS) $(ALL_CPPFLAGS) 
+	g++ -o $(TARGET) $(BASE).cpp $(OBJS) $(SAMTOOLS_OBJS) $(ALL_CPPFLAGS) 
 
 samview.o: extension/samview.cpp $(HTSLIB_PUBLIC_HEADERS) 
 	g++ $(ALL_CPPFLAGS) -c $^ 
 
 clean :
 	rm -rf $(TARGET) *.o
-	#rm -rf $(TARGET) *.o workdir/*
