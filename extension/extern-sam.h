@@ -1,6 +1,6 @@
 
-#ifndef PALMER_Extern_SamView_H
-#define PALMER_Extern_SamView_H
+#ifndef PALMER_Extern_Sam_H
+#define PALMER_Extern_Sam_H
 extern "C"
 {
 #include "samtools.h"

@@ -76,7 +76,7 @@ int Samview::check_sam_write1(const sam_hdr_t *h, const bam1_t *b)
     if (kstr.s)
         free(kstr.s);
 
-    return 0;
+    return ret;
 }
 
 int Samview::process_aln_palmer(const sam_hdr_t *h, bam1_t *b, samview_settings_t *settings)
@@ -160,14 +160,14 @@ int Samview::SamViewHeaderOnly(const char *inFileName)
 
     fn_in = strdup(inFileName);
 
-    if ((in = sam_open_format(inFileName, "r", &ga.in)) == 0)
+    if ((in = sam_open_format(fn_in, "r", &ga.in)) == 0)
     {
-        print_error_errno("[SamView]", "failed to open \"%s\" for reading", inFileName);
+        print_error_errno("[SamView]", "failed to open \"%s\" for reading", fn_in);
         return 1;
     }
     if ((header = sam_hdr_read(in)) == 0)
     {
-        fprintf(stderr, "[SamView] fail to read the header from \"%s\".\n", inFileName);
+        fprintf(stderr, "[SamView] fail to read the header from \"%s\".\n", fn_in);
         return 1;
     }
 
@@ -202,7 +202,7 @@ int Samview::SamViewHeaderOnly(const char *inFileName)
     }
 
     if (in)
-        check_sam_close("view", in, inFileName, "standard input", &ret);
+        check_sam_close("view", in, fn_in, "standard input", &ret);
     if (fn_in)
         free(fn_in);
     if (header)
@@ -212,6 +212,7 @@ int Samview::SamViewHeaderOnly(const char *inFileName)
 }
 
 int Samview::SamViewCommand(int argc, char *argv[], const char *inFileName, int argMinMapQ, const char *argRegion)
+// int Samview::SamViewCommand(const char *inFileName, int argMinMapQ, const char *argRegion)
 {
     this->regionLines.clear();
 
@@ -260,6 +261,8 @@ int Samview::SamViewCommand(int argc, char *argv[], const char *inFileName, int 
             goto view_end;
         }
 
+        if(arg_list){   printf("############# %s \n", arg_list);   }
+
         if (sam_hdr_add_pg(header, "samtools",
                            "VN", SAMTOOLS_VERSION,
                            arg_list ? "CL" : NULL,
@@ -274,7 +277,7 @@ int Samview::SamViewCommand(int argc, char *argv[], const char *inFileName, int 
 
     {
         // retrieve alignments in specified regions
-        int i;
+        // int i;
         bam1_t *b;
         hts_idx_t *idx = NULL;
         {

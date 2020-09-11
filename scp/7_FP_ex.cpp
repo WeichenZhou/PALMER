@@ -16,6 +16,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include "extension/samfaidx.h"
+
 using namespace std;
 
 int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
@@ -283,20 +286,22 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
             string ref_junc_file;
             ref_junc_file=WD_dir+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str()+".junc.ref.fasta";
             //cout<<ref_file<<endl;
-            char *syst_ref_junc_file = new char[ref_junc_file.length()+1];
-            strcpy(syst_ref_junc_file, ref_junc_file.c_str());
-            file21.open(syst_ref_junc_file);
+            file21.open(ref_junc_file.c_str());
             
-            string sys_ref_junc;
-            sys_ref_junc="samtools faidx "+fasta+" "+chr+":"+s_start_junc+"-"+s_end_junc+" > "+ref_junc_file;
+
+            SamFaidx faidx = SamFaidx();
+            faidx.SamFaidxCommand(fasta.c_str(),(chr+":"+s_start_junc+"-"+s_end_junc).c_str(),ref_junc_file.c_str());
+
+            // string sys_ref_junc;
+            // sys_ref_junc="samtools faidx "+fasta+" "+chr+":"+s_start_junc+"-"+s_end_junc+" > "+ref_junc_file;
             //cout<<sys_ref<<endl;
             
-            char *syst_ref_junc = new char[sys_ref_junc.length()+1];
-            strcpy(syst_ref_junc, sys_ref_junc.c_str());
-            system(syst_ref_junc);
+            // char *syst_ref_junc = new char[sys_ref_junc.length()+1];
+            // strcpy(syst_ref_junc, sys_ref_junc.c_str());
+            // system(syst_ref_junc);
 
-            delete [] syst_ref_junc_file;
-            delete [] syst_ref_junc;
+            // delete [] syst_ref_junc_file;
+            // delete [] syst_ref_junc;
 
     //FP exclude module
             //3' 26mer identify based on TSD

@@ -53,7 +53,7 @@ int ReadMasker(string WD_dir, Samview *samview)
     // }
 
     string input;
-    int input_int;
+    // int input_int;
 
     int line = samview->regionLines.size();
     // for(int i=0;!file1.eof();++i){

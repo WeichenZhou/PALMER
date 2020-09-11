@@ -538,8 +538,6 @@ int main(int argc, char *argv[]){
     
     //kmer
     
-    
-    
     cout<<"Final calls finished."<<endl;
     cout<<"Results are in "+WD+output<<endl;
 }

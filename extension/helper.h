@@ -1,6 +1,6 @@
 #include <ctime>
 
-#include "extension/extern-samview.h"
+#include "extension/extern-sam.h"
 
 #ifndef PALMER_HELPER_H
 #define PALMER_HELPER_H
