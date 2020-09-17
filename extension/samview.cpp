@@ -30,37 +30,51 @@ Samview::Samview(/* args */)
 
 Samview::~Samview()
 {
+    printf("this->headerChr.clear();\n");
     this->headerChr.clear();
+    printf("this->headerLength.clear();\n");
     this->headerLength.clear();
+    printf("this->regionLines.clear();\n");
     this->regionLines.clear();
     // close files, free and return
+    printf("free(settings.library);\n");
     free(settings.library);
     if (settings.bed)
+    {
+        printf("bed_destroy(settings.bed);\n");
         bed_destroy(settings.bed);
+    }
     if (settings.rghash)
     {
+        printf("1 free((char *)kh_key(settings.rghash, k));\n");
         khint_t k;
         for (k = 0; k < kh_end(settings.rghash); ++k)
             if (kh_exist(settings.rghash, k))
                 free((char *)kh_key(settings.rghash, k));
+        printf("1 kh_destroy(rg, settings.rghash);\n");
         kh_destroy(rg, settings.rghash);
     }
     if (settings.tvhash)
     {
+        printf("2 free((char *)kh_key(settings.tvhash, k));\n");
         khint_t k;
         for (k = 0; k < kh_end(settings.tvhash); ++k)
             if (kh_exist(settings.tvhash, k))
                 free((char *)kh_key(settings.tvhash, k));
+        printf("2 kh_destroy(tv, settings.tvhash);\n");
         kh_destroy(tv, settings.tvhash);
     }
     if (settings.remove_aux_len)
     {
+        printf("free(settings.remove_aux);\n");
         free(settings.remove_aux);
     }
     if (settings.tag)
     {
+        printf("free(settings.tag);\n");
         free(settings.tag);
     }
+    printf("sam_global_args_free(&ga);\n");
     sam_global_args_free(&ga);
 }
 
@@ -68,21 +82,27 @@ int Samview::check_sam_write1(const sam_hdr_t *h, const bam1_t *b)
 {
     // NewCode
     kstring_t kstr = KS_INITIALIZE;
+    printf("sam_format1(h, b, &kstr);\n");
     int ret = sam_format1(h, b, &kstr);
     SamLine sl = SamLine(kstr.s);
     regionLines.push_back(sl);
     // printf("sam_write:: %d\n", ret);
 
     if (kstr.s)
+    {
+        printf("free(kstr.s);\n");
         free(kstr.s);
+    }
 
     return ret;
 }
 
 int Samview::process_aln_palmer(const sam_hdr_t *h, bam1_t *b, samview_settings_t *settings)
 {
-    if (settings->remove_B)
+    if (settings->remove_B){
+        printf("bam_remove_B(b);\n");
         bam_remove_B(b);
+    }
     if (settings->min_qlen > 0)
     {
         int k, qlen = 0;
@@ -261,7 +281,10 @@ int Samview::SamViewCommand(int argc, char *argv[], const char *inFileName, int 
             goto view_end;
         }
 
-        if(arg_list){   printf("############# %s \n", arg_list);   }
+        if (arg_list)
+        {
+            printf("############# %s \n", arg_list);
+        }
 
         if (sam_hdr_add_pg(header, "samtools",
                            "VN", SAMTOOLS_VERSION,

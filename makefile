@@ -4,7 +4,7 @@ BASE 			= 	$(basename $(CPP_FILES))
 
 CPP_FLAGS 		= 	-I. -fpermissive -lpthread -std=c++11
 # C_FLAGS   		= 	-g -Wall -O2
-C_FLAGS   		= 	-g -w -O3
+C_FLAGS   		= 	-g -w -O2
 
 CC				= 	g++
 
@@ -17,8 +17,7 @@ HTSLIB_LDFLAGS 	= 	$(HTSLIB_static_LDFLAGS)
 HTSLIB_CPPFLAGS =	-I$(HTSLIB_DIR)
 
 SAMTOOLS_CPPFLAGS 		=	-I$(SAMTOOLS_DIR) -L$(HTSLIB_DIR)
-SAMTOOLS_OBJS			=	$(SAMTOOLS_DIR)/sample.o \
-							$(SAMTOOLS_DIR)/sam.o \
+SAMTOOLS_OBJS			=	$(SAMTOOLS_DIR)/sam.o \
 							$(SAMTOOLS_DIR)/bam.o \
 							$(SAMTOOLS_DIR)/bam_plbuf.o \
 							$(SAMTOOLS_DIR)/bedidx.o \

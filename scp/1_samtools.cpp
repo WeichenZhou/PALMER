@@ -33,10 +33,11 @@ int samtools(string working_dir, string input_bam, string chr, string start, str
         "0x200",
         "-F",
         "0x400",
-    };
+        NULL,
+        NULL};
     string region = (chr + ":" + start + "-" + end);
-    argv[ARG_SIZE - 2] = (char *)malloc(sizeof(input_bam));
-    argv[ARG_SIZE - 1] = (char *)malloc(sizeof(region));
+    argv[ARG_SIZE - 2] = (char *)malloc(input_bam.length() + 1);
+    argv[ARG_SIZE - 1] = (char *)malloc(region.length() + 1);
     strcpy(argv[ARG_SIZE - 2], input_bam.c_str());
     strcpy(argv[ARG_SIZE - 1], region.c_str());
 
@@ -45,6 +46,9 @@ int samtools(string working_dir, string input_bam, string chr, string start, str
     {
         cout << "samview.regionLines.size() = " << samview->regionLines.size() << endl;
     }
+
+    free(argv[ARG_SIZE - 2]);
+    free(argv[ARG_SIZE - 1]);
 
     return 0;
 }

@@ -20,7 +20,6 @@
 #include "scp/tube.cpp"
 
 #include "extension/samview.h"
-#include "extension/helper.h"
 
 using namespace std;
 
