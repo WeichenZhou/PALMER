@@ -20,15 +20,12 @@ int RMSelector(string WD, string WD_dir, string sys_region){
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
     
-    char *syst_region =new char[sys_region.length()+1];
-    strcpy(syst_region, sys_region.c_str());
-    
     if(sys_region=="NULL"){
         return 0;
     }
     else {
         ifstream file1;
-        file1.open(syst_region);
+        file1.open(sys_region.c_str());
         
         if (!file1.is_open())
         {
@@ -45,18 +42,12 @@ int RMSelector(string WD, string WD_dir, string sys_region){
         }
         
         string sys_RMloc = WD_dir+"RM.loc";
-        char *syst_RMloc = new char[sys_RMloc.length()+1];
-        strcpy(syst_RMloc, sys_RMloc.c_str());
-        
         ifstream file3;
-        file3.open(syst_RMloc);
+        file3.open(sys_RMloc.c_str());
         
         string sys_RM_selescted = WD_dir+"RM.selected";
-        char *syst_RM_selescted = new char[sys_RM_selescted.length()+1];
-        strcpy(syst_RM_selescted, sys_RM_selescted.c_str());
-        
         ofstream file2;
-        file2.open(syst_RM_selescted);
+        file2.open(sys_RM_selescted.c_str());
         
         string chr;
         int start, end;
@@ -73,7 +64,7 @@ int RMSelector(string WD, string WD_dir, string sys_region){
         for(int i=0;i!=line;++i) rm_loc[i]=new int[2];
         file1.close();
         file1.clear();
-        file1.open(syst_region);
+        file1.open(sys_region.c_str());
         for(int i=0;i!=line;++i){
             
             file1>>rm_info[i][0];

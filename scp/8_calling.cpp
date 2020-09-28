@@ -41,10 +41,7 @@ int calling(string WD_dir, string t, int tsd_index){
     ifstream file1;
     
     string sys_input = WD_dir+"read_result_TSD.txt";
-    char *syst_input = new char[sys_input.length()+1];
-    strcpy(syst_input, sys_input.c_str());
-    
-    file1.open(syst_input);
+    file1.open(sys_input.c_str());
     
     if (!file1.is_open())
     {
@@ -53,11 +50,9 @@ int calling(string WD_dir, string t, int tsd_index){
         return 0;
     }
     
-    ifstream file99;
     string sys_line = WD_dir+"read_result_ins_seq.txt";
-    char *syst_line = new char[sys_line.length()+1];
-    strcpy(syst_line, sys_line.c_str());
-    file99.open(syst_line);
+    ifstream file99;
+    file99.open(sys_line.c_str());
     
     if (!file99.is_open())
     {
@@ -69,9 +64,7 @@ int calling(string WD_dir, string t, int tsd_index){
     ofstream file2;
     
     string sys_calls = WD_dir+"calls.txt";
-    char *syst_calls = new char[sys_calls.length()+1];
-    strcpy(syst_calls, sys_calls.c_str());
-    file2.open(syst_calls);
+    file2.open(sys_calls.c_str());
     
     int line;
     string input;
@@ -82,7 +75,7 @@ int calling(string WD_dir, string t, int tsd_index){
     
     file1.close();
     file1.clear();
-    file1.open(syst_input);
+    file1.open(sys_input.c_str());
     
     int line_seq;
     //string input;
@@ -93,7 +86,7 @@ int calling(string WD_dir, string t, int tsd_index){
     
     file99.close();
     file99.clear();
-    file99.open(syst_line);
+    file99.open(sys_line.c_str());
     
     string **info_line;
     info_line=new string *[line_seq];
@@ -165,9 +158,7 @@ int calling(string WD_dir, string t, int tsd_index){
     //TSD_calling
     ifstream file3;
     string sys_input_TSD = WD_dir+"TSD_blastn.txt";
-    char *syst_input_TSD = new char[sys_input_TSD.length()+1];
-    strcpy(syst_input_TSD, sys_input_TSD.c_str());
-    file3.open(syst_input_TSD);
+    file3.open(sys_input_TSD.c_str());
     
     if (!file3.is_open())
     {
@@ -178,9 +169,7 @@ int calling(string WD_dir, string t, int tsd_index){
     
     ofstream file4;
     string sys_output_TSD = WD_dir+"TSD_output.txt";
-    char *syst_output_TSD = new char[sys_output_TSD.length()+1];
-    strcpy(syst_output_TSD, sys_output_TSD.c_str());
-    file4.open(syst_output_TSD);
+    file4.open(sys_output_TSD.c_str());
     
     int line_tsd;
     for(int i=0;!file3.eof();++i){
@@ -189,7 +178,7 @@ int calling(string WD_dir, string t, int tsd_index){
     }
     file3.close();
     file3.clear();
-    file3.open(syst_input_TSD);
+    file3.open(sys_input_TSD.c_str());
     
     string *info_tsd;
     info_tsd= new string[line_tsd];

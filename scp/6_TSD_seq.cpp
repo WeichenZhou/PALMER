@@ -15,9 +15,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include "extension/samview.h"
+
 using namespace std;
 
-int tsd_module(string WD_dir, string t, int tsd_index){
+int tsd_module(string WD_dir, string t, int tsd_index, Samview *samview){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
@@ -63,7 +66,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     file66.open(syst_cigar);
     
     string **ci;
-    ci=new string*[line_cigar];
+    ci=new string*[line_cigar]; // mem_leak
     for(int i=0;i!=line_cigar;++i) ci[i]=new string[2];
     
     for(int i=0;i!=line_cigar;++i){
@@ -75,18 +78,13 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     
     
     ifstream file1;
-    ifstream file2;
+    // ifstream file2;
     
     string sys_readres = WD_dir + "read_result.txt";
     char * syst_readres = new char [sys_readres.length()+1];
     strcpy (syst_readres, sys_readres.c_str());
     
     file1.open(syst_readres);
-
-    string sys_reg = WD_dir+"region.sam";
-    char *syst_reg = new char[sys_reg.length()+1];
-    strcpy(syst_reg, sys_reg.c_str());
-    file2.open(syst_reg);
     
     ofstream file14;
     string sys_tsd_bl = WD_dir+"TSD_blastn_pre.txt";
@@ -96,12 +94,6 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     file14.clear();
     file14.close();
     
-    if (!file2.is_open())
-    {
-        cout <<"CANNOT OPEN FILE, 'region.sam'"<< endl;
-        //exit(1);
-        return 0;
-    }
     if (!file1.is_open())
     {
         cout <<"CANNOT OPEN FILE, 'read_result.txt'"<< endl;
@@ -117,16 +109,11 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         getline(file1,input);
         line_read=i;
     }
-    for(int i=0;!file2.eof();++i){
-        getline(file2,input);
-        line_region=i;
-    }
+    line_region = samview->regionLines.size();
+
     file1.close();
     file1.clear();
-    file2.close();
-    file2.clear();
     file1.open(syst_readres);
-    file2.open(syst_reg);
     
     string **SEQ;
     SEQ=new string*[line_region];
@@ -165,15 +152,11 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         file1>>loc_TP[i][5];
         file1>>loc_TP[i][6];
     }
+    
     for(int i=0;i!=line_region;++i){
-        file2>>SEQ[i][0];
-        file2>>input;
-        file2>>input;
-        file2>>input;
-        SEQ[i][2]=SEQ[i][0]+"_"+input;
-        file2>>input;
-        file2>>input;
-        string cig=input+"0E";
+        SEQ[i][0] = samview->regionLines[i].QNAME_LEN;
+        SEQ[i][2] = samview->regionLines[i].QNAME_LEN + "_" + samview->regionLines[i].POS;
+        string cig = samview->regionLines[i].CIGAR + "0E";
         string tag;
         for(int j=0;j!=line_cigar;j++){
             if(cig==ci[j][0]){
@@ -181,11 +164,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             }
         }
         SEQ[i][2]=SEQ[i][2]+"_"+tag;
-        file2>>input;
-        file2>>input;
-        file2>>input;
-        file2>>SEQ[i][1];
-        getline(file2,input);
+        SEQ[i][1] = samview->regionLines[i].SEQ;
     }
     ofstream file3;
     ifstream file4;
@@ -684,10 +663,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     //string sys_blastn = "blastn -task blastn -query <( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -subject ( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -word_size 6 -evalue 50 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \"1\"}' >> "+WD_dir+"TSD_blastn_pre.txt ";
                     string sys_blastn = "bash -c \"blastn -task blastn -query <(echo -e \\\">"+seq_index+"\\\\n"+(fasta5_str)+"\\\") -subject <(echo -e \\\">"+seq_index+"\\\\n"+(fasta3_str)+"\\\") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
-                    //cout<<sys_blastn <<endl;
-                    char *syst_blastn = new char[sys_blastn.length()+1];
-                    strcpy(syst_blastn, sys_blastn.c_str());
-                    system(syst_blastn);
+                    system(sys_blastn.c_str());
                 }
                 else if(info[i][1]=="-"){
                     ss<<le_3-e_3_1+s_3_1-1;
@@ -697,10 +673,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     //string sys_blastn = "blastn -task blastn -query <(echo -e \">"+seq_index+"'\\n'"+fasta5_str+"\") -subject <(echo -e \">"+seq_index+"'\\n'"+fasta3_str+"\")";
                     string sys_blastn = "bash -c \"blastn -task blastn -query <(echo -e \\\">"+seq_index+"\\\\n"+(fasta5_str)+"\\\") -subject <(echo -e \\\">"+seq_index+"\\\\n"+(fasta3_str)+"\\\") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
-                    //cout<<sys_blastn <<endl;
-                    char *syst_blastn = new char[sys_blastn.length()+1];
-                    strcpy(syst_blastn, sys_blastn.c_str());
-                    system(syst_blastn);
+                    system(sys_blastn.c_str());
                 }
                 
                 //delete [] fasta5;
@@ -720,6 +693,16 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 //cout<< "wut??"<<endl;
             //}
 //cout<<"finish this "<<i<<endl;
+            delete[] line_seq;
+            delete[] chunk_seq;
+            delete[] left;
+            delete[] left_3;
+            delete[] right;
+            delete[] right_3;
+            delete[] right_j;
+            delete[] left_j;
+            delete[] right_j_3;
+            delete[] left_j_3;
 
         }
     //}
@@ -805,11 +788,24 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         delete [] loc[i];
         delete [] loc_TP[i];
     }
+
+    for(int i = 0; i<line_cigar; i++){
+        delete [] ci[i];
+    }
+    delete [] ci;
+
     delete [] info;
     delete [] loc;
     delete [] loc_TP;
     delete [] name;
     
+    delete [] syst_cigar;
+    delete [] syst_readres;
+    delete [] syst_tsd;
+    delete [] syst_tsd_junc;
+    delete [] syst_tsd_bl;
+    delete [] syst_chunk;
+    delete [] syst_line;
     //cout<< "check TSD_blastn_pre.txt"<<endl;
     //getchar();
     

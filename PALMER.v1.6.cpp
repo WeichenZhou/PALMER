@@ -19,10 +19,13 @@
 #include <sys/wait.h>
 #include "scp/tube.cpp"
 
+#include "extension/samview.h"
+
 using namespace std;
 
 int main(int argc, char *argv[]){
 
+    Samview samview = Samview();
 //parameters_start
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
@@ -259,7 +262,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     
-    
+
     string parameter[6];
     parameter[0]=T;
     parameter[1]=WD;
@@ -277,12 +280,10 @@ int main(int argc, char *argv[]){
     
 //Buildup & index or HG version chose
     string sys_dir="dirname "+dir;
-    char *syst_dir=new char[sys_dir.length()+1];
-    strcpy(syst_dir, sys_dir.c_str());
     
     vector<string> dir_conv;
     dir_conv.clear();
-    FILE *pp =popen(syst_dir,"r");
+    FILE *pp =popen(sys_dir.c_str(),"r");
     char tmp[1024];
     while (fgets(tmp, sizeof(tmp), pp) != NULL) {
         if (tmp[strlen(tmp) - 1] == '\n') {
@@ -370,7 +371,6 @@ int main(int argc, char *argv[]){
     else if(ref_n==-1){
         //sys_line_region=cusin;
         
-        
         buildup=WD+"index/";
         
         string sys_build;
@@ -380,96 +380,31 @@ int main(int argc, char *argv[]){
         strcpy(syst_build, sys_build.c_str());
         system(syst_build);
         
-        string sys1;
-        sys1="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $3}' >"+buildup+"chr.list";
+        if(samview.SamViewHeaderOnly(inputF.c_str())!=0){
+            cout << "CANNOT READ HEADER INFO FROM FILE<" << inputF << ">" << endl;
+            return 1;
+        };
         
-        string sys2;
-        sys2="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $5}' >"+buildup+"length.list";
-        
-        char *syst1 = new char[sys1.length()+1];
-        strcpy(syst1, sys1.c_str());
-        system(syst1);
-        
-        char *syst2 = new char[sys2.length()+1];
-        strcpy(syst2, sys2.c_str());
-        system(syst2);
-        
-        sys_region_index_chr=buildup+"chr.list";
-        sys_region_index_length=buildup+"length.list";
         sys_region_index=buildup+"region.split.index";
     }
-    //cout<<sys_region_index<<" "<<sys_line_region<<endl;
- //original
-    char *syst_region_index_chr =new char[sys_region_index_chr.length()+1];
-    strcpy(syst_region_index_chr, sys_region_index_chr.c_str());
-    char *syst_region_index_length =new char[sys_region_index_length.length()+1];
-    strcpy(syst_region_index_length, sys_region_index_length.c_str());
-    
-    ifstream file91;
-    ifstream file92;
-    file91.open(syst_region_index_chr);
-    file92.open(syst_region_index_length);
-    
-    int line_chr;
-    int line_len;
-    string input_inde;
-    for(int i=0;!file91.eof();++i){
-        getline(file91,input_inde);
-        line_chr=i;
-    }
-    for(int i=0;!file92.eof();++i){
-        getline(file92,input_inde);
-        line_len=i;
-    }
-    
-    //cout<<"line_chr="<<line_chr<<endl;
-    //cout<<"line_length="<<line_len<<endl;
-    
-    file92.close();
-    file91.close();
-    file92.clear();
-    file91.clear();
-    
-    file91.open(syst_region_index_chr);
-    file92.open(syst_region_index_length);
-    
-    string chr_inde[line_chr];
-    int len_inde[line_len];
-    
-    for(int i=0;i!=line_chr;++i){
-        file91>>chr_inde[i];
-    }
-    for(int i=0;i!=line_len;++i){
-        file92>>len_inde[i];
-    }
-    
-    file92.close();
-    file91.close();
-    file92.clear();
-    file91.clear();
     ifstream file2;
-    
-    //char *syst_region_index ;
-    char *syst_region_index =new char[sys_region_index.length()+1];
-    strcpy(syst_region_index, sys_region_index.c_str());
-    
     
     if(ref_n==-1){
         
         ofstream file93;
-        file93.open(syst_region_index,ios::trunc);
+        file93.open(sys_region_index.c_str(),ios::trunc);
         
         int bin=1000000;
-        for(int i=0;i!=line_chr;++i){
+        for(int i=0;i!=samview.headerChr.size();++i){
             int j=i;
             int sec;
                 //last;
-            sec=int(len_inde[j]/bin);
+            sec=int(samview.headerLength[j]/bin);
                 //last=len_inde[j]%bin;
             for(int k=0;k!=sec;k++){
-                file93<<chr_inde[i]<<'\t'<<(1+k*bin)<<'\t'<<(k*bin+bin)<<endl;
+                file93<<samview.headerChr[i]<<'\t'<<(1+k*bin)<<'\t'<<(k*bin+bin)<<endl;
             }
-            file93<<chr_inde[i]<<'\t'<<(1+sec*bin)<<'\t'<<len_inde[j]<<endl;
+            file93<<samview.headerChr[i]<<'\t'<<(1+sec*bin)<<'\t'<<samview.headerLength[j]<<endl;
             
         }
         //ifstream file2;
@@ -479,8 +414,7 @@ int main(int argc, char *argv[]){
     
     else {
     //string sys_region_index=buildup+"region.split.index";
-        
-        file2.open(syst_region_index);
+        file2.open(sys_region_index.c_str());
         
         if (!file2.is_open())
         {
@@ -497,7 +431,7 @@ int main(int argc, char *argv[]){
 //parameters_end
     
 //multiple threads
-    file2.open(syst_region_index);
+    file2.open(sys_region_index.c_str());
     string input_index;
     int line_index=0;
     for(int i=1;!file2.eof();){
@@ -522,51 +456,28 @@ int main(int argc, char *argv[]){
     
     file2.close();
     file2.clear();
-    file2.open(syst_region_index);
+    file2.open(sys_region_index.c_str());
     
     int NUM_circle;
     NUM_circle=(line_index/(NUM_threads+1))+1;
 
-    //pid_t p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
-    //, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30;
-    
     string input;
     string chr;
     int start, end;
 
-//no multithread
+    //no multithread
     for(int i=0;i!=line_index;){
-        //cout<<"right call"<<endl;
-        //cout<<chr<<endl;
-        
         file2>>chr;
         file2>>start;
         file2>>end;
-        int chr_index=0;
-        if(CHR=="ALL"){
-            chr_index=1;
-        }
-        else if(CHR==chr){
-            chr_index=1;
-            
-        }
-        if(chr_index==1){
-            ++i;
-            
-            //getchar();
-            //****
-            //cout<<flag_tsd<<endl;
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len);
-        }
-        /*ver1.3
-        if(chr_index==1){
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_file);
-        }*/
-    }
-    
-   
-//merge and calling
 
+        if ( CHR=="ALL" || CHR==chr ) {
+            ++i;
+            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, &samview);
+        }
+    }
+   
+    //merge and calling
     cout<<"Merging step is initiated."<<endl;
     //mkdir
     /*
@@ -583,26 +494,22 @@ int main(int argc, char *argv[]){
     */
     file2.close();
     file2.clear();
-    file2.open(syst_region_index);
+    file2.open(sys_region_index.c_str());
     
     //merge
     
     string sys_final_title = WD+output+"_calls.txt";
-    char *syst_final_title = new char[sys_final_title.length()+1];
-    strcpy(syst_final_title, sys_final_title.c_str());
     ofstream file3;
-    file3.open(syst_final_title,ios::trunc);
+    file3.open(sys_final_title.c_str(),ios::trunc);
     
     file3<<"cluster_id"<<'\t'<<"chr start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Potential_supporting_reads"<<'\t'<<"Ptential_segmental_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
     
     string sys_final_tsd_title = WD+output+"_TSD_reads.txt";
-    char *syst_final_tsd_title = new char[sys_final_tsd_title.length()+1];
-    strcpy(syst_final_tsd_title, sys_final_tsd_title.c_str());
     ofstream file31;
-    file31.open(syst_final_tsd_title,ios::trunc);
+    file31.open(sys_final_tsd_title.c_str(),ios::trunc);
     
     file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
-    
+
     for(int i=0;i!=line_index;){
         file2>>chr;
         file2>>start;
@@ -616,16 +523,10 @@ int main(int argc, char *argv[]){
         
         if(CHR==chr){
             string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
-            //cout<<sys_final<<endl;
-            char *syst_final = new char[sys_final.length()+1];
-            strcpy(syst_final, sys_final.c_str());
-            system(syst_final);
+            system(sys_final.c_str());
             
             string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
-            //cout<<sys_final<<endl;
-            char *syst_final_tsd = new char[sys_final_tsd.length()+1];
-            strcpy(syst_final_tsd, sys_final_tsd.c_str());
-            system(syst_final_tsd);
+            system(sys_final_tsd.c_str());
             ++i;
         }
     }
@@ -636,9 +537,6 @@ int main(int argc, char *argv[]){
     
     //kmer
     
-    
-    
     cout<<"Final calls finished."<<endl;
     cout<<"Results are in "+WD+output<<endl;
-    
 }
