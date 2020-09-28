@@ -1,4 +1,4 @@
-## This is a stable fork from https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
+## This is an original version at https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
 
 
 # PALMER
@@ -10,6 +10,7 @@ Pre-mAsking Long reads for Mobile Element inseRtion
 
 Required resources:
 ```
+ samtools (Self-implemented)
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
  git-lfs (Use when index files are text pointers. Or simply choose 'Download ZIP' if you don't want to install git-lfs.)
 ```
