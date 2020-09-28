@@ -123,7 +123,7 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 * arthurz@med.umich.edu
 
 ## Logs
-**Ver1.6.2.Enhanced** Sep.27th.2020
+**Ver1.6.2.Enhanced** Sep.27th.2020 by Jixing Guan
 * Optimize PALMER and make samtools as build-in lib
 
 **Ver1.6.2** May.19th.2020
