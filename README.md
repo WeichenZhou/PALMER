@@ -12,7 +12,7 @@ Required independencies:
 ```
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
  git-lfs (Use when index files are text pointers. Or simply choose 'Download ZIP' if you don't want to install git-lfs.)
- samtools (Self-implemented， no longer required)
+ samtools (Self-implemented, no longer required)
 ```
 
 
