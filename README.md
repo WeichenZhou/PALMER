@@ -10,7 +10,6 @@ Pre-mAsking Long reads for Mobile Element inseRtion
 
 Required resources:
 ```
- samtools/1.3.1  https://github.com/samtools/samtools
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
  git-lfs (Use when index files are text pointers. Or simply choose 'Download ZIP' if you don't want to install git-lfs.)
 ```
@@ -20,7 +19,7 @@ Required resources:
 
 Download and Install
 ```
-git clone https://github.com/mills-lab/PALMER.git
+git clone https://github.com/WeichenZhou/PALMER.git
 cd PALMER
 git submodule init && git submodule update
 cd samtools && autoheader && autoconf -Wno-syntax && ./configure && make -j8 && cd ..
@@ -123,6 +122,8 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 * arthurz@med.umich.edu
 
 ## Logs
+**Ver1.6.2.Enhanced** Sep.27th.2020
+* Optimize PALMER and make samtools as build-in lib
 
 **Ver1.6.2** May.19th.2020
 
