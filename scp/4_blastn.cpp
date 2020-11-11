@@ -68,6 +68,9 @@ int blastn(string WD_dir, string t, string direc){
     else if(t=="SVA"){
         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
+    else if(t=="HERVK"){
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/HERVK.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+    }
     else {
         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+t+" -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }

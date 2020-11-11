@@ -20,10 +20,13 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
     
-    int C_len=0;
+    int C_len=10000;
     if(cus_seq_len!=-1){
-        if(cus_seq_len<=1500){
-            C_len=cus_seq_len-10;
+        if(cus_seq_len<=1000){
+            C_len=cus_seq_len-20;
+        }
+        else if(cus_seq_len<=1500&&cus_seq_len>1000){
+            C_len=98*cus_seq_len/100;
         }
         else if(cus_seq_len>1500){
             C_len=90*cus_seq_len/100;
@@ -124,7 +127,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     string **read;
     read=new string*[line];
-    for(int i=0;i!=line;++i) read[i]=new string[3];
+    for(int i=0;i!=line;++i) read[i]=new string[4];
     int *read_loc;
     read_loc= new int[line];
     int *read_le;
@@ -146,10 +149,15 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     }
     for(int i=0;i!=line;++i){
         file1>>read[i][2];      //cigar
+        file1>>input;   //tag #
         file3>>read[i][0];      //read name
         file3>>read[i][1];      //chr
         file3>>read_loc[i];     //pos
         file3>>read_le[i];      //read length
+        file3>>input;   //tag #
+        string nametag;
+        nametag = std::to_string(read_loc[i]);
+        read[i][3]=read[i][0]+"_"+nametag+"_"+input;
     }
     for(int i=0;i!=blast;++i){
         int buff;
@@ -174,7 +182,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         int flag_r=0;
         
         for(int j=0;j!=line&&flag_r==0;++j){
-            if(bla_name[i]==read[j][0]){
+            if(bla_name[i]==read[j][3]){
                 flag_r=1;
                 
                 char cig;
@@ -255,6 +263,9 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     }
     else if (t=="SVA"){
         S=50;
+    }
+    else if (t=="HERVK"){
+        S=300;
     }
     
     for(int i=0;i!=blast;++i){
@@ -400,6 +411,9 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     else if (t=="SVA"){
         BIN=25;
     }
+    else if (t=="HERVK"){
+        BIN=100;
+    }
     
     for(int i=0;i!=line_read;++i){
         for(int j=0;j!=line_read;++j){
@@ -410,12 +424,12 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                             if((loc[i][2]-BIN/2)<=loc[j][3]&&(loc[i][2]+BIN/2)>=loc[j][3]){
                                 if((loc[i][4]-BIN/2)<=loc[j][5]&&(loc[i][4]+BIN/2)>=loc[j][5]){
                                     if(t=="LINE"){
-                                        if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6025){
+                                        if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6022){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                         }
                                     }
                                     else if(t=="ALU"){
-                                        if(loc[i][0]<=262&&loc[i][1]>=272){
+                                        if(loc[i][0]<=267&&loc[i][1]>=277){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                         }
                                     }
@@ -424,7 +438,12 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                         }
                                     }
-                                    else if(t!="LINE"&&t!="ALU"&&t!="SVA"){
+                                    else if(t=="HERVK"){
+                                        if(loc[i][0]<=8446&&loc[i][1]>=8486){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
+                                        }
+                                    }
+                                    else if(t!="LINE"&&t!="ALU"&&t!="SVA"&&t!="HERVK"){
                                         if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-10)){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                         }
@@ -437,12 +456,12 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                             if((loc[j][2]-BIN/2)<=loc[i][3]&&(loc[j][2]+BIN/2)>=loc[i][3]){
                                 if((loc[j][4]-BIN/2)<=loc[i][5]&&(loc[j][4]+BIN/2)>=loc[i][5]){
                                     if(t=="LINE"){
-                                        if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6025){
+                                        if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6022){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                         }
                                     }
                                     else if(t=="ALU"){
-                                        if(loc[i][0]<=262&&loc[i][1]>=272){
+                                        if(loc[i][0]<=267&&loc[i][1]>=277){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                         }
                                     }
@@ -451,8 +470,13 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                         }
                                     }
-                                    else if(t!="LINE"&&t!="ALU"&&t!="SVA"){
-                                        if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-10)){
+                                    else if(t=="HERVK"){
+                                        if(loc[i][0]<=8446&&loc[i][1]>=8486){
+                                            file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
+                                        }
+                                    }
+                                    else if(t!="LINE"&&t!="ALU"&&t!="SVA"&&t!="HERVK"){
+                                        if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-30)){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                         }
                                     }
@@ -469,12 +493,12 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     for(int i=0;i!=line_read;++i){
         if(t=="LINE"){
             //cout<<">????"<<endl;
-            if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6025){
+            if(loc[i][0]<=(6025-L_len)&&loc[i][1]>=6022){
                 file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
         }
         else if(t=="ALU"){
-            if(loc[i][0]<=262&&loc[i][1]>=272){
+            if(loc[i][0]<=267&&loc[i][1]>=277){
                 file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
         }
@@ -483,8 +507,13 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                 file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
         }
-        else if(t!="LINE"&&t!="ALU"&&t!="SVA"){
-            if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-10)){
+        else if(t=="HERVK"){
+            if(loc[i][0]<=8446&&loc[i][1]>=8486){
+                file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
+            }
+        }
+        else if(t!="LINE"&&t!="ALU"&&t!="SVA"&&t!="HERVK"){
+            if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-30)){
                 file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
         }

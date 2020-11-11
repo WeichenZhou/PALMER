@@ -33,10 +33,51 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     }
     else if (t=="SVA"){
         BIN_3=2500;
-        BIN_5=3000;
+        BIN_5=4000;
+    }
+    else if (t=="HERVK"){
+        BIN_3=50;
+        BIN_5=50;
+        tsd_index=0;
     }
     //int JUN_BIN=50;
-
+    
+    string sys_cigar = WD_dir+"cigar.2";
+    char *syst_cigar =  new char[sys_cigar.length()+1];
+    strcpy(syst_cigar, sys_cigar.c_str());
+    
+    ifstream file66;
+    file66.open(syst_cigar);
+    
+    if (!file66.is_open())
+    {
+        cout <<"CANNOT OPEN FILE, 'cigar.2'"<< endl;
+        //exit(1);
+        return 0;
+    }
+    
+    int line_cigar;
+    string input;
+    for(int i=0;!file66.eof();++i){
+        getline(file66,input);
+        line_cigar=i;
+    }
+    
+    file66.close();
+    file66.clear();
+    file66.open(syst_cigar);
+    
+    string **ci;
+    ci=new string*[line_cigar];
+    for(int i=0;i!=line_cigar;++i) ci[i]=new string[2];
+    
+    for(int i=0;i!=line_cigar;++i){
+        file66>>ci[i][0];
+        file66>>ci[i][1];
+    }
+    file66.close();
+    file66.clear();
+    
     
     ifstream file1;
     ifstream file2;
@@ -68,7 +109,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     }
     if (!file1.is_open())
     {
-        cout <<"CANNOT OPEN FILE, 'read_result.txtm'"<< endl;
+        cout <<"CANNOT OPEN FILE, 'read_result.txt'"<< endl;
         //exit(1);
         return 0;
     }
@@ -76,7 +117,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     int line_read;
     int line_region;
     
-    string input;
+    //string input;
     for(int i=0;!file1.eof();++i){
         getline(file1,input);
         line_read=i;
@@ -94,7 +135,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     
     string **SEQ;
     SEQ=new string*[line_region];
-    for(int i=0;i!=line_region;++i) SEQ[i]=new string[2];
+    for(int i=0;i!=line_region;++i) SEQ[i]=new string[3];
     string *name;
     name=new string[line_read];
     
@@ -134,8 +175,17 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         file2>>input;
         file2>>input;
         file2>>input;
+        SEQ[i][2]=SEQ[i][0]+"_"+input;
         file2>>input;
         file2>>input;
+        string cig=input+"0E";
+        string tag;
+        for(int j=0;j!=line_cigar;j++){
+            if(cig==ci[j][0]){
+                tag=ci[j][1];
+            }
+        }
+        SEQ[i][2]=SEQ[i][2]+"_"+tag;
         file2>>input;
         file2>>input;
         file2>>input;
@@ -180,7 +230,9 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     
     //if(tsd_index==1){
         for(int i=0;i!=line_read;++i){
-            
+
+//cout<<"finish this a1 "<<i<<endl;
+
             int l_line,line_s,line_e;
             line_s=loc[i][2];
             line_e=loc[i][3];
@@ -194,7 +246,9 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             char *chunk_seq;
             chunk_seq=new char[l_chunk];
             for(int j=0;j!=l_chunk;++j) chunk_seq[j]='N';
-            
+
+//cout<<"finish this a1.1 "<<i<<endl;
+
             
             int s1,s2,e1,e2;
             s1=loc[i][2]-(BIN_5-5);
@@ -204,8 +258,13 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             s2=loc[i][3]-5;
             if(s2<=0) s2=1;
             e2=loc[i][3]+(BIN_5-5);
+            //cout<<e2<<endl;
             if(e2>loc[i][6]) e2=loc[i][6];
+            //cout<<e2<<endl;
+            
+//cout<<"finish this a1.2 "<<i<<endl;
 
+        
             int s_3_1,s_3_2,e_3_1,e_3_2;
             s_3_1=loc[i][2]-BIN_3;
             if(s_3_1<=0) s_3_1=1;
@@ -213,12 +272,18 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             s_3_2=loc[i][3];
             e_3_2=loc[i][3]+BIN_3;
             if(e_3_2>loc[i][6]) e_3_2=loc[i][6];
+
+//cout<<"finish this a1.3 "<<i<<endl;
+
             
             int l3,l4,l5,l6;
             l3=e1-s1+1;
             l4=e2-s2+1;
             l5=e_3_1-s_3_1+1;
             l6=e_3_2-s_3_2+1;
+            //cout<<e2<<" "<<s2<<" "<<e_3_2<<" "<<s_3_2<<endl;
+            //cout<<l3<<" "<<l4<<" "<<l5<<" "<<l6<<endl;
+            
             char *left;
             char *left_3;
             char *right;
@@ -231,6 +296,8 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             for(int j=0;j!=l4;++j) right[j]='N';
             for(int j=0;j!=l5;++j) left_3[j]='N';
             for(int j=0;j!=l6;++j) right_3[j]='N';
+
+//cout<<"finish this a2.1 "<<i<<endl;
             
             int js1, js2, je1, je2;
             js1=s1-J_BIN;
@@ -270,9 +337,11 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             for(int j=0;j!=l7;++j) left_j_3[j]='N';
             for(int j=0;j!=l8;++j) right_j_3[j]='N';
             
+//cout<<"finish this a2 "<<i<<endl;
+
             
             for(int j=0;j!=line_region;++j){
-                if(SEQ[j][0]==name[i]){
+                if(SEQ[j][2]==name[i]){
                     
                     string seq_1;
                     seq_1=SEQ[j][1]+"E";
@@ -310,6 +379,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 }
             }
             
+//cout<<"finish this a3 "<<i<<endl;
             
             file99<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
             file199<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
@@ -491,6 +561,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             //file5.clear();
             
     //Possible TSD finding & filtering
+            //cout <<tsd_index<<endl;
             
             if(tsd_index==1){
 
@@ -641,11 +712,20 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 //delete [] fasta3;
                 
                 
-                
             }
+            
+            
             else if(tsd_index==0){
+                //cout<< "yes"<<endl;
+                file14.open(syst_tsd_bl);
                 file14<<name[i]<<seq_index<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
+            
+            //else {
+                //cout<< "wut??"<<endl;
+            //}
+//cout<<"finish this "<<i<<endl;
+
         }
     //}
     /*

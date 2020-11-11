@@ -53,7 +53,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
  
 //1. samtools view
     
-    samtools(WD_tube, input_bam, chr, s_start, s_end);
+    samtools(WD_tube, input_bam, chr, s_start, s_end ,ref_fa);
     cout<<"1. Samtools Step for region "+chr+"_"+s_start+"_"+s_end+" now completed."<<endl;
     
 //Repeat region output
@@ -122,7 +122,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
 //8. Calling module
     
-    calling(WD_tube, type);
+    calling(WD_tube, type, tsd);
     cout<<"Calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
     
     return 0;

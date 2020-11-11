@@ -248,11 +248,11 @@ int ReadMasker(string WD_dir){
                 }
             }
 //output
-            file5<<sam_info[i][2]<<"0E"<<endl;
-            file6<<">"<<sam_info[i][0]<<'\t'<<sam_loc[i][1]<<endl;
+            file5<<sam_info[i][2]<<"0E"<<'\t'<<i<<endl;
+            file6<<">"<<sam_info[i][0]<<"_"<<sam_loc[i][1]<<"_"<<i<<endl;
             for(int x=0;x!=le;++x) file6<<seq[x];
             file6<<endl;
-            file7<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<'\t'<<le<<endl;
+            file7<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<'\t'<<le<<'\t'<<i<<endl;
         }
         delete [] seq;
     }

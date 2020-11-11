@@ -34,7 +34,12 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     }
     else if (t=="SVA"){
         BIN_3=2500;
-        BIN_5=3000;
+        BIN_5=4000;
+    }
+    else if (t=="HERVK"){
+        BIN_3=50;
+        BIN_5=50;
+        tsd_index=0;
     }
     
     ifstream file2;
@@ -158,6 +163,8 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
         kmer_tsd[i]="";
     }
 
+    
+    //cout<<"ready to process this"<<endl;
 //FP_ex module
     if(tsd_index==1){
         for(int i=0;i!=line;++i){
