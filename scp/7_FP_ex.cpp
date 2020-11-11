@@ -16,9 +16,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#include "extension/samfaidx.h"
-
 using namespace std;
 
 int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
@@ -37,14 +34,21 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     }
     else if (t=="SVA"){
         BIN_3=2500;
-        BIN_5=3000;
+        BIN_5=4000;
+    }
+    else if (t=="HERVK"){
+        BIN_3=50;
+        BIN_5=50;
+        tsd_index=0;
     }
     
     ifstream file2;
     //ifstream file3;
     
     string sys_junc = WD_dir+"read_result_junction.txt";
-    file2.open(sys_junc.c_str());
+    char *syst_junc = new char[sys_junc.length()+1];
+    strcpy(syst_junc, sys_junc.c_str());
+    file2.open(syst_junc);
     
     
     if (!file2.is_open())
@@ -63,7 +67,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     
     file2.close();
     file2.clear();
-    file2.open(sys_junc.c_str());
+    file2.open(syst_junc);
     
     string **info;
     info=new string *[line];
@@ -100,12 +104,17 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     }
     
     ifstream file1;
+    
     string sys_input = WD_dir+"TSD_blastn_pre.txt";
-    file1.open(sys_input.c_str());
+    char *syst_input = new char[sys_input.length()+1];
+    strcpy(syst_input, sys_input.c_str());
+    file1.open(syst_input);
     
     ofstream file11;
     string sys_output = WD_dir+"TSD_blastn.txt";
-    file11.open(sys_output.c_str());
+    char *syst_output = new char[sys_output.length()+1];
+    strcpy(syst_output, sys_output.c_str());
+    file11.open(syst_output);
     
     if (!file1.is_open())
     {
@@ -122,7 +131,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     }
     file1.close();
     file1.clear();
-    file1.open(sys_input.c_str());
+    file1.open(syst_input);
     
     string *info_tsd;
     info_tsd= new string[line_tsd];
@@ -286,22 +295,17 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
             string ref_junc_file;
             ref_junc_file=WD_dir+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str()+".junc.ref.fasta";
             //cout<<ref_file<<endl;
-            file21.open(ref_junc_file.c_str());
+            char *syst_ref_junc_file = new char[ref_junc_file.length()+1];
+            strcpy(syst_ref_junc_file, ref_junc_file.c_str());
+            file21.open(syst_ref_junc_file);
             
-
-            SamFaidx faidx = SamFaidx();
-            faidx.SamFaidxCommand(fasta.c_str(),(chr+":"+s_start_junc+"-"+s_end_junc).c_str(),ref_junc_file.c_str());
-
-            // string sys_ref_junc;
-            // sys_ref_junc="samtools faidx "+fasta+" "+chr+":"+s_start_junc+"-"+s_end_junc+" > "+ref_junc_file;
+            string sys_ref_junc;
+            sys_ref_junc="samtools faidx "+fasta+" "+chr+":"+s_start_junc+"-"+s_end_junc+" > "+ref_junc_file;
             //cout<<sys_ref<<endl;
             
-            // char *syst_ref_junc = new char[sys_ref_junc.length()+1];
-            // strcpy(syst_ref_junc, sys_ref_junc.c_str());
-            // system(syst_ref_junc);
-
-            // delete [] syst_ref_junc_file;
-            // delete [] syst_ref_junc;
+            char *syst_ref_junc = new char[sys_ref_junc.length()+1];
+            strcpy(syst_ref_junc, sys_ref_junc.c_str());
+            system(syst_ref_junc);
 
     //FP exclude module
             //3' 26mer identify based on TSD
@@ -455,9 +459,11 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast<<endl;
                     
+                    char *syst_3_blast = new char[sys_3_blast.length()+1];
+                    strcpy(syst_3_blast, sys_3_blast.c_str());
                     vector<string> pp_3_int;
                     pp_3_int.clear();
-                    FILE *pp_3 =popen(sys_3_blast.c_str(),"r");
+                    FILE *pp_3 =popen(syst_3_blast,"r");
                     char *tmp=new char[1024];
                     while (fgets(tmp, sizeof(tmp), pp_3) != NULL) {
                         if (tmp[strlen(tmp) - 1] == '\n') {
@@ -475,9 +481,11 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast_2<<endl;
                     
+                    char *syst_3_blast_2 = new char[sys_3_blast_2.length()+1];
+                    strcpy(syst_3_blast_2, sys_3_blast_2.c_str());
                     vector<string> pp_3_int_2;
                     pp_3_int_2.clear();
-                    FILE *pp_3_2 =popen(sys_3_blast_2.c_str(),"r");
+                    FILE *pp_3_2 =popen(syst_3_blast_2,"r");
                     char *tmp_2=new char[1024];
                     while (fgets(tmp_2, sizeof(tmp_2), pp_3_2) != NULL) {
                         if (tmp_2[strlen(tmp_2) - 1] == '\n') {
@@ -501,7 +509,9 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     delete [] tmp_2;
                     /*
                     string sys_3_blast = "blastn -evalue 0.05 -task blastn -query "+sys_3_kmer+" -subject "+ref_junc_file+" -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=60&&($10-$9)>0) print \"1\"}' |wc -l > "+WD_dir+"read_result_junc_fake.txt";
-                    system(sys_3_blast.c_str());
+                    char *syst_3_blast = new char[sys_3_blast.length()+1];
+                    strcpy(syst_3_blast, sys_3_blast.c_str());
+                    system(syst_3_blast);
                     
                     string sys_3_bl = WD_dir+"read_result_junc_fake.txt";
                     char *syst_3_bl = new char[sys_3_bl.length()+1];
@@ -512,7 +522,9 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     file23>>loc_tsd[w][7];
                     
                     string sys_3_blast_2 = "blastn -evalue 0.05 -task blastn -query "+sys_3_kmer_2+" -subject "+ref_junc_file+" -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=60&&($10-$9)>0) print \"1\"}' |wc -l > "+WD_dir+"read_result_junc_fake_2.txt";
-                    system(sys_3_blast_2.c_str());
+                    char *syst_3_blast_2 = new char[sys_3_blast_2.length()+1];
+                    strcpy(syst_3_blast_2, sys_3_blast_2.c_str());
+                    system(syst_3_blast_2);
                     
                     string sys_3_bl_2 = WD_dir+"read_result_junc_fake_2.txt";
                     char *syst_3_bl_2 = new char[sys_3_bl_2.length()+1];
@@ -644,7 +656,6 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     delete [] loc_tsd;
     delete [] loc_TP;
     delete [] loc_tsd_fp;
-    delete [] kmer_tsd;
-
     return 0;
+    
 }

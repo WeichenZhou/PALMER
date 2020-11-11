@@ -23,8 +23,11 @@ int blastn(string WD_dir, string t, string direc){
     //cout<<"Blastn Step is now running."<<endl;
     
     string sys_blast = WD_dir+"SEQ.masked";
+    char *syst_blast =  new char[sys_blast.length()+1];
+    strcpy(syst_blast, sys_blast.c_str());
+    
     ifstream file1;
-    file1.open(sys_blast.c_str());
+    file1.open(syst_blast);
     
     if (!file1.is_open())
     {
@@ -65,11 +68,16 @@ int blastn(string WD_dir, string t, string direc){
     else if(t=="SVA"){
         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
+    else if(t=="HERVK"){
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/HERVK.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+    }
     else {
         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+t+" -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     
-    system(sys_blastn.c_str());
-
+    char *syst_blastn = new char[sys_blastn.length()+1];
+    strcpy(syst_blastn, sys_blastn.c_str());
+    //cout<<sys_blastn<<endl;
+    system(syst_blastn);
     return 0;
 }

@@ -31,7 +31,12 @@ int calling(string WD_dir, string t, int tsd_index){
     }
     else if (t=="SVA"){
         BIN_3=2500;
-        BIN_5=3000;
+        BIN_5=4000;
+    }
+    else if (t=="HERVK"){
+        BIN_3=50;
+        BIN_5=50;
+        tsd_index=0;
     }
     
     int le_5,le_3;
@@ -41,7 +46,10 @@ int calling(string WD_dir, string t, int tsd_index){
     ifstream file1;
     
     string sys_input = WD_dir+"read_result_TSD.txt";
-    file1.open(sys_input.c_str());
+    char *syst_input = new char[sys_input.length()+1];
+    strcpy(syst_input, sys_input.c_str());
+    
+    file1.open(syst_input);
     
     if (!file1.is_open())
     {
@@ -50,9 +58,11 @@ int calling(string WD_dir, string t, int tsd_index){
         return 0;
     }
     
-    string sys_line = WD_dir+"read_result_ins_seq.txt";
     ifstream file99;
-    file99.open(sys_line.c_str());
+    string sys_line = WD_dir+"read_result_ins_seq.txt";
+    char *syst_line = new char[sys_line.length()+1];
+    strcpy(syst_line, sys_line.c_str());
+    file99.open(syst_line);
     
     if (!file99.is_open())
     {
@@ -64,7 +74,9 @@ int calling(string WD_dir, string t, int tsd_index){
     ofstream file2;
     
     string sys_calls = WD_dir+"calls.txt";
-    file2.open(sys_calls.c_str());
+    char *syst_calls = new char[sys_calls.length()+1];
+    strcpy(syst_calls, sys_calls.c_str());
+    file2.open(syst_calls);
     
     int line;
     string input;
@@ -75,7 +87,7 @@ int calling(string WD_dir, string t, int tsd_index){
     
     file1.close();
     file1.clear();
-    file1.open(sys_input.c_str());
+    file1.open(syst_input);
     
     int line_seq;
     //string input;
@@ -86,7 +98,7 @@ int calling(string WD_dir, string t, int tsd_index){
     
     file99.close();
     file99.clear();
-    file99.open(sys_line.c_str());
+    file99.open(syst_line);
     
     string **info_line;
     info_line=new string *[line_seq];
@@ -158,7 +170,9 @@ int calling(string WD_dir, string t, int tsd_index){
     //TSD_calling
     ifstream file3;
     string sys_input_TSD = WD_dir+"TSD_blastn.txt";
-    file3.open(sys_input_TSD.c_str());
+    char *syst_input_TSD = new char[sys_input_TSD.length()+1];
+    strcpy(syst_input_TSD, sys_input_TSD.c_str());
+    file3.open(syst_input_TSD);
     
     if (!file3.is_open())
     {
@@ -169,7 +183,9 @@ int calling(string WD_dir, string t, int tsd_index){
     
     ofstream file4;
     string sys_output_TSD = WD_dir+"TSD_output.txt";
-    file4.open(sys_output_TSD.c_str());
+    char *syst_output_TSD = new char[sys_output_TSD.length()+1];
+    strcpy(syst_output_TSD, sys_output_TSD.c_str());
+    file4.open(syst_output_TSD);
     
     int line_tsd;
     for(int i=0;!file3.eof();++i){
@@ -178,7 +194,7 @@ int calling(string WD_dir, string t, int tsd_index){
     }
     file3.close();
     file3.clear();
-    file3.open(sys_input_TSD.c_str());
+    file3.open(syst_input_TSD);
     
     string *info_tsd;
     info_tsd= new string[line_tsd];
@@ -221,6 +237,10 @@ int calling(string WD_dir, string t, int tsd_index){
     else if(t=="SVA"){
         S=75;
         L=25;
+    }
+    else if(t=="HERVK"){
+        S=225;
+        L=75;
     }
     
     for(int i=0;i!=line;++i){
@@ -1372,15 +1392,17 @@ int calling(string WD_dir, string t, int tsd_index){
                         
                         file4<<endl;
                         if(t=="LINE"){
-                            polyA_le=polyA_le+loc[read_seq][1]-6025;
+                            polyA_le=polyA_le+loc[read_seq][1]-6022;
                         }
                         else if (t=="ALU"){
                             polyA_le=polyA_le+loc[read_seq][1]-282;
                         }
                         else if (t=="SVA"){
-                            polyA_le=polyA_le+loc[read_seq][1]-1359;
+                            polyA_le=polyA_le+loc[read_seq][1]-1352;
                         }
-                        
+                        else if (t=="HERVK"){
+                            polyA_le=polyA_le+loc[read_seq][1]-9472;
+                        }
                         //polyA_le=polyA_le+loc[read_seq][1]-6025;
                         l_tsd=l_tsd+le_new-ls_new;
                         r_tsd=r_tsd+re_new-rs_new;
@@ -1810,13 +1832,16 @@ int calling(string WD_dir, string t, int tsd_index){
                         
                         file4<<endl;
                         if(t=="LINE"){
-                            polyA_le=polyA_le+loc[read_seq][1]-6025;
+                            polyA_le=polyA_le+loc[read_seq][1]-6022;
                         }
                         else if (t=="ALU"){
                             polyA_le=polyA_le+loc[read_seq][1]-282;
                         }
                         else if (t=="SVA"){
-                            polyA_le=polyA_le+loc[read_seq][1]-1359;
+                            polyA_le=polyA_le+loc[read_seq][1]-1352;
+                        }
+                        else if (t=="HERVK"){
+                            polyA_le=polyA_le+loc[read_seq][1]-9472;
                         }
                         l_tsd=l_tsd+le_new-ls_new;
                         r_tsd=r_tsd+re_new-rs_new;
