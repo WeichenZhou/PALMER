@@ -236,6 +236,11 @@ int ReadMasker(string WD_dir){
                                     seq[k+x]='N';
                                 }
                             }
+                            else if((bit-number)<start&&bit>end){
+                                for(int x=start-bit+number;x!=end-bit+number+1;++x){
+                                    seq[k+x]='N';
+                                }
+                            }
                             k=k+number;
                         }
                         else if(cig=='D'||cig=='N') {bit=bit+number;
