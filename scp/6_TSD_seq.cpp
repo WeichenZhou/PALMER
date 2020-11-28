@@ -310,8 +310,8 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             if(je2>loc[i][6]) je2=loc[i][6];
             
             int l1,l2;
-            l1=je1-js1+1;
-            l2=je2-js2+1;
+            l1=je1-js1+1+0.5*BIN_5;
+            l2=je2-js2+1+0.5*BIN_5;
             char *right_j;
             right_j=new char[l2];
             char *left_j;

@@ -367,12 +367,13 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                        */
                     int fix_5;
                     //fix_5=1+loc_tsd[w][4]-BIN_5+J_BIN;
-                    if(BIN_5>=(info[i][3].length()-J_BIN_mer)) fix_5=1+loc_tsd[w][4]-BIN_5;
-                    else if (BIN_5<(info[i][3].length()-J_BIN_mer)) fix_5=1+loc_tsd[w][4]-BIN_5+info[i][3].length()-J_BIN_mer-BIN_5;
+                    if(BIN_5>=(info[i][3].length()-J_BIN_mer)) fix_5=0;
+                    else if (BIN_5<(info[i][3].length()-J_BIN_mer)) fix_5=info[i][3].length()-J_BIN_mer-BIN_5-1;
+                    
                     
                     int fix_3;
-                    if(BIN_3>=info[i][4].length()) fix_3=1+loc_tsd[w][5]-BIN_3;
-                    else if(BIN_3<info[i][4].length()) fix_3=1+loc_tsd[w][5]-BIN_3+info[i][4].length()-BIN_3;
+                    if(BIN_3>=info[i][4].length()) fix_3=0;
+                    else if(BIN_3<info[i][4].length()) fix_3=info[i][4].length()-BIN_3-1;
                     
                     string fasta5_str="";
                     string fasta3_str="";
@@ -382,7 +383,12 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                         string fa_s5,fa_s3;
                         fa_3.clear();
                         fa_5.clear();
-                        for(int n=loc_tsd[w][1]-1-(J_BIN*3)/2+1+fix_5;n!=(loc_tsd[w][1]+fix_5)&&n<=info[i][3].length();++n){
+                        int patch_n=loc_tsd[w][1]-1-(J_BIN*3)/2+fix_5;
+                        if(patch_n<0) {
+                            //cout<<"patch_n="<<patch_n<<endl;
+                            patch_n=0;
+                        }
+                        for(int n=patch_n;n!=(loc_tsd[w][1]+fix_5)&&n<=info[i][3].length();++n){
                             if(seq5[n]!='A'&&seq5[n]!='T'&&seq5[n]!='G'&&seq5[n]!='C'){
                                 fasta5_str=fasta5_str+"N";
                             }
@@ -420,7 +426,12 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                         string fa_s5,fa_s3;
                         fa_3.clear();
                         fa_5.clear();
-                        for(int n=loc_tsd[w][2]-1-(J_BIN*3)/2+fix_3;n!=(loc_tsd[w][2]+fix_3-1)&&n<=info[i][4].length();++n){
+                        int patch_n_2=loc_tsd[w][2]-1-(J_BIN*3)/2+fix_3-1;
+                        if(patch_n_2<0) {
+                            //cout<<"patch_n_2="<<patch_n_2<<endl;
+                            patch_n_2=0;
+                        }
+                        for(int n=patch_n_2;n!=(loc_tsd[w][2]+fix_3-1)&&n<=info[i][4].length();++n){
                             if(seq3[n]!='A'&&seq3[n]!='T'&&seq3[n]!='G'&&seq3[n]!='C'){
                                 fasta3_str=fasta3_str+"N";
                             }
@@ -453,9 +464,12 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     }
                     //file22<<endl;
                     //file222<<endl;
+                    int fasta5_str_len=int(fasta5_str.length()*60/75);
+                    int fasta3_str_len=int(fasta3_str.length()*60/75);
+                    string fasta5_str_length=to_string(fasta5_str_len);
+                    string fasta3_str_length=to_string(fasta3_str_len);
                     
-                    
-                    string sys_3_blast = "bash -c \"blastn -evalue 0.05 -task blastn -query <(echo -e \\\">"+name_tag_1+"\\\\n"+(fasta5_str)+"\\\") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=60&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
+                    string sys_3_blast = "bash -c \"blastn -evalue 0.05 -task blastn -query <(echo -e \\\">"+name_tag_1+"\\\\n"+(fasta5_str)+"\\\") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta5_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast<<endl;
                     
@@ -477,7 +491,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     //loc_tsd_fp[w][0]=pp_3_int;
                     loc_tsd_fp[w][0]=accumulate(pp_3_int.begin(),pp_3_int.end(),loc_tsd_fp[w][0]);
                     
-                    string sys_3_blast_2 = "bash -c \"blastn -evalue 0.05 -task blastn -query <(echo -e \\\">"+name_tag_2+"\\\\n"+(fasta3_str)+"\\\") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=60&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
+                    string sys_3_blast_2 = "bash -c \"blastn -evalue 0.05 -task blastn -query <(echo -e \\\">"+name_tag_2+"\\\\n"+(fasta3_str)+"\\\") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta3_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast_2<<endl;
                     
