@@ -131,7 +131,7 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 * Improved HIFI reads calling!!
 * A couple of major bugs fixed!!
-* Improved Running time!!
+* Improved running time!!
 
 **Ver1.7** Nov.11th.2020! Happy Singles Day & happy shopping!!
 
