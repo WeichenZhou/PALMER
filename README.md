@@ -127,16 +127,22 @@ Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 * arthurz@med.umich.edu
 
 ## Logs
+**Ver1.7.2** Nov.28th.2020! Happy Thanksgiving!!
+
+* Improved HIFI reads calling!!
+* A couple of major bugs fixed!!
+* Improved running time!!
+
 **Ver1.7** Nov.11th.2020! Happy Singles Day & happy shopping!!
 
-* Enable HERV-K calling!!
-* Enable specific region calling!!
-* Enable cram file calling!!
+* Enabled HERV-K calling!!
+* Enabled specific region calling!!
+* Enabled cram file calling!!
 * Minor bugs fixed.
 
 **Ver1.6.2.Enhanced** Sep.27th.2020 by Jixing Guan
 
-* Optimize PALMER and make samtools as build-in lib
+* Optimized PALMER and make samtools as build-in lib
 
 **Ver1.6.2** May.19th.2020
 
