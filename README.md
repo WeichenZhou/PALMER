@@ -117,7 +117,7 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 ```
 --IMPORTANT--
-If you have met error information saying 'Blast engine error', please try to re-run PALMER with sufficient memory and storage. It the issue in BLASTn which causes some glitch in outputting results.
+If you have met error information saying 'Blast engine error', please try to re-run PALMER with sufficient memory and storage. It is the issue in BLASTn which causes some glitch in outputting results.
 ```
 
 ## Citation
