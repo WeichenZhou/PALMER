@@ -115,10 +115,14 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 SRs.
 
+```
+--IMPORTANT--
+If you have met error information saying 'Blast engine error', please try to re-run PALMER with sufficient memory and storage. It is the issue in BLASTn which causes some glitch in outputting results.
+```
 
 ## Citation
 
-For LINE-1s:
+For general use or LINE-1s:
 * Weichen Zhou, Sarah B Emery, Diane A Flasch, Yifan Wang, Kenneth Y Kwan, Jeffrey M Kidd, John V Moran, Ryan E Mills,
 [Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), 
 Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
