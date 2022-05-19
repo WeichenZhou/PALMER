@@ -139,7 +139,7 @@ In preparation!
 * arthurz@med.umich.edu
 
 ## Logs
-**Ver2.0.0** May.20th.2022! PALMER2.0.0 is online now!! 520 (｡・ω・｡)ﾉ♥♥♥♥♥♥♥♥♥♥!! 
+**Ver2.0.0** May.20th.2022! PALMER2.0.0 is online now!! 520 (｡・ω・｡)ﾉ♥♥♥!! 
 
 * Capability of calling insertions in assembled contigs!!
 * A couple of major bugs fixed!!
