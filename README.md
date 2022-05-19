@@ -141,7 +141,7 @@ In preparation!
 ## Logs
 **Ver2.0.0** May.20th.2022! PALMER2.0.0 is online now!! 520 (｡・ω・｡)ﾉ♥♥♥!! 
 
-* Capability of calling insertions in assembled contigs!!
+* Support insertion calling in assembled contigs!!
 * Several major bugs fixed!! Including one causing fatal memory allocation fail.
 * Improved running time!!
 * Minor bugs fixed.
