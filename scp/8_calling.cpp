@@ -1,4 +1,4 @@
-//copyright by ArthurZhou @ UMich&FUDAN&HUST
+//copyright by ArthurZhou @ UMich&Fudan&HUST
 #include <stdlib.h>
 #include <iostream>
 #include <string>
@@ -1368,8 +1368,8 @@ int calling(string WD_dir, string t, int tsd_index){
                             for(int n=le_new;n!=info[read_seq][2].length();++n){
                                 file4<<seq5[n];
                             }
-                            
-                            for(int n=0;n!=info_line[read_seq][2].length()-1;++n){
+//5bp
+                            for(int n=5;n!=info_line[read_seq][2].length()-1-5;++n){
                                 file4<<seq_line[n];
                             }
                             
@@ -1383,8 +1383,8 @@ int calling(string WD_dir, string t, int tsd_index){
                             for(int n=re_new;n!=info[read_seq][3].length();++n){
                                 file4<<seq3[n];
                             }
-                            
-                            for(int n=1;n!=info_line[read_seq][2].length()-1;++n){
+//5bp
+                            for(int n=1+5;n!=info_line[read_seq][2].length()-1-5;++n){
                                 file4<<seq_line[n];
                             }
                             
@@ -1911,7 +1911,7 @@ int calling(string WD_dir, string t, int tsd_index){
                     for(int j=0;j!=line_tsd;++j) {delete [] kmerseq_tsd[j];}
                     delete [] kmerseq_tsd;
                     
-                }                
+                }
             }
             }
             else if (tsd_index==0){

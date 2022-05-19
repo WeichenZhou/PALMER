@@ -5,14 +5,14 @@
 
 Pre-mAsking Long reads for Mobile Element inseRtion
 
-* PALMER detects non-reference MEI events (LINE, Alu, SVA, and HERVK) and other insertions by using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It uses the track from [UCSC Repeatmasker](https://genome.ucsc.edu/cgi-bin/hgTables) to mask the portions of reads that aligned to these repeats, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
+* PALMER detects non-reference MEI events (LINE, Alu, SVA, and HERVK) and other insertions by using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
 * The ideal structure of an MEI event would be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’.
+* PALMER is able to detect other categories (e.g. numts) of non-reference insertion sequence under the customized setup by the user.
 
 Required resources:
 ```
  samtools/1.3.1  https://github.com/samtools/samtools
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
- git-lfs (Use when index files are text pointers. Or simply choose 'Download ZIP' if you don't want to install git-lfs.)
 ```
 
 
@@ -27,7 +27,9 @@ make
 
 Parameters
 ```
-Usage:
+USAGE:
+
+Required
 
 --input
          aligned long-read sequencing BAM file with directory path
@@ -39,13 +41,18 @@ Usage:
          reference genome used for the aligned file ('other' option for the cusmized genome out of hg19, GRCh37 or GRCh38)
 
 --ref_fa
-         indexed fasta file of reference genome fasta file with directory path used for the aligned bam file (wrong reference will cause error information)
+         indexed fasta file of reference genome fasta file with directory path used for the aligned bam/cram file (wrong reference will cause error information)
 
 --type (options: LINE, ALU, SVA, HERVK, or CUSTOMIZED (if you want to setup your costomized sequence))
          type of MEIs or other kinds of insertions to detect
 
+--mode (options: raw, or asm)      
+         type of input sequencing to be processed (raw: raw nanopore/PacBio-sub reads; asm: assembled contigs)
+
 --chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
          chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
+
+Optional
 
 --start (default: Null)
          start position in the genome for PALMER to run (default is null). !!It should go with --end if assigned
@@ -55,10 +62,6 @@ Usage:
             
 --custom_seq (default: Null)
          .fasta file with directory path to customize your insertion finding. e.g. NUMTs, MEIs in other species.
-
---custom_index (default: Null; if you have both '--ref_ver other' and '--type LINE/ALU/SVA/HERVK', you must give PALMER a index file (format: "CHR'	'START'	'END'	'MEI_NAME'
-'" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without the masking step)
-         index file with directory path to mask the genome for your insertion finding
 
 --TSD_finding (Fixed: TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)
          whether to run TSD motif finding module for your insertion calling
@@ -75,30 +78,30 @@ Usage:
 
 Examples
 ```
-1) Running PALMER on example bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
-./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --chr 19 --ref_fa $your.reference.file.path/GRCh38.fa
+1) Running PALMER on example PacBio subreads bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
+./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa
 
 Results (sample_calls.txt & sample_TSD_reads.txt)  from example bam file can also be found under the 'example' folder.
 ```
 ```
-2) Running PALMER on your aligned bam based on GRCh37 reference genome to call LINE-1 insertions in chromosome3 at position from 200,000 to 400,000
-./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.output.prefix --type LINE --chr 3 --start 200000 --end 400000 --ref_fa $your.reference.file.path/hs37d5.fa
+2) Running PALMER on your aligned sequences on GRCh37 reference genome to call LINE-1 insertions in chromosome3 at position from 200,000 to 400,000
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.output.prefix --type LINE --mode raw --chr 3 --start 200000 --end 400000 --ref_fa $your.reference.file.path/hs37d5.fa
 ```
 ```
-3) Running PALMER on your aligned cram based on GRCh38 reference genome to call SVA insertions in chromosome3
-./PALMER --input $DirPath/your.cram.file --workdir $DirPath/ --ref_ver GRCh38 --output your.output.prefix --type SVA --chr chr3 --ref_fa $your.reference.file.path/GRCh38.fa
+3) Running PALMER on your aligned assembled contigs in cram based on GRCh38 reference genome to call SVA insertions in chromosome3
+./PALMER --input $DirPath/your.cram.file --workdir $DirPath/ --ref_ver GRCh38 --output your.output.prefix --type SVA --mode asm --chr chr3 --ref_fa $your.reference.file.path/GRCh38.fa
 ```
 ```
 4) Running PALMER on your aligned bam to call Alu insertions in chromosome2a of Champanzee genome
-./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa --custom_index reference.Alu.coordinates.in.your.reference.Chimpanzee.genome 
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --mode raw --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa 
 ```
 ```
 5) Running PALMER on your aligned bam to call NumtS in chromosome5 of Champanzee genome
-./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt --custom_index $your.custom_index.file.path/Chimp_ref_NumtS.bed
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt 
 ```
 ```
 6) Running PALMER on your aligned bam to call LINE-1 insertions in chromosomeX of mice genome
-./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --custom_index $your.custom_index.file.path/mm10_ucsc_repeatmasker_LINE.bed --TSD_finding TRUE --len_custom_seq (int)
+./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --TSD_finding TRUE --len_custom_seq (int)
 ```
 ```
 7)
@@ -113,12 +116,8 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 'output_TSD_reads.txt' contains all details you want for the high confident (HC) supporting reads (SRs).
 
-* By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 SRs.
+* By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
 
-```
---IMPORTANT--
-If you have met error information saying 'Blast engine error', please try to re-run PALMER with sufficient memory and storage. It is the issue in BLASTn which causes some glitch in outputting results.
-```
 
 ## Citation
 
@@ -132,11 +131,21 @@ For all MEIs:
 [Cas9 targeted enrichment of mobile elements using nanopore sequencing](https://www.nature.com/articles/s41467-021-23918-y), 
 Nature Communications, 2021, `https://doi.org/10.1038/s41467-021-23918-y`
 
+For PALMER2.0:
+In preparation!
+
 ## Contact
 
 * arthurz@med.umich.edu
 
 ## Logs
+**Ver2.0.0** May.20th.2022! PALMER2.0.0 is online now!! 520 (｡・ω・｡)ﾉ♥♥♥♥♥♥♥♥♥♥!! 
+
+* Capability of calling insertions in assembled contigs!!
+* A couple of major bugs fixed!!
+* Improved running time!!
+* Minor bugs fixed.
+
 **Ver1.7.2** Nov.28th.2020! Happy Thanksgiving!!
 
 * Improved HIFI reads calling!!
