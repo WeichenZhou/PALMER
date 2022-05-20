@@ -1,6 +1,3 @@
-## This is a stable fork from https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
-
-
 # PALMER
 
 Pre-mAsking Long reads for Mobile Element inseRtion
