@@ -1,4 +1,4 @@
-//copyright by ArthurZhou @ UMich&FUDAN&HUST
+//copyright by ArthurZhou @ UMich&Fudan&HUST
 #include <stdlib.h>
 #include <iostream>
 #include <string>
@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "1_samtools.cpp"
-#include "2_rm_selector.cpp"
+//#include "2_rm_selector.cpp"
 #include "3_read_masker.cpp"
 #include "4_blastn.cpp"
 #include "5_blastn_caller.cpp"
@@ -26,7 +26,7 @@
 #include "8_calling.cpp"
 using namespace std;
 
-int tube(string working_dir, string input_bam, string chr, int start, int end, string sys_region, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len){
+int tube(string working_dir, string input_bam, string chr, int start, int end, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len, string mode){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
@@ -54,10 +54,10 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
 //1. samtools view
     
     samtools(WD_tube, input_bam, chr, s_start, s_end ,ref_fa);
-    cout<<"1. Samtools Step for region "+chr+"_"+s_start+"_"+s_end+" now completed."<<endl;
+    cout<<"Samtools Step for region "+chr+"_"+s_start+"_"+s_end+" now completed."<<endl;
     
 //Repeat region output
-    
+    /*
     ofstream file1;
     
     string sys_RMloc = WD_tube+"RM.loc";
@@ -69,18 +69,19 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     if(ref_n==37){
         chr_fix="chr"+chr;
     }
-    */
+    
     file1.open(syst_RMloc);
     file1<<chr<<'\t'<<(start-100000)<<'\t'<<(end+100000)<<endl;
+    */
 
 //2. Repeat region selector
     
-    RMSelector(working_dir, WD_tube, sys_region);
+    //RMSelector(working_dir, WD_tube, sys_region);
     //cout<<"2. RMSelector Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
     
 //3. Read masker
     
-    ReadMasker(WD_tube);
+    ReadMasker(WD_tube, mode);
     //cout<<"3. Read Masker Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
     cout<<"Pre-masking step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
  

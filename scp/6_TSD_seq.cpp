@@ -1,4 +1,4 @@
-//copyright by ArthurZhou @ UMich&FUDAN&HUST
+//copyright by ArthurZhou @ UMich&Fudan&HUST
 #include <stdlib.h>
 #include <iostream>
 #include <string>
@@ -56,7 +56,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         return 0;
     }
     
-    int line_cigar;
+    int line_cigar=0;
     string input;
     for(int i=0;!file66.eof();++i){
         getline(file66,input);
@@ -114,8 +114,8 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         return 0;
     }
     
-    int line_read;
-    int line_region;
+    int line_read=0;
+    int line_region=0;
     
     //string input;
     for(int i=0;!file1.eof();++i){
@@ -233,15 +233,25 @@ int tsd_module(string WD_dir, string t, int tsd_index){
 
 //cout<<"finish this a1 "<<i<<endl;
 
-            int l_line,line_s,line_e;
+            int l_line=0;
+            int line_s=0;
+            int line_e=0;
             line_s=loc[i][2];
             line_e=loc[i][3];
             l_line=loc[i][3]-loc[i][2]+1;
+
+//cout<<"finish this a1.1.0 "<<i<<endl;
+                        
+
+            //cout<<l_line<<endl;
+            
             char *line_seq;
             line_seq=new char[l_line];
             for(int j=0;j!=l_line;++j) line_seq[j]='N';
+
+//cout<<"finish this a1.1.1 "<<i<<endl;
             
-            int l_chunk;
+            int l_chunk=0;
             l_chunk=loc[i][3]-loc[i][2]+101;
             char *chunk_seq;
             chunk_seq=new char[l_chunk];
@@ -250,12 +260,20 @@ int tsd_module(string WD_dir, string t, int tsd_index){
 //cout<<"finish this a1.1 "<<i<<endl;
 
             
-            int s1,s2,e1,e2;
+            int s1=0;
+            int s2=0;
+            int e1=0;
+            int e2=0;
             s1=loc[i][2]-(BIN_5-5);
             if(s1<=0) s1=1;
             e1=loc[i][2]+5;
             if(e1>loc[i][6]) e1=loc[i][6];
             s2=loc[i][3]-5;
+
+            //cout<<"finish this a1.1.4 "<<i<<endl;
+                        
+
+
             if(s2<=0) s2=1;
             e2=loc[i][3]+(BIN_5-5);
             //cout<<e2<<endl;
@@ -265,18 +283,26 @@ int tsd_module(string WD_dir, string t, int tsd_index){
 //cout<<"finish this a1.2 "<<i<<endl;
 
         
-            int s_3_1,s_3_2,e_3_1,e_3_2;
-            s_3_1=loc[i][2]-BIN_3;
+            int s_3_1=0;
+            int s_3_2=0;
+            int e_3_1=0;
+            int e_3_2=0;
+            s_3_1=loc[i][2]-(BIN_3-5);
             if(s_3_1<=0) s_3_1=1;
-            e_3_1=loc[i][2];
-            s_3_2=loc[i][3];
-            e_3_2=loc[i][3]+BIN_3;
+            e_3_1=loc[i][2]+5;
+            if(e_3_1>loc[i][6]) e_3_1=loc[i][6];
+            s_3_2=loc[i][3]-5;
+            if(s_3_2<=0) s_3_2=1;
+            e_3_2=loc[i][3]+(BIN_3-5);
             if(e_3_2>loc[i][6]) e_3_2=loc[i][6];
 
 //cout<<"finish this a1.3 "<<i<<endl;
 
             
-            int l3,l4,l5,l6;
+            int l3=0;
+            int l4=0;
+            int l5=0;
+            int l6=0;
             l3=e1-s1+1;
             l4=e2-s2+1;
             l5=e_3_1-s_3_1+1;
@@ -299,19 +325,23 @@ int tsd_module(string WD_dir, string t, int tsd_index){
 
 //cout<<"finish this a2.1 "<<i<<endl;
             
-            int js1, js2, je1, je2;
-            js1=s1-J_BIN;
+            int js1=0;
+            int js2=0;
+            int je1=0;
+            int je2=0;
+            js1=s1-J_BIN-0.5*J_BIN;
             if(js1<=0) js1=1;
             je1=e1+J_BIN_mer;
             if(je1>loc[i][6]) je1=loc[i][6];
             js2=s2-J_BIN_mer;
             if(js2<=0) js2=1;
-            je2=e2+J_BIN;
+            je2=e2+J_BIN+0.5*J_BIN;
             if(je2>loc[i][6]) je2=loc[i][6];
             
-            int l1,l2;
-            l1=je1-js1+1+0.5*BIN_5;
-            l2=je2-js2+1+0.5*BIN_5;
+            int l1=0;
+            int l2=0;
+            l1=je1-js1+1;
+            l2=je2-js2+1;
             char *right_j;
             right_j=new char[l2];
             char *left_j;
@@ -319,7 +349,10 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             for(int j=0;j!=l1;++j) left_j[j]='N';
             for(int j=0;j!=l2;++j) right_j[j]='N';
             
-            int js_3_1,js_3_2,je_3_1,je_3_2;
+            int js_3_1=0;
+            int js_3_2=0;
+            int je_3_1=0;
+            int je_3_2=0;
             js_3_1=s_3_1-J_BIN;
             if(js_3_1<=0) js_3_1=1;
             je_3_1=e_3_1;
@@ -327,7 +360,8 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             je_3_2=e_3_2+J_BIN;
             if(je_3_2>loc[i][6]) je_3_2=loc[i][6];
             
-            int l7,l8;
+            int l7=0;
+            int l8=0;
             l7=je_3_1-js_3_1+1;
             l8=je_3_2-js_3_2+1;
             char *right_j_3;
@@ -659,13 +693,15 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 //cout<<fasta3_str.length()<<endl;
                 //getchar();
                 
-                int len_5, len_3;
+                int len_5=0;
+                int len_3=0;
                 stringstream ss,ss1;
                 ss.clear();
                 ss1.clear();
                 string s_len,s_len1;
                 
-                int le_5,le_3;
+                int le_5=0;
+                int le_3=0;
                 string s_le_5,s_le_3;
                 le_5=BIN_5+1;
                 le_3=BIN_3+1;
@@ -687,7 +723,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     ss1<<e1-s1+1;
                     ss1>>s_len1;
                     //string sys_blastn = "blastn -task blastn -query <( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -subject ( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -word_size 6 -evalue 50 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \"1\"}' >> "+WD_dir+"TSD_blastn_pre.txt ";
-                    string sys_blastn = "bash -c \"blastn -task blastn -query <(echo -e \\\">"+seq_index+"\\\\n"+(fasta5_str)+"\\\") -subject <(echo -e \\\">"+seq_index+"\\\\n"+(fasta3_str)+"\\\") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
+                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
                     //cout<<sys_blastn <<endl;
                     char *syst_blastn = new char[sys_blastn.length()+1];
@@ -700,7 +736,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     ss1<<e_3_1-s_3_1+1;
                     ss1>>s_len1;
                     //string sys_blastn = "blastn -task blastn -query <(echo -e \">"+seq_index+"'\\n'"+fasta5_str+"\") -subject <(echo -e \">"+seq_index+"'\\n'"+fasta3_str+"\")";
-                    string sys_blastn = "bash -c \"blastn -task blastn -query <(echo -e \\\">"+seq_index+"\\\\n"+(fasta5_str)+"\\\") -subject <(echo -e \\\">"+seq_index+"\\\\n"+(fasta3_str)+"\\\") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
+                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
                     //cout<<sys_blastn <<endl;
                     char *syst_blastn = new char[sys_blastn.length()+1];
@@ -713,7 +749,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 
                 
             }
-            
+            //cout<<"TEST IN THE END"<<endl;
             
             else if(tsd_index==0){
                 //cout<< "yes"<<endl;
@@ -809,11 +845,13 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         delete [] info[i];
         delete [] loc[i];
         delete [] loc_TP[i];
+        //delete [] name[i];
     }
     delete [] info;
     delete [] loc;
     delete [] loc_TP;
-    delete [] name;
+    
+    //delete [] name;
     
     //cout<< "check TSD_blastn_pre.txt"<<endl;
     //getchar();

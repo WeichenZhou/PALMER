@@ -1,4 +1,4 @@
-//copyright by ArthurZhou @ UMich&FUDAN&HUST
+//copyright by ArthurZhou @ UMich&Fudan&HUST
 #include <stdlib.h>
 #include <iostream>
 #include <string>

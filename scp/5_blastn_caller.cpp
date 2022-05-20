@@ -1,4 +1,4 @@
-////copyright by ArthurZhou @ UMich&FUDAN&HUST
+////copyright by ArthurZhou @ UMich&Fudan&HUST
 #include <stdlib.h>
 #include <iostream>
 #include <string>
@@ -159,6 +159,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         nametag = std::to_string(read_loc[i]);
         read[i][3]=read[i][0]+"_"+nametag+"_"+input;
     }
+    
     for(int i=0;i!=blast;++i){
         int buff;
         int insert_s=0;
@@ -257,17 +258,19 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
 //in_read_connector
     
     //***********customized value***********
-    int S=100;//Segmental hit gap in one read
-    if (t=="ALU"){
+    int S_min=10;//Segmental hit gap in one read
+    int S_max=100;
+    int S=0;
+    /*if (t=="ALU"){
         S=10;
     }
     else if (t=="SVA"){
-        S=50;
+        S=25;
     }
     else if (t=="HERVK"){
-        S=300;
+        S=100;
     }
-    
+    */
     for(int i=0;i!=blast;++i){
         if(bla[i][6]==0){
             int flag_bn=1;
@@ -277,6 +280,11 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
             int L1_e=bla[i][1];
             int r_s=bla[i][2];
             int r_e=bla[i][3];
+            
+            S=int(0.1*(bla[i][1]-bla[i][0]));
+            if(S<S_min) S=S_min;
+            else if(S>S_max) S=S_max;
+            
             int L1_s_ex1=L1_s-S;
             int L1_s_ex2=L1_s+S;
             int L1_e_ex1=L1_e-S;
@@ -293,8 +301,8 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                 for(int j=0;j!=blast;++j){
                     if(bla_name[i]==bla_name[j]&&orient[i]==orient[j]&&bla[j][6]==0){
                         if(insert_e==bla[j][5]&&insert_s==bla[j][4]){
-                            if(bla[j][0]<=L1_e_ex2&&bla[j][0]>=L1_e_ex1){
-                                if(orient[i]=="+"&&bla[j][2]<=r_e_ex2&&bla[j][2]>=r_e_ex1){
+                            if(bla[j][0]<=L1_e_ex2&&bla[j][0]>=L1_e_ex1&&bla[j][1]>L1_s){
+                                if(orient[i]=="+"&&bla[j][2]<=r_e_ex2&&bla[j][2]>=r_e_ex1&&bla[j][3]>r_s){
                                     flag_bn=1;
                                     bla[j][6]=1;
                                     L1_e=bla[j][1];
@@ -305,7 +313,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                     r_e_ex1=r_e-S;
                                     r_e_ex2=r_e+S;
                                 }
-                                if(orient[i]=="-"&&bla[j][3]<=r_s_ex2&&bla[j][3]>=r_s_ex1){
+                                if(orient[i]=="-"&&bla[j][3]<=r_s_ex2&&bla[j][3]>=r_s_ex1&&bla[j][2]>r_e){
                                     flag_bn=1;
                                     bla[j][6]=1;
                                     
@@ -320,8 +328,8 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                 }
                             }
                             
-                            else if(bla[j][1]<=L1_s_ex2&&bla[j][1]>=L1_s_ex1){
-                                if(orient[i]=="+"&&bla[j][3]<=r_s_ex2&&bla[j][3]>=r_s_ex1){
+                            else if(bla[j][1]<=L1_s_ex2&&bla[j][1]>=L1_s_ex1&&bla[j][0]<L1_e){
+                                if(orient[i]=="+"&&bla[j][3]<=r_s_ex2&&bla[j][3]>=r_s_ex1&&bla[j][2]<r_e){
                                     flag_bn=1;
                                     bla[j][6]=1;
                                     
@@ -333,7 +341,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                     r_s_ex1=r_s-S;
                                     r_s_ex2=r_s+S;
                                 }
-                                if(orient[i]=="-"&&bla[j][2]<=r_e_ex2&&bla[j][2]>=r_e_ex1){
+                                if(orient[i]=="-"&&bla[j][2]<=r_e_ex2&&bla[j][2]>=r_e_ex1&&bla[j][3]<r_s){
                                     flag_bn=1;
                                     bla[j][6]=1;
                                     
