@@ -1,9 +1,7 @@
 ## This is a stable fork from https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
 
 
-# PALMER
-
-Pre-mAsking Long reads for Mobile Element inseRtion
+# PALMER2.0
 
 * PALMER detects non-reference MEI events (LINE, Alu, SVA, and HERVK) and other insertions by using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
 * The ideal structure of an MEI event would be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’.
