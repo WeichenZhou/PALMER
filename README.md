@@ -22,8 +22,6 @@ make
 
 Parameters
 ```
-USAGE:
-
 Required
 
 --input
