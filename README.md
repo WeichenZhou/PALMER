@@ -22,7 +22,7 @@ make
 
 Parameters
 ```
-Required
+Required:
 
 --input
          aligned long-read sequencing BAM file with directory path
@@ -45,7 +45,7 @@ Required
 --chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
          chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
 
-Optional
+Optional:
 
 --start (default: Null)
          start position in the genome for PALMER to run (default is null). !!It should go with --end if assigned
