@@ -43,7 +43,7 @@ Required:
          type of MEIs or other kinds of insertions to detect
 
 --mode (options: raw, or asm)      
-         type of input sequencing to be processed (raw: raw nanopore/PacBio-sub reads; asm: assembled contigs)
+         type of input sequencing to be processed (raw: raw nanopore/PacBio reads; asm: assembled contigs)
 
 --chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
          chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
@@ -74,7 +74,7 @@ Optional:
 
 Examples
 ```
-1) Running PALMER on example PacBio subreads bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
+1) Running PALMER on example PacBio raw reads bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
 ./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa
 
 Results (sample_calls.txt & sample_TSD_reads.txt)  from example bam file can also be found under the 'example' folder.
