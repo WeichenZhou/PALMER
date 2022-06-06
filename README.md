@@ -39,7 +39,7 @@ Required:
 --type (options: LINE, ALU, SVA, HERVK, or CUSTOMIZED (if you want to setup your costomized sequence))
          type of MEIs or other kinds of insertions to detect
 
---mode (options: raw, or asm)      
+--mode (options: raw/ccs, or asm)      
          type of input sequencing to be processed (raw: raw nanopore/PacBio reads; asm: assembled contigs)
 
 --chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
