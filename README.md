@@ -102,7 +102,7 @@ A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Pr
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
 
-## Output 
+## Output and Notes
 We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 'output_calls.txt' is the summary for all non-ref MEI calls.
@@ -111,6 +111,12 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
 
+```
+Please check the files in the example folder for the meaning(title) for each column of output.
+```
+```
+Please use a cutoff of 'Potential_supporting_reads' and 'Confident_supporting_reads' for any output of 'calls.txt' to filter out the false positive hits.
+```
 
 ## Citation
 
