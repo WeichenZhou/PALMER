@@ -20,7 +20,7 @@ cd PALMER
 make
 ```
 
-We recommend using ncbi-blast++/2.10.0 and running individual chromosomes parallelly for the most efficient performance.
+***We recommend using ncbi-blast++/2.10.0 and running individual chromosomes parallelly for the most efficient performance.***
 
 Parameters
 ```
