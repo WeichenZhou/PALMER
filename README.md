@@ -1,6 +1,3 @@
-## This is a stable fork from https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
-
-
 # PALMER
 
 Pre-mAsking Long reads for Mobile Element inseRtion
@@ -139,6 +136,10 @@ In preparation!
 * arthurz@med.umich.edu
 
 ## Logs
+**Ver2.0.1** Nov.10th.2024! PALMER2.0.1 is online now!
+
+* A frozen version for SMaHT and HGSVC3
+
 **Ver2.0.0** May.20th.2022! PALMER2.0.0 is online now!! 520 (｡・ω・｡)ﾉ♥♥♥♥♥♥♥♥♥♥!! 
 
 * Capability of calling insertions in assembled contigs!!
