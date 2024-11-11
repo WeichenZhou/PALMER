@@ -1,4 +1,9 @@
-# PALMER2
+## This is a stable fork from https://github.com/WeichenZhou/PALMER. If you have any issues, please visit that repository and subsequent updates and corrections will be pulled here.
+
+
+# PALMER
+
+Pre-mAsking Long reads for Mobile Element inseRtion
 
 * PALMER detects non-reference MEI events (LINE, Alu, SVA, and HERVK) and other insertions by using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
 * The ideal structure of an MEI event would be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’.
@@ -15,16 +20,16 @@ Required resources:
 
 Download and Install
 ```
-git clone https://github.com/WeichenZhou/PALMER.git
+git clone https://github.com/mills-lab/PALMER.git
 cd PALMER
 make
 ```
 
-***We recommend using ncbi-blast++/2.10.0 and running individual chromosomes parallelly for the most efficient performance.***
-
 Parameters
 ```
-Required:
+USAGE:
+
+Required
 
 --input
          aligned long-read sequencing BAM file with directory path
@@ -41,13 +46,13 @@ Required:
 --type (options: LINE, ALU, SVA, HERVK, or CUSTOMIZED (if you want to setup your costomized sequence))
          type of MEIs or other kinds of insertions to detect
 
---mode (options: raw/ccs, or asm)      
-         type of input sequencing to be processed (raw: raw nanopore/PacBio reads; asm: assembled contigs)
+--mode (options: raw, or asm)      
+         type of input sequencing to be processed (raw: raw nanopore/PacBio-sub reads; asm: assembled contigs)
 
 --chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
          chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
 
-Optional:
+Optional
 
 --start (default: Null)
          start position in the genome for PALMER to run (default is null). !!It should go with --end if assigned
@@ -73,7 +78,7 @@ Optional:
 
 Examples
 ```
-1) Running PALMER on example PacBio raw reads bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
+1) Running PALMER on example PacBio subreads bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
 ./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa
 
 Results (sample_calls.txt & sample_TSD_reads.txt)  from example bam file can also be found under the 'example' folder.
@@ -104,7 +109,7 @@ A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Pr
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
 
-## Output and Notes
+## Output 
 We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 'output_calls.txt' is the summary for all non-ref MEI calls.
@@ -113,12 +118,6 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
 
-```
-Please check the files in the example folder for the meaning(title) for each column of output.
-```
-```
-Please use a cutoff of 'Potential_supporting_reads' and 'Confident_supporting_reads' for any output of 'calls.txt' to filter out the false positive hits.
-```
 
 ## Citation
 
@@ -140,10 +139,10 @@ In preparation!
 * arthurz@med.umich.edu
 
 ## Logs
-**Ver2.0.0** May.20th.2022! **PALMER2.0** is online now!! 520 (｡・ω・｡)ﾉ♥♥♥!! 
+**Ver2.0.0** May.20th.2022! PALMER2.0.0 is online now!! 520 (｡・ω・｡)ﾉ♥♥♥♥♥♥♥♥♥♥!! 
 
-* Support insertion calling in assembled contigs!!
-* Several major bugs fixed!! Including one causing fatal memory allocation fail.
+* Capability of calling insertions in assembled contigs!!
+* A couple of major bugs fixed!!
 * Improved running time!!
 * Minor bugs fixed.
 

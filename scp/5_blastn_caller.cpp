@@ -363,6 +363,139 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         }
     }
     
+    file5.close();
+    file5.clear();
+    
+//For SVA refine
+    if(t=="SVA"){
+        string sys_readresult_SVA = WD_dir+"read_result_pre_SVA.txt";
+        char *syst_readresult_SVA =  new char[sys_readresult_SVA.length()+1];
+        strcpy(syst_readresult_SVA, sys_readresult_SVA.c_str());
+        
+        ifstream file55;
+        ofstream file155;
+        file55.open(syst_readresult);
+        file155.open(syst_readresult_SVA);
+        
+        int line_read_SVA=0;
+        for(int i=0;!file55.eof();++i){
+            getline(file55,input);
+            line_read_SVA=i;
+        }
+        
+        file55.close();
+        file55.clear();
+        file55.open(syst_readresult);
+        
+        string *name_SVA;
+        name_SVA=new string[line_read_SVA];
+        
+        string **info_SVA;
+        info_SVA=new string*[line_read_SVA];
+        for(int i=0;i!=line_read_SVA;++i) info_SVA[i]=new string[3];
+        
+        int **loc_SVA;
+        loc_SVA=new int*[line_read_SVA];
+        for(int i=0;i!=line_read_SVA;++i) loc_SVA[i]=new int[7];
+        
+        for(int i=0;i!=line_read_SVA;++i){
+            file55>>name_SVA[i];
+            file55>>loc_SVA[i][0];
+            file55>>loc_SVA[i][1];
+            file55>>loc_SVA[i][2];
+            file55>>loc_SVA[i][3];
+            file55>>loc_SVA[i][4];
+            file55>>loc_SVA[i][5];
+            file55>>info_SVA[i][0];
+            file55>>info_SVA[i][1];
+            file55>>loc_SVA[i][6];
+            info_SVA[i][2]="0";
+            //425 ± 25 bp
+                                        
+            int seg1_s=400;
+            int seg1_e=450;
+                                        
+            //855 ± 25 bp
+                                        
+            int seg2_s=820;
+            int seg2_e=870;
+            
+            if(loc_SVA[i][1] > seg2_e){
+                info_SVA[i][2]="3";
+                //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<endl;
+               }
+            else if(loc_SVA[i][1] <= seg2_e && loc_SVA[i][0] >= seg1_s){
+                info_SVA[i][2]="2";
+                //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<endl;
+            }
+            else if(loc_SVA[i][0] < seg1_s){
+                info_SVA[i][2]="1";
+            }
+        }
+        
+        for(int i=0;i!=line_read_SVA;++i){
+            if(info_SVA[i][2]=="2"){
+                int flag_seg2=1;
+                for(;flag_seg2==1;){
+                    flag_seg2=0;
+                    
+                    for(int j=0;j!=line_read_SVA;++j){
+                        if(i!=j&&info_SVA[j][2]=="2"&&name_SVA[i]==name_SVA[j]&&info_SVA[i][1]==info_SVA[j][1]&&loc_SVA[i][4]==loc_SVA[j][4]){
+                            if(!(loc_SVA[i][0]>loc_SVA[j][1]||loc_SVA[i][1]<loc_SVA[j][0])&&!(loc_SVA[i][2]>loc_SVA[j][3]||loc_SVA[i][3]<loc_SVA[j][2])){
+                                info_SVA[j][2]="0";
+                                if(loc_SVA[j][0]<loc_SVA[i][0]) loc_SVA[i][0]=loc_SVA[j][0];
+                                if(loc_SVA[j][1]>loc_SVA[i][1]) loc_SVA[i][1]=loc_SVA[j][1];
+                                if(loc_SVA[j][2]<loc_SVA[i][2]) loc_SVA[i][2]=loc_SVA[j][2];
+                                if(loc_SVA[j][3]>loc_SVA[i][3]) loc_SVA[i][3]=loc_SVA[j][3];
+                                flag_seg2=1;
+                                //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<endl;
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
+        
+        for(int i=0;i!=line_read_SVA;++i){
+            if(info_SVA[i][2]=="3"){
+                int flag_seg=1;
+                int x_tag_1=-1;
+                int x_tag_2=0;
+                for(;x_tag_1!=x_tag_2;){
+                    //flag_seg=0;
+                    x_tag_1=x_tag_2;
+                    x_tag_2=0;
+                    for(int j=0;j!=line_read_SVA;++j){
+                        if((info_SVA[j][2]=="2"||info_SVA[j][2]=="1")&&name_SVA[i]==name_SVA[j]&&info_SVA[i][1]==info_SVA[j][1]&&loc_SVA[i][4]==loc_SVA[j][4]){
+                            //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<" "<<loc_SVA[i][2]<<" "<<loc_SVA[i][3]<<endl;
+                            //cout<<"yes"<<name_SVA[j]<<" "<<loc_SVA[j][0]<<" "<<loc_SVA[j][1]<<" "<<loc_SVA[j][2]<<" "<<loc_SVA[j][3]<<endl;
+                            if(!(loc_SVA[i][0]>loc_SVA[j][1]||loc_SVA[i][1]<loc_SVA[j][0])&&!(loc_SVA[i][2]>loc_SVA[j][3]||loc_SVA[i][3]<loc_SVA[j][2])){
+                                if(loc_SVA[j][0]<loc_SVA[i][0]) loc_SVA[i][0]=loc_SVA[j][0];
+                                if(loc_SVA[j][1]>loc_SVA[i][1]) loc_SVA[i][1]=loc_SVA[j][1];
+                                if(loc_SVA[j][2]<loc_SVA[i][2]) loc_SVA[i][2]=loc_SVA[j][2];
+                                if(loc_SVA[j][3]>loc_SVA[i][3]) loc_SVA[i][3]=loc_SVA[j][3];
+                                //flag_seg=1;
+                                x_tag_2++;
+                                //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<endl;
+                                //cout<<"yes"<<name_SVA[j]<<" "<<loc_SVA[j][0]<<" "<<loc_SVA[j][1]<<endl;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            file155<<name_SVA[i]<<'\t'<<loc_SVA[i][0]<<'\t'<<loc_SVA[i][1]<<'\t'<<loc_SVA[i][2]<<'\t'<<loc_SVA[i][3]<<'\t'<<loc_SVA[i][4]<<'\t'<<loc_SVA[i][5]<<'\t'<<info_SVA[i][0]<<'\t'<<info_SVA[i][1]<<'\t'<<loc_SVA[i][6]<<endl;
+        }
+        
+        
+        file55.close();
+        file55.clear();
+        file155.close();
+        file155.clear();
+    }
+    
+    
 //Two priming module
    
     string sys_readresult_out = WD_dir+"read_result.txt";
@@ -372,11 +505,18 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     ofstream file15;
     file15.open(syst_readresult_out);
     
-    file5.close();
-    file5.clear();
-    
     ifstream file6;
-    file6.open(syst_readresult);
+    
+    if(t!="SVA"){
+       
+        file6.open(syst_readresult);
+    }
+    else if(t=="SVA"){
+        string sys_readresult_SVA = WD_dir+"read_result_pre_SVA.txt";
+        char *syst_readresult_SVA =  new char[sys_readresult_SVA.length()+1];
+        strcpy(syst_readresult_SVA, sys_readresult_SVA.c_str());
+        file6.open(syst_readresult_SVA);
+    }
     
     int line_read=0;
     for(int i=0;!file6.eof();++i){
@@ -386,7 +526,17 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     file6.close();
     file6.clear();
-    file6.open(syst_readresult);
+    
+    if(t!="SVA"){
+       
+        file6.open(syst_readresult);
+    }
+    else if(t=="SVA"){
+        string sys_readresult_SVA = WD_dir+"read_result_pre_SVA.txt";
+        char *syst_readresult_SVA =  new char[sys_readresult_SVA.length()+1];
+        strcpy(syst_readresult_SVA, sys_readresult_SVA.c_str());
+        file6.open(syst_readresult_SVA);
+    }
     
     string *name;
     name=new string[line_read];

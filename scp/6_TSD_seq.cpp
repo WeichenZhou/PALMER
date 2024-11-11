@@ -21,7 +21,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
-    
+    int BIN_buff=10;
     int BIN_5=50;
     int J_BIN=50;
     int BIN_3=3000;
@@ -33,7 +33,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     }
     else if (t=="SVA"){
         BIN_3=2500;
-        BIN_5=4000;
+        BIN_5=2000;
     }
     else if (t=="HERVK"){
         BIN_3=50;
@@ -205,7 +205,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     ofstream file12;
     
     ofstream file99;
-    ofstream file199;
+    //ofstream file199;
     
     string sys_tsd = WD_dir+"read_result_TSD.txt";
     char *syst_tsd = new char[sys_tsd.length()+1];
@@ -217,10 +217,10 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     strcpy(syst_line, sys_line.c_str());
     file99.open(syst_line);
     
-    string sys_chunk = WD_dir+"read_result_chunk_seq.txt";
-    char *syst_chunk = new char[sys_chunk.length()+1];
-    strcpy(syst_chunk, sys_chunk.c_str());
-    file199.open(syst_chunk);
+    //string sys_chunk = WD_dir+"read_result_chunk_seq.txt";
+    //char *syst_chunk = new char[sys_chunk.length()+1];
+    //strcpy(syst_chunk, sys_chunk.c_str());
+    //file199.open(syst_chunk);
     
     //cnv-related FP filter
     string sys_tsd_junc = WD_dir+"read_result_junction.txt";
@@ -264,18 +264,18 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             int s2=0;
             int e1=0;
             int e2=0;
-            s1=loc[i][2]-(BIN_5-5);
+            s1=loc[i][2]-(BIN_5-BIN_buff);
             if(s1<=0) s1=1;
-            e1=loc[i][2]+5;
+            e1=loc[i][2]+BIN_buff;
             if(e1>loc[i][6]) e1=loc[i][6];
-            s2=loc[i][3]-5;
+            s2=loc[i][3]-BIN_buff;
 
             //cout<<"finish this a1.1.4 "<<i<<endl;
                         
 
 
             if(s2<=0) s2=1;
-            e2=loc[i][3]+(BIN_5-5);
+            e2=loc[i][3]+(BIN_5-BIN_buff);
             //cout<<e2<<endl;
             if(e2>loc[i][6]) e2=loc[i][6];
             //cout<<e2<<endl;
@@ -287,13 +287,13 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             int s_3_2=0;
             int e_3_1=0;
             int e_3_2=0;
-            s_3_1=loc[i][2]-(BIN_3-5);
+            s_3_1=loc[i][2]-(BIN_3-BIN_buff);
             if(s_3_1<=0) s_3_1=1;
-            e_3_1=loc[i][2]+5;
+            e_3_1=loc[i][2]+BIN_buff;
             if(e_3_1>loc[i][6]) e_3_1=loc[i][6];
-            s_3_2=loc[i][3]-5;
+            s_3_2=loc[i][3]-BIN_buff;
             if(s_3_2<=0) s_3_2=1;
-            e_3_2=loc[i][3]+(BIN_3-5);
+            e_3_2=loc[i][3]+(BIN_3-BIN_buff);
             if(e_3_2>loc[i][6]) e_3_2=loc[i][6];
 
 //cout<<"finish this a1.3 "<<i<<endl;
@@ -416,7 +416,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
 //cout<<"finish this a3 "<<i<<endl;
             
             file99<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
-            file199<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
+            //file199<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
             
             if(info[i][1]=="+"){
                 for(int w=0;w<l_line;++w){
@@ -424,10 +424,10 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 }
                 file99<<'\t';
                 
-                for(int w=0;w<l_chunk;++w){
-                    file199<<chunk_seq[w];
-                }
-                file199<<'\t';
+               // for(int w=0;w<l_chunk;++w){
+                //    file199<<chunk_seq[w];
+                //}
+                //file199<<'\t';
             }
             if(info[i][1]=="-"){
                 for(int w=0;w<l_line;++w){
@@ -435,14 +435,14 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                 }
                 file99<<'\t';
                 
-                for(int w=0;w<l_chunk;++w){
-                    file199<<chunk_seq[w];
-                }
-                file199<<'\t';
+                //for(int w=0;w<l_chunk;++w){
+                //    file199<<chunk_seq[w];
+                //}
+               // file199<<'\t';
             }
             
             file99<<loc_TP[i][0]<<'\t'<<loc_TP[i][1]<<'\t'<<loc_TP[i][2]<<'\t'<<loc_TP[i][3]<<'\t'<<loc_TP[i][4]<<'\t'<<loc_TP[i][5]<<'\t'<<loc_TP[i][6]<<endl;
-            file199<<loc_TP[i][0]<<'\t'<<loc_TP[i][1]<<'\t'<<loc_TP[i][2]<<'\t'<<loc_TP[i][3]<<'\t'<<loc_TP[i][4]<<'\t'<<loc_TP[i][5]<<'\t'<<loc_TP[i][6]<<endl;
+            //file199<<loc_TP[i][0]<<'\t'<<loc_TP[i][1]<<'\t'<<loc_TP[i][2]<<'\t'<<loc_TP[i][3]<<'\t'<<loc_TP[i][4]<<'\t'<<loc_TP[i][5]<<'\t'<<loc_TP[i][6]<<endl;
             file12<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t';
             
             if(info[i][1]=="+"){
@@ -723,7 +723,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     ss1<<e1-s1+1;
                     ss1>>s_len1;
                     //string sys_blastn = "blastn -task blastn -query <( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -subject ( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -word_size 6 -evalue 50 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \"1\"}' >> "+WD_dir+"TSD_blastn_pre.txt ";
-                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
+                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no -gapopen 6 -penalty -4 -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
                     //cout<<sys_blastn <<endl;
                     char *syst_blastn = new char[sys_blastn.length()+1];
@@ -736,7 +736,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     ss1<<e_3_1-s_3_1+1;
                     ss1>>s_len1;
                     //string sys_blastn = "blastn -task blastn -query <(echo -e \">"+seq_index+"'\\n'"+fasta5_str+"\") -subject <(echo -e \">"+seq_index+"'\\n'"+fasta3_str+"\")";
-                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
+                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no  -gapopen 6 -penalty -4 -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
                     //cout<<sys_blastn <<endl;
                     char *syst_blastn = new char[sys_blastn.length()+1];
