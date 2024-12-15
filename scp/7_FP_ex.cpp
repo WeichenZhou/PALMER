@@ -22,7 +22,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
-    
+    int BIN_buff=10;
     int BIN_5=50;
     int J_BIN=50;
     int BIN_3=3000;
@@ -34,7 +34,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     }
     else if (t=="SVA"){
         BIN_3=2500;
-        BIN_5=4000;
+        BIN_5=2000;
     }
     else if (t=="HERVK"){
         BIN_3=50;
@@ -368,13 +368,14 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                        */
                     int fix_5;
                     //fix_5=1+loc_tsd[w][4]-BIN_5+J_BIN;
-                    if(BIN_5>=(info[i][3].length()-J_BIN_mer)) fix_5=0;
-                    else if (BIN_5<(info[i][3].length()-J_BIN_mer)) fix_5=info[i][3].length()-J_BIN_mer-BIN_5-1;
-                    
+                    //if(BIN_5>=(info[i][3].length()-J_BIN_mer)) fix_5=0;
+                    //else if (BIN_5<(info[i][3].length()-J_BIN_mer)) fix_5=info[i][3].length()-J_BIN_mer-BIN_5-1;
+                    fix_5=info[i][3].length()-J_BIN_mer-BIN_5-1;
                     
                     int fix_3;
-                    if(BIN_3>=info[i][4].length()) fix_3=0;
-                    else if(BIN_3<info[i][4].length()) fix_3=info[i][4].length()-BIN_3-1;
+                    //if(BIN_3>=info[i][4].length()) fix_3=0;
+                    //else if(BIN_3<info[i][4].length()) fix_3=info[i][4].length()-BIN_3-1;
+                    fix_3=info[i][4].length()-BIN_3-1;
                     
                     string fasta5_str="";
                     string fasta3_str="";

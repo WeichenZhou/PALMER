@@ -19,7 +19,7 @@ int calling(string WD_dir, string t, int tsd_index){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
-    
+    int BIN_buff=10;
     int BIN_5=50;
     int J_BIN=50;
     int BIN_3=3000;
@@ -31,7 +31,7 @@ int calling(string WD_dir, string t, int tsd_index){
     }
     else if (t=="SVA"){
         BIN_3=2500;
-        BIN_5=4000;
+        BIN_5=2000;
     }
     else if (t=="HERVK"){
         BIN_3=50;
@@ -1125,6 +1125,9 @@ int calling(string WD_dir, string t, int tsd_index){
                 //find the best subread fit
                 int ls_buff, le_buff, rs_buff, re_buff;
                 int number_buff;
+                int dis_tsd;
+                int len_tsd;
+                len_tsd=le_buff-ls_buff+re_buff-rs_buff;
                 
                 if(orien[i]=="+"){
                     ls_buff=0;
@@ -1132,6 +1135,8 @@ int calling(string WD_dir, string t, int tsd_index){
                     rs_buff=le_3;
                     re_buff=le_3;
                     number_buff=0;
+                    dis_tsd=rs_buff-le_buff;
+                    
                 }
                 if(orien[i]=="-"){
                     ls_buff=le_5;
@@ -1139,6 +1144,8 @@ int calling(string WD_dir, string t, int tsd_index){
                     rs_buff=0;
                     re_buff=0;
                     number_buff=0;
+                    dis_tsd=ls_buff-re_buff;
+                    
                 }
                 
                 //find the most connected-SR and nearest one
@@ -1146,31 +1153,112 @@ int calling(string WD_dir, string t, int tsd_index){
 //*******
                     if(loc_tsd[w2][4]==1&&loc_tsd[w2][5]==p&&loc_tsd[w2][10]>0&&loc_tsd[w2][11]>0){
                        //&&loc_tsd[w2][10]==0){
+                        /*
                         if(orien[i]=="+"){
-                            if((rs_buff+re_buff)>(loc_tsd[w2][2]+loc_tsd[w2][3])){
+                            if(rs_buff>loc_tsd[w2][2]){
                                 rs_buff=loc_tsd[w2][2];
+                                //re_buff=loc_tsd[w2][3];
+                                number_buff=w2;
+                            }
+                            else if(rs_buff==loc_tsd[w2][2]&&re_buff<loc_tsd[w2][3]){
                                 re_buff=loc_tsd[w2][3];
                                 number_buff=w2;
                             }
                         }
                         else if(orien[i]=="-"){
-                            if((rs_buff+re_buff)<(loc_tsd[w2][2]+loc_tsd[w2][3])){
-                                rs_buff=loc_tsd[w2][2];
+                            if(re_buff<loc_tsd[w2][3]){
+                                //rs_buff=loc_tsd[w2][2];
                                 re_buff=loc_tsd[w2][3];
                                 number_buff=w2;
                             }
+                            else if(re_buff==loc_tsd[w2][3]&&rs_buff>loc_tsd[w2][2]){
+                                rs_buff=loc_tsd[w2][2];
+                                number_buff=w2;
+                            }
                         }
+                        
+                        */
+                        int dis_tsd_w=10000;
+                        int len_tsd_w=loc_tsd[w2][1]-loc_tsd[w2][0]+loc_tsd[w2][3]-loc_tsd[w2][2];
+                        
+                        if(orien[i]=="+"){
+                            //int dis_tsd_w_r=loc_tsd[w2][2]-(BIN_buff+1);
+                            //int dis_tsd_w_l=(BIN_5+1)-loc_tsd[w2][1];
+                            //if(loc_tsd[w2][2]<(BIN_buff+1)){
+                            //    dis_tsd_w_r=(BIN_buff+1)-loc_tsd[w2][2];
+                            //}
+                            //if(loc_tsd[w2][1]>(BIN_5+1)){
+                            //    dis_tsd_w_l=loc_tsd[w2][1]-(BIN_5+1);
+                            //}
+                            dis_tsd_w=loc_tsd[w2][2]-loc_tsd[w2][1]-len_tsd_w;
+                            //dis_tsd_w=dis_tsd_w_r+dis_tsd_w_l;
+                            if(dis_tsd_w<dis_tsd){
+                                number_buff=w2;
+                                rs_buff=loc_tsd[w2][2];
+                                re_buff=loc_tsd[w2][3];
+                                ls_buff=loc_tsd[w2][0];
+                                le_buff=loc_tsd[w2][1];
+                                dis_tsd=dis_tsd_w;
+                            }
+                            else if(dis_tsd_w==dis_tsd&&len_tsd_w>len_tsd){
+                                number_buff=w2;
+                                rs_buff=loc_tsd[w2][2];
+                                re_buff=loc_tsd[w2][3];
+                                ls_buff=loc_tsd[w2][0];
+                                le_buff=loc_tsd[w2][1];
+                                dis_tsd=dis_tsd_w;
+                            }
+                        }
+                        
+                        else if(orien[i]=="-"){
+                            //int dis_tsd_w_l=loc_tsd[w2][0]-(BIN_buff+1);
+                            //int dis_tsd_w_r=(BIN_3+1)-loc_tsd[w2][3];
+                            //if(loc_tsd[w2][0]<(BIN_buff+1)){
+                            //    dis_tsd_w_l=(BIN_buff+1)-loc_tsd[w2][0];
+                            //}
+                            //if(loc_tsd[w2][3]>(BIN_3+1)){
+                            //    dis_tsd_w_r=loc_tsd[w2][3]-(BIN_3+1);
+                            //}
+                            //dis_tsd_w=dis_tsd_w_r+dis_tsd_w_l;
+                            dis_tsd_w=loc_tsd[w2][0]-loc_tsd[w2][3]-len_tsd_w;
+                            if(dis_tsd_w<dis_tsd){
+                                number_buff=w2;
+                                rs_buff=loc_tsd[w2][2];
+                                re_buff=loc_tsd[w2][3];
+                                ls_buff=loc_tsd[w2][0];
+                                le_buff=loc_tsd[w2][1];
+                                dis_tsd=dis_tsd_w;
+                            }
+                            else if(dis_tsd_w==dis_tsd&&len_tsd_w>len_tsd){
+                                number_buff=w2;
+                                rs_buff=loc_tsd[w2][2];
+                                re_buff=loc_tsd[w2][3];
+                                ls_buff=loc_tsd[w2][0];
+                                le_buff=loc_tsd[w2][1];
+                                dis_tsd=dis_tsd_w;
+                            }
+                        }
+                        
                     }
                 }
                 
                 
                 //***********Hard code detected***********
                 //Paramenter value: default length to consider a TransD
+                
+                int rs_TSD_pa=0;
+                
                 if(orien[i]=="+"&&rs_buff<=50){
                     flag_trans=0;
+                    if(rs_buff<=(BIN_buff+1)){
+                        rs_TSD_pa=BIN_buff+1-rs_buff+1;
+                    }
                 }
                 else if(orien[i]=="-"&&re_buff>=(BIN_3-50)){
                     flag_trans=0;
+                    if(re_buff>(BIN_3-BIN_buff-1)){
+                        rs_TSD_pa=re_buff-(BIN_3-BIN_buff-1);
+                    }
                 }
                 
                 if(flag_trans==0){
@@ -1297,8 +1385,13 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=0;n!=rs_new-1;++n){
-                                file4<<seq3[n];
+                            if(rs_new-1<=(BIN_buff+1)){
+                                file4<<"N/A";
+                            }
+                            else {
+                                for(int n=0;n!=rs_new-1;++n){
+                                    file4<<seq3[n];
+                                }
                             }
                         }
                         
@@ -1312,8 +1405,13 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=re_new;n!=info[read_seq][3].length();++n){
-                                file4<<seq3[n];
+                            if(re_new>=info[read_seq][3].length()-BIN_buff){
+                                file4<<"N/A";
+                            }
+                            else {
+                                for(int n=re_new;n!=info[read_seq][3].length();++n){
+                                    file4<<seq3[n];
+                                }
                             }
                         }
 //5' 26mer output
@@ -1369,7 +1467,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq5[n];
                             }
 //5bp
-                            for(int n=5;n!=info_line[read_seq][2].length()-1-5;++n){
+                            for(int n=BIN_buff;n!=info_line[read_seq][2].length()-1-BIN_buff;++n){
                                 file4<<seq_line[n];
                             }
                             
@@ -1384,7 +1482,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq3[n];
                             }
 //5bp
-                            for(int n=1+5;n!=info_line[read_seq][2].length()-1-5;++n){
+                            for(int n=1+BIN_buff;n!=info_line[read_seq][2].length()-1-BIN_buff;++n){
                                 file4<<seq_line[n];
                             }
                             
@@ -1397,25 +1495,25 @@ int calling(string WD_dir, string t, int tsd_index){
                         
                         file4<<endl;
                         if(t=="LINE"){
-                            polyA_le=polyA_le+loc[read_seq][1]-6022;
+                            polyA_le=polyA_le+loc[read_seq][1]-6022-rs_TSD_pa;
                         }
                         else if (t=="ALU"){
-                            polyA_le=polyA_le+loc[read_seq][1]-282;
+                            polyA_le=polyA_le+loc[read_seq][1]-282-rs_TSD_pa;
                         }
                         else if (t=="SVA"){
-                            polyA_le=polyA_le+loc[read_seq][1]-1352;
+                            polyA_le=polyA_le+loc[read_seq][1]-1352-rs_TSD_pa;
                         }
                         else if (t=="HERVK"){
-                            polyA_le=polyA_le+loc[read_seq][1]-9472;
+                            polyA_le=polyA_le+loc[read_seq][1]-9472-rs_TSD_pa;
                         }
                         //polyA_le=polyA_le+loc[read_seq][1]-6025;
                         l_tsd=l_tsd+le_new-ls_new;
                         r_tsd=r_tsd+re_new-rs_new;
                         if(orien[i]=="+"){
-                            trans_tsd=trans_tsd+rs[number_buff][w];
+                            trans_tsd=trans_tsd+rs[number_buff][w]-BIN_buff-2;
                         }
                         if(orien[i]=="-"){
-                            trans_tsd=trans_tsd+le_3-+re[number_buff][w];
+                            trans_tsd=trans_tsd+le_3-+re[number_buff][w]-BIN_buff;
                         }
                         
                         delete [] seq3;
@@ -1434,6 +1532,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         r_len=1+r_tsd/p;
                         pa_len=polyA_le/p;
                         trans_len=trans_tsd/(p);
+                        if(trans_len<0) trans_len=0;
                     }
                     
                     
@@ -1594,7 +1693,7 @@ int calling(string WD_dir, string t, int tsd_index){
                             }
                         }
                         
-                        if(singleA>=7){
+                        if(singleA>=4){
                             flag_PA=flag_PA+1;
                             
                         }
@@ -1735,8 +1834,14 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=0;n!=rs_new-1;++n){
-                                file4<<seq3[n];
+                            
+                            if(rs_new-1<=(BIN_buff+1)){
+                                file4<<"N/A";
+                            }
+                            else {
+                                for(int n=0;n!=rs_new-1;++n){
+                                    file4<<seq3[n];
+                                }
                             }
                         }
                         
@@ -1750,8 +1855,14 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            for(int n=re_new;n!=info[read_seq][3].length();++n){
-                                file4<<seq3[n];
+                            file4<<'\t';
+                            if(re_new>=info[read_seq][3].length()-BIN_buff){
+                                file4<<"N/A";
+                            }
+                            else {
+                                for(int n=re_new;n!=info[read_seq][3].length();++n){
+                                    file4<<seq3[n];
+                                }
                             }
                         }
                         
@@ -1809,7 +1920,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq5[n];
                             }
                             
-                            for(int n=0;n!=info_line[read_seq][2].length()-1;++n){
+                            for(int n=BIN_buff;n!=info_line[read_seq][2].length()-1-BIN_buff;++n){
                                 file4<<seq_line[n];
                             }
                             
@@ -1824,7 +1935,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq3[n];
                             }
                             
-                            for(int n=1;n!=info_line[read_seq][2].length()-1;++n){
+                            for(int n=1+BIN_buff;n!=info_line[read_seq][2].length()-1-BIN_buff;++n){
                                 file4<<seq_line[n];
                             }
                             
@@ -1837,24 +1948,24 @@ int calling(string WD_dir, string t, int tsd_index){
                         
                         file4<<endl;
                         if(t=="LINE"){
-                            polyA_le=polyA_le+loc[read_seq][1]-6022;
+                            polyA_le=polyA_le+loc[read_seq][1]-6022-rs_TSD_pa;
                         }
                         else if (t=="ALU"){
-                            polyA_le=polyA_le+loc[read_seq][1]-282;
+                            polyA_le=polyA_le+loc[read_seq][1]-282-rs_TSD_pa;
                         }
                         else if (t=="SVA"){
-                            polyA_le=polyA_le+loc[read_seq][1]-1352;
+                            polyA_le=polyA_le+loc[read_seq][1]-1352-rs_TSD_pa;
                         }
                         else if (t=="HERVK"){
-                            polyA_le=polyA_le+loc[read_seq][1]-9472;
+                            polyA_le=polyA_le+loc[read_seq][1]-9472-rs_TSD_pa;
                         }
                         l_tsd=l_tsd+le_new-ls_new;
                         r_tsd=r_tsd+re_new-rs_new;
                         if(orien[i]=="+"){
-                            trans_tsd=trans_tsd+rs[number_buff][w];
+                            trans_tsd=trans_tsd+rs[number_buff][w]-BIN_buff-2;
                         }
                         if(orien[i]=="-"){
-                            trans_tsd=trans_tsd+le_3-re[number_buff][w];
+                            trans_tsd=trans_tsd+le_3-re[number_buff][w]-BIN_buff;
                         }
                         
                         delete [] seq3;
@@ -1873,6 +1984,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         r_len=1+r_tsd/p;
                         pa_len=polyA_le/p;
                         trans_len=trans_tsd/(p);
+                        if(trans_len<0) trans_len=0;
                     }
                     
                     
