@@ -2,7 +2,7 @@
 
 Pre-mAsking Long reads for Mobile Element inseRtion
 
-* PALMER detects non-reference TE insertions (LINE, Alu, SVA, and HERVK) and other insertions using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of TEs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
+* PALMER detects non-reference transposable element (TE) insertions (LINE, Alu, SVA, and HERVK) and other insertions using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of TEs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
 * The ideal structure of a TE insertion would be 5’-TSD-(5'inverted)-TE-polyA-(TransD-polyA)-TSD-3’.
 * PALMER can detect other categories (e.g. numts) of non-reference insertion sequences under the customized setup by the user.
 
@@ -114,7 +114,7 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 'output_TSD_reads.txt' contains all the details you want for the high confidence (HC) supporting reads (SRs).
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
-* Time consumption: to run PALMER on chr1/GRCh38, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu), or ~4 hours (SVA), for 8gb running memory minimum.
+* Resource: to run PALMER on chr1/GRCh38, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu), or ~4 hours (SVA), for 8gb running memory minimum.
 * Please run PALMER parallelly in separate chromosomes.
 * Please use ncbi-blast++/2.10.0 for better efficiency.
 
