@@ -121,16 +121,13 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 ## Citation
 
 For general use /where it begins/ or LINE-1s:
-* Weichen Zhou et al., [Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), 
-Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
+* Weichen Zhou et al., [Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 For TEnCATS or all TEs:
-* Torrin L. McDonald and  Weichen Zhou et al., [Cas9 targeted enrichment of mobile elements using nanopore sequencing](https://www.nature.com/articles/s41467-021-23918-y), 
-Nature Communications, 2021, `https://doi.org/10.1038/s41467-021-23918-y`
+* Torrin L. McDonald and  Weichen Zhou et al., [Cas9 targeted enrichment of mobile elements using nanopore sequencing](https://www.nature.com/articles/s41467-021-23918-y), Nature Communications, 2021, `https://doi.org/10.1038/s41467-021-23918-y`
 
 For **PALMER2.0**:
-* Weichen Zhou et al., [A personalized multi-platform assessment of somatic mosaicism in the human frontal cortex](https://doi.org/10.1101/2024.12.18.629274), 
-bioRxiv, 2024, `https://doi.org/10.1101/2024.12.18.629274`
+* Weichen Zhou et al., [A personalized multi-platform assessment of somatic mosaicism in the human frontal cortex](https://doi.org/10.1101/2024.12.18.629274), bioRxiv, 2024, `https://doi.org/10.1101/2024.12.18.629274`
 
 ## Contact
 
