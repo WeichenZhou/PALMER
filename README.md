@@ -125,7 +125,7 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 For general use or LINE-1s /* where it begins */:
 * Weichen Zhou et al., [Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
-For TEnCATS or all TEs:
+For TEnCATS/NanoPal or all TEs:
 * Torrin L. McDonald and  Weichen Zhou et al., [Cas9 targeted enrichment of mobile elements using nanopore sequencing](https://www.nature.com/articles/s41467-021-23918-y), Nature Communications, 2021, `https://doi.org/10.1038/s41467-021-23918-y`
 
 For **PALMER2.0**:
