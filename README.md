@@ -113,6 +113,8 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 'output_TSD_reads.txt' contains all the details you want for the high confidence (HC) supporting reads (SRs).
 
+## Note 
+
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
 * Resource: to run PALMER on chr1/GRCh38, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu), or ~4 hours (SVA), for 8gb running memory minimum.
 * Please run PALMER parallelly in separate chromosomes.
