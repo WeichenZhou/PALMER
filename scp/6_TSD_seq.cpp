@@ -723,7 +723,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     ss1<<e1-s1+1;
                     ss1>>s_len1;
                     //string sys_blastn = "blastn -task blastn -query <( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -subject ( echo -e \">.5723.6043.7572.7860.923022.923022.17.+.0.0.0.0.0.0.0\\nTAAAATATTACTATTAGTGGTGAGAACAACTTAAAAAATCTGGCTTCTATT\\n\";) -word_size 6 -evalue 50 -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=6&&($10-$9)>0) print \"1\"}' >> "+WD_dir+"TSD_blastn_pre.txt ";
-                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no -gapopen 6 -penalty -4 -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
+                    string sys_blastn = "bash -c \"blastn -task blastn -max_target_seqs 1000000000 -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no -gapopen 6 -penalty -4 -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\","+(s_len)+"+\\\$7,"+(s_len)+"+\\\$8,\\\$9,\\\$10,"+s_len1+",\\\""+s_le_3+"\\\"}' >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
                     //cout<<sys_blastn <<endl;
                     char *syst_blastn = new char[sys_blastn.length()+1];
@@ -736,7 +736,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
                     ss1<<e_3_1-s_3_1+1;
                     ss1>>s_len1;
                     //string sys_blastn = "blastn -task blastn -query <(echo -e \">"+seq_index+"'\\n'"+fasta5_str+"\") -subject <(echo -e \">"+seq_index+"'\\n'"+fasta3_str+"\")";
-                    string sys_blastn = "bash -c \"blastn -task blastn -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no  -gapopen 6 -penalty -4 -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
+                    string sys_blastn = "bash -c \"blastn -task blastn -max_target_seqs 1000000000 -query <(printf "+(fasta5_str)+") -subject <(printf "+(fasta3_str)+") -word_size 6 -evalue 50 -dust no  -gapopen 6 -penalty -4 -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>=6&&(\\\$10-\\\$9)>0) print \\\""+name[i]+seq_index+"\\\",\\\$7,\\\$8,"+(s_len)+"+\\\$9,"+(s_len)+"+\\\$10,\\\""+s_le_5+"\\\","+s_len1+"}'  >> "+WD_dir+"TSD_blastn_pre.txt \"";
                     
                     //cout<<sys_blastn <<endl;
                     char *syst_blastn = new char[sys_blastn.length()+1];
