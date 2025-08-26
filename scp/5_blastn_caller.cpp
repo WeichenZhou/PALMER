@@ -35,7 +35,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     string sys_blastncaller;
     
-    sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep -v \"^#\" > "+WD_dir+"blastn_refine.txt";
+    sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
     
     
     char *syst_blastncaller = new char[sys_blastncaller.length()+1];

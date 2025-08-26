@@ -46,33 +46,33 @@ int blastn(string WD_dir, string t, string direc){
     file2.open(syst_blastnrefine);
     
     if(t=="LINE"){
-         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
+         sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+direc+"/lib/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
     }
     else if(t=="ALU"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/AluY.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+direc+"/lib/AluY.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
     }
     else if(t=="SVA"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+direc+"/lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+direc+"/lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
     }
     else {
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -query "+t+" -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+t+" -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" |grep -v \"#\" >  "+WD_dir+"blastn_refine.txt";
     }
      */
     
     if(t=="LINE"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 1000000000 -query "+direc+"/lib/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+direc+"/lib/L1.3.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     else if(t=="ALU"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 1000000000 -query "+direc+"/lib/AluY.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+direc+"/lib/AluY.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     else if(t=="SVA"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 1000000000 -query "+direc+"/lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+direc+"/lib/SVA_F.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     else if(t=="HERVK"){
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 1000000000 -query "+direc+"/lib/HERVK.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+direc+"/lib/HERVK.fasta -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     else {
-        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 1000000000 -query "+t+" -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
+        sys_blastn = "blastn -evalue 0.001 -task blastn -gapopen 4 -max_target_seqs 10000000 -query "+t+" -subject "+WD_dir+"SEQ.masked -outfmt \"7 qacc sacc evalue qstart qend sstart send\" >  "+WD_dir+"blastn.txt";
     }
     
     char *syst_blastn = new char[sys_blastn.length()+1];

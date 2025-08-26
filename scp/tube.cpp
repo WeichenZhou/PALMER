@@ -26,7 +26,7 @@
 #include "8_calling.cpp"
 using namespace std;
 
-int tube(string working_dir, string input_bam, string chr, int start, int end, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len, string mode){
+int tube(string working_dir, string input_bam, string chr, int start, int end, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len, string mode, int mapq){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
@@ -40,6 +40,12 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     string s_start =ss1.str();
     ss2 << end1;
     string s_end =ss2.str();
+
+    int mapq1;
+    mapq1 = mapq;
+    stringstream sm1;
+    sm1 << mapq1;
+    string s_mapq = sm1.str();
     
     string WD_tube=working_dir+chr+"_"+s_start+"_"+s_end+"/";
     
@@ -53,7 +59,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
  
 //1. samtools view
     
-    samtools(WD_tube, input_bam, chr, s_start, s_end ,ref_fa);
+    samtools(WD_tube, input_bam, chr, s_start, s_end ,ref_fa, s_mapq);
     cout<<"Samtools Step for region "+chr+"_"+s_start+"_"+s_end+" now completed."<<endl;
     
 //Repeat region output

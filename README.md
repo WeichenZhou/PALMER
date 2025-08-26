@@ -2,8 +2,8 @@
 
 Pre-mAsking Long reads for Mobile Element inseRtion
 
-* PALMER detects non-reference transposable element (TE) insertions (LINE, Alu, SVA, and HERVK) and other insertions using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of TEs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
-* The ideal structure of a TE insertion would be 5’-TSD-(5'inverted)-TE-polyA-(TransD-polyA)-TSD-3’.
+* PALMER detects non-reference MEI events (LINE, Alu, SVA, and HERVK) and other insertions by using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
+* The ideal structure of an MEI event would be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’.
 * PALMER can detect other categories (e.g. numts) of non-reference insertion sequences under the customized setup by the user.
 
 Required resources:
@@ -32,22 +32,22 @@ Required
          aligned long-read sequencing BAM file with directory path
 
 --workdir
-         the user's working directory. Please follow the format /your/working/directory/ !! Don't forget the last '/'!!
+         the user's working directory. Please follow the format /your/woking/directory/ !!don't forget the last '/'!!
 
 --ref_ver (options: hg19, GRCh37, GRCh38 or other)
-         reference genome used for the aligned file ('other' option for the customized genome out of hg19, GRCh37, or GRCh38)
+         reference genome used for the aligned file ('other' option for the cusmized genome out of hg19, GRCh37 or GRCh38)
 
 --ref_fa
-         indexed fasta file of reference genome fasta file with directory path used for the aligned bam/cram file (the wrong reference will cause error information)
+         indexed fasta file of reference genome fasta file with directory path used for the aligned bam/cram file (wrong reference will cause error information)
 
---type (options: LINE, ALU, SVA, HERVK, or CUSTOMIZED (if you want to set your customized sequence))
-         type of TEs or other kinds of insertions to detect
+--type (options: LINE, ALU, SVA, HERVK, or CUSTOMIZED (if you want to setup your costomized sequence))
+         type of MEIs or other kinds of insertions to detect
 
 --mode (options: raw, or asm)      
          type of input sequencing to be processed (raw: raw nanopore/PacBio-sub reads; asm: assembled contigs)
 
---chr (default: ALL (for the whole genome, not recommended); options: chromosome1, chromosome2, ...chromosome Y (highly recommended)
-         chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in the reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
+--chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
+         chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
 
 Optional
 
@@ -58,13 +58,16 @@ Optional
          end position in the genome for PALMER to run (default is null). !!It should go with --start if assigned
             
 --custom_seq (default: Null)
-         .fasta file with a directory path to customize your insertion finding. e.g. NUMTs, TEs in other species.
+         .fasta file with directory path to customize your insertion finding. e.g. NUMTs, MEIs in other species.
 
---TSD_finding (Fixed: TRUE for all TEs, or default: FALSE for CUSTOMIZED insertion)
-         whether to run the TSD motif finding module for your insertion calling
+--TSD_finding (Fixed: TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)
+         whether to run TSD motif finding module for your insertion calling
+
+--mapq (default: MAPQ=10)
+        the minimum MAPQ of the read for PALMER to process
 
 --len_custom_seq (MUST set up when activating TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)
-         integer value for the length of your customized sequence WITHOUT polyA tact
+         interger value for the length of your customized sequence WITHOUT polyA tact
 
 --L_len (default: 25bp)
          the minimum length of putative LINE-1 aligned to L1.3 sequences
@@ -78,10 +81,10 @@ Examples
 1) Running PALMER on example PacBio subreads bam file under the 'example' folder to call LINE-1 insertions on GRCh38 genome
 ./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa
 
-Results (sample_calls.txt & sample_TSD_reads.txt)  from the example bam file can also be found under the 'example' folder.
+Results (sample_calls.txt & sample_TSD_reads.txt)  from example bam file can also be found under the 'example' folder.
 ```
 ```
-2) Running PALMER on your aligned sequences on the GRCh37 reference genome to call LINE-1 insertions in chromosome3 at the position from 200,000 to 400,000
+2) Running PALMER on your aligned sequences on GRCh37 reference genome to call LINE-1 insertions in chromosome3 at position from 200,000 to 400,000
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.output.prefix --type LINE --mode raw --chr 3 --start 200000 --end 400000 --ref_fa $your.reference.file.path/hs37d5.fa
 ```
 ```
@@ -89,15 +92,15 @@ Results (sample_calls.txt & sample_TSD_reads.txt)  from the example bam file can
 ./PALMER --input $DirPath/your.cram.file --workdir $DirPath/ --ref_ver GRCh38 --output your.output.prefix --type SVA --mode asm --chr chr3 --ref_fa $your.reference.file.path/GRCh38.fa
 ```
 ```
-4) Running PALMER on your aligned bam to call Alu insertions in chromosome2a of the Chimpanzee genome
+4) Running PALMER on your aligned bam to call Alu insertions in chromosome2a of Champanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --mode raw --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa 
 ```
 ```
-5) Running PALMER on your aligned bam to call NumtS in chromosome5 of the Chimpanzee genome
+5) Running PALMER on your aligned bam to call NumtS in chromosome5 of Champanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt 
 ```
 ```
-6) Running PALMER on your aligned bam to call LINE-1 insertions in chromosome X of the mice genome
+6) Running PALMER on your aligned bam to call LINE-1 insertions in chromosomeX of mice genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --TSD_finding TRUE --len_custom_seq (int)
 ```
 ```
@@ -109,9 +112,9 @@ ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PA
 ## Output 
 We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
-'output_calls.txt' is the summary for all non-ref TE calls.
+'output_calls.txt' is the summary for all non-ref MEI calls.
 
-'output_TSD_reads.txt' contains all the details you want for the high confidence (HC) supporting reads (SRs).
+'output_TSD_reads.txt' contains all details you want for the high confident (HC) supporting reads (SRs).
 
 ## Note 
 
@@ -131,14 +134,24 @@ For TEnCATS/NanoPal:
 Others:
 * Weichen Zhou et al., [A personalized multi-platform assessment of somatic mosaicism in the human frontal cortex](https://doi.org/10.1101/2024.12.18.629274), bioRxiv, 2024, `https://doi.org/10.1101/2024.12.18.629274`
 
+For PALMER2.0:
+In preparation!
+
 ## Contact
 
 * arthurz@umich.edu
 
 ## Logs
+**Ver2.1.1** Aug.20th.2025! PALMER2.1 
+
+* Frozen version for SMaHT "Benchmarking and integrative detection of low frequency somatic mobile element insertions in human tissue". Good luck!
+* A major bug in calling when the sequencing depth is very deep. It stealed the supporting reads.
+* Add an option to set MAPQ
+* Minor bugs fixed
+
 **Ver2.0.1** Nov.10th.2024! PALMER2.0.1 is online now!
 
-* A frozen version for SMaHT and HGSVC3.
+* A frozen version for HGSVC3.
 
 **Ver2.0.0** May.20th.2022! PALMER2.0.0 is online now!! 520 (｡・ω・｡)ﾉ♥♥♥♥♥♥♥♥♥♥!! 
 
@@ -170,7 +183,7 @@ Others:
 
 **Ver1.6.1** May.19th.2020
 
-* Fixed a bug when calling customized insertion sequences without the TSD finding module.
+* Fixed a bug when calling customized insertion sequences without TSD finding module.
 
 **Ver1.6** May.11th.2020
 
@@ -181,12 +194,12 @@ Others:
 * Highly optimized the performance of calling customized insertion sequences (non-humman genomes, non-MEIs)!!
 * Sample bam file added, example updated, results from sample bam updated!!
 * A fatal bug fixed calling L1NE-1 since Ver1.4.1.
-* A fatal bug was fixed related to the environment of computing clusters and the version of BLASTn. Now require the version ncbi-blast++/2.10.0.
+* A fatal bug fixed related to the environment of computing clusters and the version of BLASTn. Now require the version ncbi-blast++/2.10.0.
 * Minor bugs fixed.
 
 **Ver1.5** May.4th.2020 "MAY THE FORCE BE WITH YOU!"
 
-* One more option for the length of the customized insertion sequence was added.
+* Added one more option for the length of the customized insertion sequence.
 * Optimized the performance for customized insertion sequence finding!
 * Minor bugs fixed.
 
@@ -198,17 +211,17 @@ Others:
 
 * Highly improved calling for SVA.
 * Now PALMER supports other reference-based bam files besides GRCh37, GRCh38, and hg19.
-* Time consumption: to run PALMER on chr1/GRCh37, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu), or ~4 hours (SVA), for 8gb running memory minimum.
+* Time consumption: to run PALMER on chr1/GRCh37, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimum.
 * A fatal bug fixed.
 * Optimized scripts and outputs.
 * Minor bugs fixed.
 
 **Ver1.3.3** Feb.3rd.2019 ^^^(*￣(oo)￣)^^^ Happy Lunar New Year! Year of the Pig!! ^^^(*￣(oo)￣)^^^ 
 
-* A steady and sensitive version for the detection of all MEIs (LINE-1, Alu, and SVA) in the human genome.
+* A steady and sensitive version for detection all MEIs (LINE-1, Alu, and SVA) in human genome.
 * Time consumption: to run PALMER on chr1, calling would cost ~150 hours (LINE-1), ~20 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimum. Right now, PALMER does not support multi-thread processing.
-* Now PALMER can output the whole structure of the MEI sequence, including the inserted main sequence as well as different characteristics (TSD, TD, polyA tail) that have been supported by the previous version already.
-* A fatal bug related to PacBio read name from fastq data was fixed. 
+* Now PALMER can output whole structure of MEI sequence, including inserted main sequence as well as different characteristics (TSD, TD, polyA tail) that have been supported by the previous version already.
+* A fatal bug related to PacBio read name from fastq data fixed. 
 * Minor bugs fixed.
 
 **Ver1.3.0** Dec.22th.2018
@@ -238,9 +251,9 @@ Others:
 **Ver1.2** Sep.5th.2018
 
 * Better performance for Alu calling
-* Import the 'CNV-related false positive exclusion' module
+* Import 'CNV-related false positive exclusion' module
 * Import genotyping module (not online yet)
-* Import the 'Customized sequence finding and genome masking' module
+* Import 'Customized sequence finding and genome masking' module
 * Several minor bugs fixed
 * Optimized output files
 * Optimized codes and annotations

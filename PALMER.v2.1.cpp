@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
     
-    string T, WD, inputF, output, SP, ref, CHR, region_START, region_END, ref_fa, cus, tsd_pass, LL_len, s_cus_seq_len, mode;
+    string T, WD, inputF, output, SP, ref, CHR, region_START, region_END, ref_fa, cus, tsd_pass, LL_len, s_cus_seq_len, mode, mapq;
     
     //int NUM_threads=30;
     int NUM_threads=10;
@@ -55,9 +55,12 @@ int main(int argc, char *argv[]){
     //T="LINE";
     CHR="ALL";
     mode="NA";
-    
+    mapq="10";
+
     int ref_n=0;
-    
+    //int flag_mapq=0;
+    int mapq_int=10;
+
     string dir;
     dir=argv[0];
     
@@ -85,7 +88,16 @@ int main(int argc, char *argv[]){
             int L_len = 6023- std::stoi(LL_len);
             //L_len=L_len;
         }
-        
+	
+	if(strncmp(argv[i],"--mapq",6)==0){
+            mapq=argv[i+1];
+            mapq_int = std::stoi(mapq);
+	    if (mapq_int<0 || mapq_int>100)
+		{
+                cout<<"PLEASE INPUT A CORRECT RANGE OF MAPQ :("<<endl;
+            }
+        }
+
         if(strncmp(argv[i],"--ref_ver",9)==0){
             ref=argv[i+1];
             if(ref=="GRCh37") ref_n=37;
@@ -221,7 +233,7 @@ int main(int argc, char *argv[]){
     }
     
     
-    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_tsd==1&flag_cus_seq_len==0)||(flag_m==0)){
+    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_tsd==1&flag_cus_seq_len==0)||(flag_m==0)||(mapq_int<0 || mapq_int>100)){
         if(flag_T==0&&flag_cus==0){
             cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA/HERVK"<<endl;}
         if(flag_T==1&&flag_cus==1){
@@ -246,7 +258,8 @@ int main(int argc, char *argv[]){
         cout<<"***ERROR*** PLEASE ASSIGN 'CUSTOMIZD_SEQUENCE_LENGTH' WHILE YOU ACTIVATE TSD_FINDING FOR YOUR CUSTOMIZED TYPE"<<endl;}
         if(flag_m==0){
             cout<<"***ERROR*** A INPUT MODE FOR DATA FORMAT IS REQUIRED"<<endl;}
-        
+        if(mapq_int<0 || mapq_int>100){
+	    cout<<"***ERROR*** A CORRECT RANGE OF MAPQ IS REQUIRED"<<endl;}
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
@@ -302,6 +315,11 @@ int main(int argc, char *argv[]){
         cout<<"         whether to run TSD motif finding module for your insertion calling"<<endl;
         cout<<endl;
         
+
+	cout<<"--mapq (default: MAPQ=10)"<<endl;
+        cout<<"         the minimum MAPQ of the read for PALMER to process"<<endl;
+        cout<<endl;
+		
         cout<<"--len_custom_seq (MUST set up when activate TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)"<<endl;
         cout<<"         interger value for the length of your customized sequence WITHOUT polyA tact"<<endl;
         cout<<endl;
@@ -653,7 +671,7 @@ int main(int argc, char *argv[]){
             //getchar();
             //****
             //cout<<flag_tsd<<endl;
-            tube(WD, inputF, chr, start, end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, mode);
+            tube(WD, inputF, chr, start, end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, mode, mapq_int);
         }
         /*ver1.3
         if(chr_index==1){

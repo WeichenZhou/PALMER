@@ -471,7 +471,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     string fasta5_str_length=to_string(fasta5_str_len);
                     string fasta3_str_length=to_string(fasta3_str_len);
                     
-                    string sys_3_blast = "bash -c \"blastn -evalue 0.05 -task blastn -max_target_seqs 1000000000 -query <(printf "+(fasta5_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta5_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
+                    string sys_3_blast = "bash -c \"blastn -evalue 0.05 -task blastn -query <(printf "+(fasta5_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta5_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast<<endl;
                     
@@ -493,7 +493,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     //loc_tsd_fp[w][0]=pp_3_int;
                     loc_tsd_fp[w][0]=accumulate(pp_3_int.begin(),pp_3_int.end(),loc_tsd_fp[w][0]);
                     
-                    string sys_3_blast_2 = "bash -c \"blastn -evalue 0.05 -task blastn -max_target_seqs 1000000000 -query <(printf "+(fasta3_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta3_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
+                    string sys_3_blast_2 = "bash -c \"blastn -evalue 0.05 -task blastn -query <(printf "+(fasta3_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta3_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast_2<<endl;
                     
