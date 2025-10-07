@@ -119,9 +119,10 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 ## Note 
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
-* Resource: to run PALMER on chr1/GRCh38, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu), or ~4 hours (SVA), for 8gb running memory minimum.
-* Please run PALMER parallelly in separate chromosomes.
+* Resource: to run PALMER on chr1/GRCh38, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu), or ~4 hours (SVA), for 8 GB running memory minimum.
+* Please run PALMER in parallel in separate chromosomes.
 * Please use ncbi-blast++/2.10.0 for better efficiency than other versions.
+* If you have trouble running  Ver2.1.1, especially on ALUs, please use Ver2.0.1.
 
 ## Citation
 
