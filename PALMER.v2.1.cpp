@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <cstdlib>
 #include <numeric>
+#include <thread>
+#include <atomic>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -29,8 +31,8 @@ int main(int argc, char *argv[]){
     
     string T, WD, inputF, output, SP, ref, CHR, region_START, region_END, ref_fa, cus, tsd_pass, LL_len, s_cus_seq_len, mode, mapq;
     
-    //int NUM_threads=30;
-    int NUM_threads=10;
+    unsigned int hardware_threads = std::thread::hardware_concurrency();
+    int NUM_threads = (hardware_threads == 0) ? 10 : static_cast<int>(hardware_threads);
     ifstream file1;
     ifstream file11;
     //ifstream file12;
@@ -148,8 +150,18 @@ int main(int argc, char *argv[]){
             cout <<"WE DO NOT NEED SPECIES PARAMETER RIGHT NOW :)"<< endl;
         }
         if(strncmp(argv[i],"--thread",8)==0){
-            //NUM_threads=argv[i+1];
-            cout <<"WE DO NOT SUPPORT MULTITHREADS RIGHT NOW :)"<< endl;
+            if(i+1<argc){
+                int parsed_threads = atoi(argv[i+1]);
+                if(parsed_threads<=0){
+                    cout <<"PLEASE INPUT A POSITIVE NUMBER OF THREADS :("<< endl;
+                }
+                else {
+                    NUM_threads = parsed_threads;
+                }
+            }
+            else {
+                cout <<"PLEASE ASSIGN A NUMBER AFTER --thread :("<< endl;
+            }
         }
         if(strncmp(argv[i],"--ref_fa",8)==0){
             flag_reffa=1;
@@ -585,8 +597,6 @@ int main(int argc, char *argv[]){
 //parameters_end
     
 //multiple threads
-    int input_int1;
-    int input_int2;
     int region_s=0;
     int region_e=0;
     if(flag_s==1&&flag_e==1){
@@ -594,89 +604,83 @@ int main(int argc, char *argv[]){
         region_e=stoi(region_END);
     }
     
-    file2.open(syst_region_index);
-    string input_index;
-    int line_index=0;
-    for(int i=1;!file2.eof();){
-        //file2>>input_index;
-        file2>>input_index;
-        if(CHR=="ALL"){
-            line_index=i;
-            ++i;
-            file2>>input_int1;
-            file2>>input_int2;
-        }
-        else if(CHR==input_index&&flag_s==0&&flag_e==0){
-            line_index=i;
-            ++i;
-            file2>>input_int1;
-            file2>>input_int2;
-        }
-        else if(CHR==input_index&&flag_s==1&&flag_e==1){
-            file2>>input_int1;
-            file2>>input_int2;
-            if(!((region_s>input_int2)||(region_e<input_int1))){
-                line_index=i;
-                ++i;
-            }
-        }
-        
-    }
-    
-    //line_index=line_index+1;
-    
-    cout<<"THERE ARE "<<line_index<<" REGIONS TO COUNT."<<endl;
-    cout<<"Pre-masking step & single read calling step is initiated."<<endl;
-    
-    file2.close();
-    file2.clear();
-    file2.open(syst_region_index);
-    
-    int NUM_circle;
-    NUM_circle=(line_index/(NUM_threads+1))+1;
+    struct Region {
+        string chr;
+        int start;
+        int end;
+    };
 
-    //pid_t p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
-    //, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30;
-    
-    string input;
+    vector<Region> regions;
+    regions.reserve(1024);
+
+    file2.open(syst_region_index);
     string chr;
     int start, end;
-
-//no multithread
-    for(int i=0;i!=line_index;){
-        //cout<<"right call"<<endl;
-        //cout<<chr<<endl;
-        
-        file2>>chr;
-        file2>>start;
-        file2>>end;
-        int chr_index=0;
+    while(file2>>chr>>start>>end){
+        bool include_region=false;
         if(CHR=="ALL"){
-            chr_index=1;
+            include_region=true;
         }
-        else if(CHR==chr&&flag_s==0&&flag_e==0){
-            chr_index=1;
-            
-        }
-        else if(CHR==chr&&flag_s==1&&flag_e==1){
-            if(!((region_s>end)||(region_e<start))){
-                chr_index=1;
+        else if(CHR==chr){
+            if(flag_s==1&&flag_e==1){
+                if(!((region_s>end)||(region_e<start))){
+                    include_region=true;
+                }
+            }
+            else if(flag_s==0&&flag_e==0){
+                include_region=true;
             }
         }
-        
-        
-        if(chr_index==1){
-            ++i;
-            
-            //getchar();
-            //****
-            //cout<<flag_tsd<<endl;
-            tube(WD, inputF, chr, start, end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, mode, mapq_int);
+
+        if(include_region){
+            regions.push_back({chr,start,end});
         }
-        /*ver1.3
-        if(chr_index==1){
-            tube(WD, inputF, chr, start, end, sys_line_region, T, ref_n, direc, ref_file);
-        }*/
+    }
+
+    file2.close();
+    file2.clear();
+
+    size_t line_index = regions.size();
+
+    cout<<"THERE ARE "<<line_index<<" REGIONS TO COUNT."<<endl;
+    if(line_index==0){
+        cout<<"NO REGION MATCHES THE GIVEN PARAMETERS."<<endl;
+    }
+    else{
+        cout<<"Pre-masking step & single read calling step is initiated."<<endl;
+    }
+
+    if(line_index>0){
+        unsigned int worker_count = static_cast<unsigned int>(NUM_threads);
+        if(worker_count==0){
+            worker_count=1;
+        }
+        if(worker_count>regions.size()){
+            worker_count=static_cast<unsigned int>(regions.size());
+        }
+
+        cout<<"Launching processing with "<<worker_count<<" thread(s)."<<endl;
+
+        std::atomic<size_t> next_region(0);
+        auto worker=[&](){
+            while(true){
+                size_t idx = next_region.fetch_add(1);
+                if(idx>=regions.size()){
+                    break;
+                }
+                const Region &region = regions[idx];
+                tube(WD, inputF, region.chr, region.start, region.end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, mode, mapq_int);
+            }
+        };
+
+        vector<std::thread> threads;
+        threads.reserve(worker_count);
+        for(unsigned int i=0;i<worker_count;++i){
+            threads.emplace_back(worker);
+        }
+        for(auto &thread:threads){
+            thread.join();
+        }
     }
     
    
@@ -696,12 +700,8 @@ int main(int argc, char *argv[]){
         }
     }
     */
-    file2.close();
-    file2.clear();
-    file2.open(syst_region_index);
-    
     //merge
-    
+
     string sys_final_title = WD+output+"_calls.txt";
     char *syst_final_title = new char[sys_final_title.length()+1];
     strcpy(syst_final_title, sys_final_title.c_str());
@@ -718,63 +718,22 @@ int main(int argc, char *argv[]){
     
     file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
     
-    for(int i=0;i!=line_index;){
-        file2>>chr;
-        file2>>start;
-        file2>>end;
-        
+    for(const auto &region:regions){
         stringstream ss1, ss2;
-        ss1 << start;
+        ss1 << region.start;
         string s_start =ss1.str();
-        ss2 << end;
+        ss2 << region.end;
         string s_end =ss2.str();
-        
-        if(CHR=="ALL"){
-            string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
-            //cout<<sys_final<<endl;
-            char *syst_final = new char[sys_final.length()+1];
-            strcpy(syst_final, sys_final.c_str());
-            system(syst_final);
-            
-            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
-            //cout<<sys_final<<endl;
-            char *syst_final_tsd = new char[sys_final_tsd.length()+1];
-            strcpy(syst_final_tsd, sys_final_tsd.c_str());
-            system(syst_final_tsd);
-            ++i;
-        }
-        
-        else if(CHR==chr&&flag_s==0&&flag_e==0){
-            string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
-            //cout<<sys_final<<endl;
-            char *syst_final = new char[sys_final.length()+1];
-            strcpy(syst_final, sys_final.c_str());
-            system(syst_final);
-            
-            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
-            //cout<<sys_final<<endl;
-            char *syst_final_tsd = new char[sys_final_tsd.length()+1];
-            strcpy(syst_final_tsd, sys_final_tsd.c_str());
-            system(syst_final_tsd);
-            ++i;
-        }
-        
-        else if(CHR==chr&&flag_s==1&&flag_e==1){
-            if(!((region_s>end)||(region_e<start))){
-                string sys_final="cat "+WD+chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
-                //cout<<sys_final<<endl;
-                char *syst_final = new char[sys_final.length()+1];
-                strcpy(syst_final, sys_final.c_str());
-                system(syst_final);
-                
-                string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
-                //cout<<sys_final<<endl;
-                char *syst_final_tsd = new char[sys_final_tsd.length()+1];
-                strcpy(syst_final_tsd, sys_final_tsd.c_str());
-                system(syst_final_tsd);
-                ++i;
-            }
-        }
+
+        string sys_final="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/calls.txt >> "+sys_final_title;
+        char *syst_final = new char[sys_final.length()+1];
+        strcpy(syst_final, sys_final.c_str());
+        system(syst_final);
+
+        string sys_final_tsd="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+        char *syst_final_tsd = new char[sys_final_tsd.length()+1];
+        strcpy(syst_final_tsd, sys_final_tsd.c_str());
+        system(syst_final_tsd);
     }
     
     cout<<"Merging step completed."<<endl;

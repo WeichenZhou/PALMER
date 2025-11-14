@@ -66,6 +66,9 @@ Optional
 --mapq (default: MAPQ=10)
         the minimum MAPQ of the read for PALMER to process
 
+--thread (default: number of available hardware threads)
+        number of concurrent region workers to launch during preprocessing and calling
+
 --len_custom_seq (MUST set up when activating TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)
          interger value for the length of your customized sequence WITHOUT polyA tact
 
@@ -220,7 +223,7 @@ In preparation!
 **Ver1.3.3** Feb.3rd.2019 ^^^(*￣(oo)￣)^^^ Happy Lunar New Year! Year of the Pig!! ^^^(*￣(oo)￣)^^^ 
 
 * A steady and sensitive version for detection all MEIs (LINE-1, Alu, and SVA) in human genome.
-* Time consumption: to run PALMER on chr1, calling would cost ~150 hours (LINE-1), ~20 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimum. Right now, PALMER does not support multi-thread processing.
+* Time consumption: to run PALMER on chr1, calling would cost ~150 hours (LINE-1), ~20 hours (Alu) or ~4 hours (SVA), for 8gb running memory minimum. PALMER now supports parallel region processing via the `--thread` option (defaults to the number of available hardware threads).
 * Now PALMER can output whole structure of MEI sequence, including inserted main sequence as well as different characteristics (TSD, TD, polyA tail) that have been supported by the previous version already.
 * A fatal bug related to PacBio read name from fastq data fixed. 
 * Minor bugs fixed.
