@@ -135,8 +135,8 @@ For TEnCATS/NanoPal:
 Others:
 * Weichen Zhou et al., [A personalized multi-platform assessment of somatic mosaicism in the human frontal cortex](https://doi.org/10.1101/2024.12.18.629274), bioRxiv, 2024, `https://doi.org/10.1101/2024.12.18.629274`
 
-For PALMER2.0:
-In preparation!
+SMaHT benchmarking:
+* Wang et al., [Multi-platform framework for mapping somatic retrotransposition in human tissues](https://www.biorxiv.org/content/10.1101/2025.10.07.680917), bioRxiv, 2025, `https://doi.org/10.1101/2025.10.07.680917`
 
 ## Contact
 
@@ -146,7 +146,7 @@ In preparation!
 **Ver2.1.1** Aug.20th.2025! PALMER2.1 
 
 * Frozen version for SMaHT "Benchmarking and integrative detection of low frequency somatic mobile element insertions in human tissue". Good luck!
-* A major bug in calling when the sequencing depth is very deep. It stealed the supporting reads.
+* A major bug in calling when the sequencing depth is very deep. It stole the supporting reads.
 * Add an option to set MAPQ
 * Minor bugs fixed
 
