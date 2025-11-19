@@ -17,7 +17,7 @@ Required resources:
 
 Download and Install
 ```
-git clone https://github.com/mills-lab/PALMER.git
+git clone https://github.com/WeichenZhou/PALMER.git
 cd PALMER
 make
 ```
