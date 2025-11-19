@@ -132,10 +132,10 @@ For PALMER /* where it begins */:
 For TEnCATS/NanoPal:
 * Torrin L. McDonald and  Weichen Zhou et al., [Cas9 targeted enrichment of mobile elements using nanopore sequencing](https://www.nature.com/articles/s41467-021-23918-y), Nature Communications, 2021, `https://doi.org/10.1038/s41467-021-23918-y`
 
-Others:
+For PALMER2.0 multi-functional usage in WGS, capture, assembled contigs, and single-cell data:
 * Weichen Zhou et al., [A personalized multi-platform assessment of somatic mosaicism in the human frontal cortex](https://doi.org/10.1101/2024.12.18.629274), bioRxiv, 2024, `https://doi.org/10.1101/2024.12.18.629274`
 
-SMaHT benchmarking:
+For SMaHT benchmarking:
 * Wang et al., [Multi-platform framework for mapping somatic retrotransposition in human tissues](https://www.biorxiv.org/content/10.1101/2025.10.07.680917), bioRxiv, 2025, `https://doi.org/10.1101/2025.10.07.680917`
 
 ## Contact
