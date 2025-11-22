@@ -134,13 +134,13 @@ We have several outputs: `sample_calls.txt`, `sample_TSD_reads.txt`, and `sample
 * Resource: to run PALMER on chr1/GRCh38, calling would cost ~24 CPU hours (LINE-1/GRCh37), ~28 CPU hours (Alu), or ~4 CPU hours (SVA), for 8 GB running memory minimum.
 
 * Please run PALMER in parallel in separate chromosomes.
-* Recommended for a single-node run: Use --cpus-per-task=N in sbatch (or srun if launching via srun) to reserve N cores; Run PALMER with --thread N to actually use those N cores.
-* Keep --ntasks-per-node=1 for a single PALMER process; increase --ntasks-per-node only if you intend to run multiple independent PALMER jobs on different chromosomes simultaneously (each with its own --thread limit and matching --cpus-per-task request).
+* Recommended for a single-node run: Use --cpus-per-task=N in sbatch (or srun if launching via srun) to reserve N cores; Run PALMER with `--thread N` to actually use those N cores.
+* Keep --ntasks-per-node=1 for a single PALMER process in your Slurm job; increase --ntasks-per-node only if you intend to run multiple independent PALMER jobs on different chromosomes simultaneously (each with its own --thread limit and matching --cpus-per-task request).
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
 * Currently, the genotyping module is still under development, so please set a reasonable cutoff for somatic insertion signals. 
 
-* If you retain the intermediate files for other usages, please be cautious that the number of files will be very large.
+* By default, all the intermediate files will now be deleted after the run finishes. If you retain the intermediate files for other usages, please be cautious that the number of files will be very large.
 * If you have trouble running  Ver2.1.1, especially on ALUs, please use Ver2.0.1.
 
 ## Citation
