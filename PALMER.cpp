@@ -13,12 +13,14 @@
 #include <iomanip>
 #include <cstdlib>
 #include <numeric>
+#include <cstdio>
 
 #include <unordered_map>
 #include <utility>
 #include <ctime>
 #include <cctype>
 #include <climits>
+#include <limits>
 
 #include <thread>
 #include <atomic>
@@ -50,6 +52,11 @@ struct CollapsedRecord {
     string ref_base;
     string alt_symbol;
     string info_prefix;
+    string coverage_estimate = "NA";
+    string genotype_call = "NA";
+    string genotype_likelihoods = "NA";
+    string genotype_quality = "NA";
+    string genotype_pl = "NA";
     vector<string> cluster_ids;
     vector<TsdInfo> tsd_candidates;
 };
@@ -71,6 +78,363 @@ long long safe_average(const string &a, const string &b) {
 
 string normalize_field(const string &value) {
     return value == "N" ? string("NA") : value;
+}
+
+double generalized_gaussian_pdf(double x, double mean, double alpha, double beta) {
+    const double tiny = 1e-8;
+    double safe_alpha = max(alpha, tiny);
+    double exponent = pow(fabs((x - mean) / safe_alpha), beta);
+    double coefficient = beta / (2.0 * safe_alpha * tgamma(1.0 / beta));
+    return coefficient * exp(-exponent);
+}
+
+struct GgmComponent {
+    double weight = 0.5;
+    double mean = 0.0;
+    double alpha = 1.0;
+};
+
+struct GgmResult {
+    double beta = 2.0;
+    vector<GgmComponent> components;
+    bool converged = false;
+};
+
+GgmResult fit_generalized_gaussian_mixture(const vector<double> &values, double beta = 1.5, size_t max_iters = 100, double tol = 1e-4) {
+    GgmResult result;
+    result.beta = beta;
+    result.components.resize(2);
+
+    if (values.empty()) {
+        return result;
+    }
+
+    double mean_value = accumulate(values.begin(), values.end(), 0.0) / static_cast<double>(values.size());
+    result.components[0].weight = 0.5;
+    result.components[0].mean = mean_value * 0.5;
+    result.components[0].alpha = max(mean_value * 0.25, 0.1);
+
+    result.components[1].weight = 0.5;
+    result.components[1].mean = max(mean_value, 0.1);
+    result.components[1].alpha = max(mean_value * 0.25, 0.1);
+
+    double last_log_likelihood = numeric_limits<double>::lowest();
+
+    for (size_t iter = 0; iter < max_iters; ++iter) {
+        vector<double> weight_sums(2, 0.0);
+        vector<double> mean_sums(2, 0.0);
+        vector<double> alpha_sums(2, 0.0);
+        double log_likelihood = 0.0;
+
+        for (double value : values) {
+            double p0 = result.components[0].weight * generalized_gaussian_pdf(value, result.components[0].mean, result.components[0].alpha, beta);
+            double p1 = result.components[1].weight * generalized_gaussian_pdf(value, result.components[1].mean, result.components[1].alpha, beta);
+            double total = p0 + p1 + 1e-12;
+
+            double r0 = p0 / total;
+            double r1 = p1 / total;
+
+            weight_sums[0] += r0;
+            weight_sums[1] += r1;
+            mean_sums[0] += r0 * value;
+            mean_sums[1] += r1 * value;
+            alpha_sums[0] += r0 * pow(fabs(value - result.components[0].mean), beta);
+            alpha_sums[1] += r1 * pow(fabs(value - result.components[1].mean), beta);
+
+            log_likelihood += log(total);
+        }
+
+        for (size_t idx = 0; idx < 2; ++idx) {
+            double denom = max(weight_sums[idx], 1e-8);
+            result.components[idx].weight = weight_sums[idx] / static_cast<double>(values.size());
+            result.components[idx].mean = mean_sums[idx] / denom;
+            result.components[idx].alpha = pow(alpha_sums[idx] / denom, 1.0 / beta);
+            if (result.components[idx].alpha < 0.05) {
+                result.components[idx].alpha = 0.05;
+            }
+        }
+
+        if (fabs(log_likelihood - last_log_likelihood) < tol) {
+            result.converged = true;
+            break;
+        }
+        last_log_likelihood = log_likelihood;
+    }
+
+    return result;
+}
+
+double estimate_average_read_length(const string &bam_path, size_t max_reads = 2000) {
+    string command = "samtools view -F 0x700 " + bam_path + " | head -n " + to_string(max_reads);
+    FILE *pipe = popen(command.c_str(), "r");
+    if (!pipe) {
+        return -1.0;
+    }
+
+    char buffer[65536];
+    size_t read_count = 0;
+    double length_sum = 0.0;
+
+    while (fgets(buffer, sizeof(buffer), pipe)) {
+        string line(buffer);
+        if (!line.empty() && line[0] == '@') {
+            continue;
+        }
+
+        stringstream ss(line);
+        string field;
+        int field_index = 0;
+        while (getline(ss, field, '\t')) {
+            if (field_index == 9) {
+                length_sum += static_cast<double>(field.size());
+                ++read_count;
+                break;
+            }
+            ++field_index;
+        }
+
+        if (read_count >= max_reads) {
+            break;
+        }
+    }
+
+    pclose(pipe);
+    if (read_count == 0) {
+        return -1.0;
+    }
+
+    return length_sum / static_cast<double>(read_count);
+}
+
+double estimate_local_coverage(const string &bam_path, const string &chrom, long long pos, int mapq_threshold, long long bin_size = 10000) {
+    if (chrom.empty() || pos <= 0) {
+        return -1.0;
+    }
+
+    long long bin_index = (pos - 1) / bin_size;
+    long long region_start = bin_index * bin_size + 1;
+    long long region_end = region_start + bin_size - 1;
+
+    stringstream region;
+    region << chrom << ":" << region_start << "-" << region_end;
+
+    char temp_template[] = "/tmp/palmer_cov_XXXXXX.bam";
+    int temp_fd = mkstemps(temp_template, 4);
+    if (temp_fd == -1) {
+        return -1.0;
+    }
+    close(temp_fd);
+
+    string temp_bam_path(temp_template);
+    auto cleanup = [&]() {
+        remove(temp_bam_path.c_str());
+        string temp_bai = temp_bam_path + ".bai";
+        remove(temp_bai.c_str());
+    };
+
+    string filter_command = "samtools view -F 0x700 -q " + to_string(mapq_threshold) + " -b " + bam_path + " " + region.str() +
+                            " > " + temp_bam_path;
+    if (system(filter_command.c_str()) != 0) {
+        cleanup();
+        return -1.0;
+    }
+
+    string index_command = "samtools index " + temp_bam_path;
+    if (system(index_command.c_str()) != 0) {
+        cleanup();
+        return -1.0;
+    }
+
+    string depth_command = "samtools depth -a -r " + region.str() + " " + temp_bam_path;
+    FILE *pipe = popen(depth_command.c_str(), "r");
+    if (!pipe) {
+        cleanup();
+        return -1.0;
+    }
+
+    char buffer[65536];
+    long long position_count = 0;
+    double depth_sum = 0.0;
+
+    while (fgets(buffer, sizeof(buffer), pipe)) {
+        string line(buffer);
+        if (line.empty()) continue;
+        stringstream ss(line);
+        string ref_name;
+        long long pos_value = 0;
+        double depth = 0.0;
+        ss >> ref_name >> pos_value >> depth;
+        depth_sum += depth;
+        ++position_count;
+    }
+
+    pclose(pipe);
+    cleanup();
+    if (position_count == 0) {
+        return -1.0;
+    }
+
+    return depth_sum / static_cast<double>(position_count);
+}
+
+string genotype_calls(const string &calls_path, const string &bam_path, int mapq_threshold) {
+    ifstream calls_stream(calls_path);
+    if (!calls_stream.is_open()) {
+        cerr << "CANNOT OPEN MERGED CALLS FILE: " << calls_path << endl;
+        return calls_path;
+    }
+
+    string output_path = calls_path;
+    size_t suffix = output_path.rfind(".txt");
+    if (suffix != string::npos) {
+        output_path.insert(suffix, "_genotyped");
+    } else {
+        output_path += "_genotyped.txt";
+    }
+
+    ofstream out_stream(output_path);
+    if (!out_stream.is_open()) {
+        cerr << "CANNOT OPEN GENOTYPE OUTPUT FILE: " << output_path << endl;
+        return calls_path;
+    }
+
+    string header;
+    getline(calls_stream, header);
+    out_stream << header << "\tcoverage_estimate\tGGM_genotype\tGL0\tGQ\tPL" << endl;
+
+    vector<string> lines;
+    vector<double> observations;
+    vector<double> coverage_estimates;
+    unordered_map<string, double> coverage_cache;
+    string line;
+    while (getline(calls_stream, line)) {
+        if (line.empty()) continue;
+        lines.push_back(line);
+        stringstream ss(line);
+        vector<string> fields;
+        string field;
+        while (getline(ss, field, '\t')) {
+            fields.push_back(field);
+        }
+        if (fields.size() > 10) {
+            try {
+                observations.push_back(stod(fields[10]));
+            } catch (...) {
+                observations.push_back(0.0);
+            }
+        }
+
+        double coverage_estimate = -1.0;
+        if (fields.size() > 3) {
+            string chrom = fields[1];
+            long long pos_val = safe_average(fields[2], fields[3]);
+            long long bin_index = (pos_val > 0) ? ((pos_val - 1) / 10000) : -1;
+            if (bin_index >= 0) {
+                string cache_key = chrom + ":" + to_string(bin_index);
+                auto it = coverage_cache.find(cache_key);
+                if (it != coverage_cache.end()) {
+                    coverage_estimate = it->second;
+                } else {
+                    coverage_estimate = estimate_local_coverage(bam_path, chrom, pos_val, mapq_threshold, 10000);
+                    coverage_cache[cache_key] = coverage_estimate;
+                }
+            }
+        }
+
+        coverage_estimates.push_back(coverage_estimate);
+    }
+
+    vector<double> normalized;
+    normalized.reserve(observations.size());
+    for (size_t i = 0; i < observations.size(); ++i) {
+        double obs = observations[i];
+        double coverage_est = (i < coverage_estimates.size()) ? coverage_estimates[i] : -1.0;
+        if (coverage_est > 0.0) {
+            normalized.push_back(obs / coverage_est);
+        } else {
+            normalized.push_back(obs);
+        }
+    }
+
+    GgmResult model = fit_generalized_gaussian_mixture(normalized);
+    size_t low_idx = 0;
+    size_t high_idx = 1;
+    if (model.components.size() == 2 && model.components[0].mean > model.components[1].mean) {
+        low_idx = 1;
+        high_idx = 0;
+    }
+
+    double boundary = 0.0;
+    if (model.components.size() == 2) {
+        boundary = (model.components[low_idx].mean + model.components[high_idx].mean) / 2.0;
+    }
+
+    for (size_t idx = 0; idx < lines.size(); ++idx) {
+        const string &original = lines[idx];
+        double value = idx < normalized.size() ? normalized[idx] : 0.0;
+        double coverage_est = idx < coverage_estimates.size() ? coverage_estimates[idx] : -1.0;
+        string coverage_str = "NA";
+        if (coverage_est > 0.0 && isfinite(coverage_est)) {
+            stringstream cov_ss;
+            cov_ss << fixed << setprecision(3) << coverage_est;
+            coverage_str = cov_ss.str();
+        }
+
+        double p_low = 0.0;
+        double p_high = 0.0;
+        if (model.components.size() == 2) {
+            p_low = model.components[low_idx].weight * generalized_gaussian_pdf(value, model.components[low_idx].mean, model.components[low_idx].alpha, model.beta);
+            p_high = model.components[high_idx].weight * generalized_gaussian_pdf(value, model.components[high_idx].mean, model.components[high_idx].alpha, model.beta);
+        }
+
+        const double tiny = 1e-12;
+        double p_ref = tiny;
+        double total_prob = p_ref + p_low + p_high;
+        if (total_prob < tiny) {
+            total_prob = tiny;
+        }
+
+        vector<double> gl_values(3, log10(tiny));
+        gl_values[0] = log10(max(p_ref / total_prob, tiny));
+        gl_values[1] = log10(max(p_low / total_prob, tiny));
+        gl_values[2] = log10(max(p_high / total_prob, tiny));
+
+        double max_gl = *max_element(gl_values.begin(), gl_values.end());
+        vector<int> pl_values(3, 999);
+        for (size_t i = 0; i < gl_values.size(); ++i) {
+            pl_values[i] = static_cast<int>(round(-10.0 * (gl_values[i] - max_gl)));
+        }
+
+        int gq_value = 0;
+        vector<int> pl_sorted = pl_values;
+        sort(pl_sorted.begin(), pl_sorted.end());
+        if (pl_sorted.size() > 1) {
+            gq_value = pl_sorted[1];
+        }
+
+        string genotype = "UNK";
+        if (model.components.size() == 2) {
+            double total = p_low + p_high;
+            double confidence = total > 0.0 ? fabs(p_low - p_high) / total : 0.0;
+            if (confidence < 0.05) {
+                genotype = "UNK";
+            } else {
+                genotype = (value < boundary) ? "0/1" : "1/1";
+            }
+        }
+
+        stringstream gl_stream;
+        gl_stream << fixed << setprecision(3) << gl_values[0] << ',' << gl_values[1] << ',' << gl_values[2];
+
+        stringstream pl_stream;
+        pl_stream << pl_values[0] << ',' << pl_values[1] << ',' << pl_values[2];
+
+        out_stream << original << '\t' << coverage_str << '\t' << genotype
+                   << '\t' << gl_stream.str() << '\t' << gq_value << '\t' << pl_stream.str() << endl;
+    }
+
+    cout << "Genotyped calls written to " << output_path << endl;
+    return output_path;
 }
 
 string current_date() {
@@ -255,7 +619,7 @@ int missing_fields(const TsdInfo &info) {
     return missing;
 }
 
-void write_vcf_output(const string &calls_path, const string &tsd_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line) {
+void write_vcf_output(const string &calls_path, const string &tsd_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line, const string &sample_name) {
 
     unordered_map<string, TsdInfo> tsd_records;
 
@@ -359,13 +723,18 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
     vcf_stream << "##INFO=<ID=INV5_START,Number=1,Type=Integer,Description=\"Start position of 5' inverted sequence\">" << endl;
     vcf_stream << "##INFO=<ID=START_INVAR,Number=1,Type=Integer,Description=\"Average start position within insertion sequence\">" << endl;
     vcf_stream << "##INFO=<ID=END_INVAR,Number=1,Type=Integer,Description=\"Average end position within insertion sequence\">" << endl;
+    vcf_stream << "##INFO=<ID=COV_EST,Number=1,Type=Float,Description=\"Estimated local 10kb-bin coverage used for genotype modeling\">" << endl;
     vcf_stream << "##INFO=<ID=TSD_READ,Number=1,Type=String,Description=\"Representative read supporting TSD\">" << endl;
     vcf_stream << "##INFO=<ID=TSD5_SEQ,Number=1,Type=String,Description=\"5' TSD sequence (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=TSD3_SEQ,Number=1,Type=String,Description=\"3' TSD sequence (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=TRANSD_READ,Number=1,Type=String,Description=\"Predicted transduction sequence (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=JUNC_26MER,Number=1,Type=String,Description=\"Unique 26-mer at 5' junction (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=INS_SEQ,Number=1,Type=String,Description=\"Representative insertion sequence (NA if unavailable)\">" << endl;
-    vcf_stream << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO" << endl;
+    vcf_stream << "##FORMAT=<ID=GL0,Number=G,Type=Float,Description=\"Genotype likelihoods with no frequency prior\">" << endl;
+    vcf_stream << "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=\"Genotype Quality\">" << endl;
+    vcf_stream << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << endl;
+    vcf_stream << "##FORMAT=<ID=PL,Number=G,Type=Integer,Description=\"Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification\">" << endl;
+    vcf_stream << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t" << sample_name << endl;
 
     string line;
     getline(calls_stream, line); // Skip header
@@ -394,6 +763,11 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         long long end_val = safe_average(fields[4], fields[5]);
         long long start_invariant = safe_average(fields[6], fields[7]);
         long long end_invariant = safe_average(fields[8], fields[9]);
+        string coverage_estimate = (fields.size() > 25) ? fields[fields.size() - 5] : string("NA");
+        string genotype_call = (fields.size() > 25) ? fields[fields.size() - 4] : string("NA");
+        string genotype_likelihoods = (fields.size() > 25) ? fields[fields.size() - 3] : string("NA");
+        string genotype_quality = (fields.size() > 25) ? fields[fields.size() - 2] : string("NA");
+        string genotype_pl = (fields.size() > 25) ? fields[fields.size() - 1] : string("NA");
         string end = to_string(end_val);
         string ref_base(1, reference_base(reference_sequences, chrom, pos_val));
         string alt_symbol = "<INS>";
@@ -432,7 +806,8 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         }
 
         string key;
-        for (size_t i = 1; i < fields.size(); ++i) {
+        size_t key_fields = min(fields.size(), static_cast<size_t>(21));
+        for (size_t i = 1; i < key_fields; ++i) {
             if (i > 1) key += "|";
             key += fields[i];
         }
@@ -450,12 +825,32 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
             record.info_prefix = info_prefix;
             record.cluster_ids.push_back(fields[0]);
             record.tsd_candidates.push_back(tsd_info);
+            record.coverage_estimate = coverage_estimate;
+            record.genotype_call = genotype_call;
+            record.genotype_likelihoods = genotype_likelihoods;
+            record.genotype_quality = genotype_quality;
+            record.genotype_pl = genotype_pl;
             collapsed_records.push_back(record);
             key_to_index[key] = collapsed_records.size() - 1;
         } else {
             CollapsedRecord &record = collapsed_records[idx_it->second];
             record.cluster_ids.push_back(fields[0]);
             record.tsd_candidates.push_back(tsd_info);
+            if (record.coverage_estimate == "NA" && coverage_estimate != "NA") {
+                record.coverage_estimate = coverage_estimate;
+            }
+            if (record.genotype_call == "NA" && genotype_call != "NA") {
+                record.genotype_call = genotype_call;
+            }
+            if (record.genotype_likelihoods == "NA" && genotype_likelihoods != "NA") {
+                record.genotype_likelihoods = genotype_likelihoods;
+            }
+            if (record.genotype_quality == "NA" && genotype_quality != "NA") {
+                record.genotype_quality = genotype_quality;
+            }
+            if (record.genotype_pl == "NA" && genotype_pl != "NA") {
+                record.genotype_pl = genotype_pl;
+            }
         }
     }
 
@@ -484,12 +879,22 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         }
 
         string info = record.info_prefix;
+        info += ";COV_EST=" + record.coverage_estimate;
         info += ";TSD_READ=" + tsd_info.read_name;
         info += ";TSD5_SEQ=" + tsd_info.tsd5;
         info += ";TSD3_SEQ=" + tsd_info.tsd3;
         info += ";TRANSD_READ=" + tsd_info.predicted_transd;
         info += ";JUNC_26MER=" + tsd_info.junction_26mer;
         info += ";INS_SEQ=" + tsd_info.insertion_seq;
+
+        string format_field = "GT:GL0:GQ:PL";
+
+        string gt_value = (record.genotype_call == "NA") ? string("./.") : record.genotype_call;
+        string gl0_value = (record.genotype_likelihoods == "NA") ? string(".") : record.genotype_likelihoods;
+        string gq_value = (record.genotype_quality == "NA") ? string(".") : record.genotype_quality;
+        string pl_value = (record.genotype_pl == "NA") ? string(".") : record.genotype_pl;
+
+        string sample_field = gt_value + ":" + gl0_value + ":" + gq_value + ":" + pl_value;
 
         vcf_stream << record.chrom << '\t'
                    << record.pos << '\t'
@@ -498,7 +903,9 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
                    << record.alt_symbol << '\t'
                    << '.' << '\t'
                    << "PASS" << '\t'
-                   << info << endl;
+                   << info << '\t'
+                   << format_field << '\t'
+                   << sample_field << endl;
     }
 
     cout << "VCF output written to " << vcf_path << endl;
@@ -540,7 +947,7 @@ int main(int argc, char *argv[]){
     int intermediate=0;
     int flag_intermediate=0;
     int invalid_intermediate=0;
-    
+
     int flag_s=0;
     int flag_e=0;
     int flag_m=0;
@@ -550,6 +957,9 @@ int main(int argc, char *argv[]){
     CHR="ALL";
     mode="NA";
     mapq="10";
+
+    int run_genotyping = 0;
+    int invalid_gt = 0;
 
     int ref_n=0;
     //int flag_mapq=0;
@@ -677,6 +1087,23 @@ int main(int argc, char *argv[]){
                 cout <<"PLEASE ASSIGN A NUMBER AFTER --thread :("<< endl;
             }
         }
+        if(strncmp(argv[i],"--GT",4)==0){
+            string gt_value = "0";
+            if((i+1)<argc && argv[i+1][0]!='-'){
+                gt_value = argv[i+1];
+            }
+
+            if(gt_value=="1"){
+                run_genotyping = 1;
+            }
+            else if(gt_value=="0"){
+                run_genotyping = 0;
+            }
+            else {
+                cout<<"PLEASE SET --GT TO 0 (SKIP) OR 1 (RUN GENOTYPING)"<<endl;
+                invalid_gt = 1;
+            }
+        }
         if(strncmp(argv[i],"--ref_fa",8)==0){
             flag_reffa=1;
             file11.open(argv[i+1],ios::in | ios::binary);
@@ -759,7 +1186,7 @@ int main(int argc, char *argv[]){
     }
     
     
-    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_tsd==1&flag_cus_seq_len==0)||(flag_m==0)||(mapq_int<0 || mapq_int>100)||invalid_intermediate==1){
+    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_tsd==1&flag_cus_seq_len==0)||(flag_m==0)||(mapq_int<0 || mapq_int>100)||invalid_intermediate==1||invalid_gt==1){
         if(flag_T==0&&flag_cus==0){
             cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA/HERVK"<<endl;}
         if(flag_T==1&&flag_cus==1){
@@ -785,6 +1212,8 @@ int main(int argc, char *argv[]){
             cout<<"***ERROR*** A CORRECT RANGE OF MAPQ IS REQUIRED"<<endl;}
         if(invalid_intermediate==1){
             cout<<"***ERROR*** PLEASE SET --intermediate TO 0 (DELETE) OR 1 (KEEP)"<<endl;}
+        if(invalid_gt==1){
+            cout<<"***ERROR*** PLEASE SET --GT TO 0 (SKIP) OR 1 (RUN GENOTYPING)"<<endl;}
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
@@ -848,7 +1277,11 @@ int main(int argc, char *argv[]){
         cout<<"--thread (default: number of available hardware threads)"<<endl;
         cout<<"        number of concurrent region workers to launch during preprocessing and calling"<<endl;
         cout<<endl;
-        
+
+        cout<<"--GT (default: 0)"<<endl;
+        cout<<"         set to 1 to enable genotyping; keep 0 to skip"<<endl;
+        cout<<endl;
+
         cout<<"--len_custom_seq (MUST set up when activate TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)"<<endl;
         cout<<"         interger value for the length of your customized sequence WITHOUT polyA tact"<<endl;
         cout<<endl;
@@ -1427,7 +1860,16 @@ int main(int argc, char *argv[]){
         command_line += argv[arg_i];
     }
 
-    write_vcf_output(sys_final_title, sys_final_tsd_title, sys_final_vcf, T, ref_fa, command_line);
+    string calls_for_vcf = sys_final_title;
+    if(run_genotyping==1){
+        cout<<"Genotyping enabled (--GT=1). Running genotyping module."<<endl;
+        calls_for_vcf = genotype_calls(sys_final_title, inputF, mapq_int);
+    }
+    else {
+        cout<<"Genotyping skipped (--GT=0)."<<endl;
+    }
+
+    write_vcf_output(calls_for_vcf, sys_final_tsd_title, sys_final_vcf, T, ref_fa, command_line, output);
 
     //colapse for the redundant calls
 
