@@ -170,6 +170,7 @@ For SMaHT benchmarking:
 * Add a module for removing (or keeping) intermediate files to avoid crashing the file system.
 * Add a genotyping module based on a Generalized Gaussian Mixture model. But still under development.
 * Minor format bugs fixed.
+* Scripts cleaned.
 * README updated.
 
 **Ver2.1.1** Aug.20th.2025! PALMER2.1 
