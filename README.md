@@ -298,4 +298,4 @@ For SMaHT benchmarking:
 
 
 ## COPYRIGHT
-ArthurZhou @ UMich&Fudan&HUST
+Copyright (c) 2018-2025 Weichen Arthur Zhou @ UMich&Fudan&HUST
