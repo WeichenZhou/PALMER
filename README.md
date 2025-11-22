@@ -68,7 +68,7 @@ Optional
 --thread (default: number of available hardware threads)
         number of concurrent region workers to launch during preprocessing and calling
 
---GT (default: 0, still under development)
+--GT (default: 0, still under development & use caution)
         optional genotyping toggle; keep 0 to skip genotyping or set to 1 to run the genotype likelihood module before VCF generation
 
 --len_custom_seq (MUST set up when activating TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)
