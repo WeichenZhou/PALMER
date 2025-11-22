@@ -471,7 +471,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     string fasta5_str_length=to_string(fasta5_str_len);
                     string fasta3_str_length=to_string(fasta3_str_len);
                     
-                    string sys_3_blast = "bash -c \"blastn -evalue 0.05 -task blastn -query <(printf "+(fasta5_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta5_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
+                    string sys_3_blast = "bash -c \"BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn -query <(printf "+(fasta5_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta5_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast<<endl;
                     
@@ -493,7 +493,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     //loc_tsd_fp[w][0]=pp_3_int;
                     loc_tsd_fp[w][0]=accumulate(pp_3_int.begin(),pp_3_int.end(),loc_tsd_fp[w][0]);
                     
-                    string sys_3_blast_2 = "bash -c \"blastn -evalue 0.05 -task blastn -query <(printf "+(fasta3_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta3_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
+                    string sys_3_blast_2 = "bash -c \"BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn -query <(printf "+(fasta3_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta3_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast_2<<endl;
                     
@@ -523,43 +523,8 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     
                     delete [] tmp;
                     delete [] tmp_2;
-                    /*
-                    string sys_3_blast = "blastn -evalue 0.05 -task blastn -query "+sys_3_kmer+" -subject "+ref_junc_file+" -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=60&&($10-$9)>0) print \"1\"}' |wc -l > "+WD_dir+"read_result_junc_fake.txt";
-                    char *syst_3_blast = new char[sys_3_blast.length()+1];
-                    strcpy(syst_3_blast, sys_3_blast.c_str());
-                    system(syst_3_blast);
-                    
-                    string sys_3_bl = WD_dir+"read_result_junc_fake.txt";
-                    char *syst_3_bl = new char[sys_3_bl.length()+1];
-                    strcpy(syst_3_bl, sys_3_bl.c_str());
-                    ifstream file23;
-                    file23.open(syst_3_bl);
 
-                    file23>>loc_tsd[w][7];
                     
-                    string sys_3_blast_2 = "blastn -evalue 0.05 -task blastn -query "+sys_3_kmer_2+" -subject "+ref_junc_file+" -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=80&&$4>=60&&($10-$9)>0) print \"1\"}' |wc -l > "+WD_dir+"read_result_junc_fake_2.txt";
-                    char *syst_3_blast_2 = new char[sys_3_blast_2.length()+1];
-                    strcpy(syst_3_blast_2, sys_3_blast_2.c_str());
-                    system(syst_3_blast_2);
-                    
-                    string sys_3_bl_2 = WD_dir+"read_result_junc_fake_2.txt";
-                    char *syst_3_bl_2 = new char[sys_3_bl_2.length()+1];
-                    strcpy(syst_3_bl_2, sys_3_bl_2.c_str());
-                    ifstream file232;
-                    file232.open(syst_3_bl_2);
-                    
-                    file232>>loc_tsd[w][8];
-                    */
-    //5' 26mer identify
-                    /*
-                    ofstream file42;
-                    string sys_5_kmer = WD_dir+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str()+"."+loc_tsd_0.c_str()+"."+loc_tsd_1.c_str()+"."+loc_tsd_2.c_str()+"."+loc_tsd_3.c_str()+".5kmer.fasta";
-                    char *syst_5_kmer = new char[sys_5_kmer.length()+1];
-                    strcpy(syst_5_kmer, sys_5_kmer.c_str());
-                    file42.open(syst_5_kmer);
-                    
-                    file42<<">"<<seq_index<<"."<<loc_tsd_0.c_str()<<"."<<loc_tsd_1.c_str()<<"."<<loc_tsd_2.c_str()<<"."<<loc_tsd_3.c_str()<<".5kmer.fasta"<<endl;
-                    */
                     if(info[i][2]=="+"){
                         stringstream kmer_ss;
                         string kmer_s;
@@ -602,39 +567,11 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                             kmer_tsd[w]="N";
                         }
                     }
-                    //file42<<endl;
-                    
-                    //No need comparison blastn for now
-                    /*
-                    string sys_5_blast = "blastn -evalue 0.05 -task blastn -query "+sys_5_kmer+" -subject "+ref_file+" -dust no -outfmt \"7 std\" |grep -v \"#\" | awk '{if($3>=85&&$4>=22&&($10-$9)>0) print \"1\"}' |wc -l > "+WD_dir+"read_result_junc_5kmers.txt";
-                    char *syst_5_blast = new char[sys_5_blast.length()+1];
-                    strcpy(syst_5_blast, sys_5_blast.c_str());
-                    system(syst_5_blast);
-                    
-                    string sys_5_bl = WD_dir+"read_result_junc_5kmers.txt";
-                    char *syst_5_bl = new char[sys_5_bl.length()+1];
-                    strcpy(syst_5_bl, sys_5_bl.c_str());
-                    ifstream file43;
-                    file43.open(syst_5_bl);
-                    
-                    file43>>loc_tsd[w][6];
-                    */
+
                     loc_tsd[w][6]=0;
 
                     delete [] seq3;
                     delete [] seq5;
-                    //file43.close();
-                    //file43.clear();
-                    //file22.close();
-                    //file23.close();
-                    //file22.clear();
-                    //file23.clear();
-                    //file222.close();
-                    //file232.close();
-                    //file222.clear();
-                    //file232.clear();
-                    //file42.close();
-                    //file42.clear();
                     
                 }
             }

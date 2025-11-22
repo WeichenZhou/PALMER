@@ -16,10 +16,7 @@
 using namespace std;
 
 int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len){
-    
-    //std::ios::sync_with_stdio(false);
-    //std::cin.tie(0);
-    
+        
     int C_len=10000;
     if(cus_seq_len!=-1){
         if(cus_seq_len<=1000){
@@ -261,16 +258,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     int S_min=10;//Segmental hit gap in one read
     int S_max=100;
     int S=0;
-    /*if (t=="ALU"){
-        S=10;
-    }
-    else if (t=="SVA"){
-        S=25;
-    }
-    else if (t=="HERVK"){
-        S=100;
-    }
-    */
+
     for(int i=0;i!=blast;++i){
         if(bla[i][6]==0){
             int flag_bn=1;
@@ -448,7 +436,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                 if(loc_SVA[j][2]<loc_SVA[i][2]) loc_SVA[i][2]=loc_SVA[j][2];
                                 if(loc_SVA[j][3]>loc_SVA[i][3]) loc_SVA[i][3]=loc_SVA[j][3];
                                 flag_seg2=1;
-                                //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<endl;
+                                
                             }
                         }
                     }
@@ -468,8 +456,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                     x_tag_2=0;
                     for(int j=0;j!=line_read_SVA;++j){
                         if((info_SVA[j][2]=="2"||info_SVA[j][2]=="1")&&name_SVA[i]==name_SVA[j]&&info_SVA[i][1]==info_SVA[j][1]&&loc_SVA[i][4]==loc_SVA[j][4]){
-                            //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<" "<<loc_SVA[i][2]<<" "<<loc_SVA[i][3]<<endl;
-                            //cout<<"yes"<<name_SVA[j]<<" "<<loc_SVA[j][0]<<" "<<loc_SVA[j][1]<<" "<<loc_SVA[j][2]<<" "<<loc_SVA[j][3]<<endl;
+                            
                             if(!(loc_SVA[i][0]>loc_SVA[j][1]||loc_SVA[i][1]<loc_SVA[j][0])&&!(loc_SVA[i][2]>loc_SVA[j][3]||loc_SVA[i][3]<loc_SVA[j][2])){
                                 if(loc_SVA[j][0]<loc_SVA[i][0]) loc_SVA[i][0]=loc_SVA[j][0];
                                 if(loc_SVA[j][1]>loc_SVA[i][1]) loc_SVA[i][1]=loc_SVA[j][1];
@@ -477,8 +464,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                 if(loc_SVA[j][3]>loc_SVA[i][3]) loc_SVA[i][3]=loc_SVA[j][3];
                                 //flag_seg=1;
                                 x_tag_2++;
-                                //cout<<"yes"<<name_SVA[i]<<" "<<loc_SVA[i][0]<<" "<<loc_SVA[i][1]<<endl;
-                                //cout<<"yes"<<name_SVA[j]<<" "<<loc_SVA[j][0]<<" "<<loc_SVA[j][1]<<endl;
+                               
                             }
                         }
                     }

@@ -1152,44 +1152,13 @@ int calling(string WD_dir, string t, int tsd_index){
                 for(int w2=0;w2!=line_tsd;++w2){
 //*******
                     if(loc_tsd[w2][4]==1&&loc_tsd[w2][5]==p&&loc_tsd[w2][10]>0&&loc_tsd[w2][11]>0){
-                       //&&loc_tsd[w2][10]==0){
-                        /*
-                        if(orien[i]=="+"){
-                            if(rs_buff>loc_tsd[w2][2]){
-                                rs_buff=loc_tsd[w2][2];
-                                //re_buff=loc_tsd[w2][3];
-                                number_buff=w2;
-                            }
-                            else if(rs_buff==loc_tsd[w2][2]&&re_buff<loc_tsd[w2][3]){
-                                re_buff=loc_tsd[w2][3];
-                                number_buff=w2;
-                            }
-                        }
-                        else if(orien[i]=="-"){
-                            if(re_buff<loc_tsd[w2][3]){
-                                //rs_buff=loc_tsd[w2][2];
-                                re_buff=loc_tsd[w2][3];
-                                number_buff=w2;
-                            }
-                            else if(re_buff==loc_tsd[w2][3]&&rs_buff>loc_tsd[w2][2]){
-                                rs_buff=loc_tsd[w2][2];
-                                number_buff=w2;
-                            }
-                        }
-                        
-                        */
+                       
                         int dis_tsd_w=10000;
                         int len_tsd_w=loc_tsd[w2][1]-loc_tsd[w2][0]+loc_tsd[w2][3]-loc_tsd[w2][2];
                         
                         if(orien[i]=="+"){
-                            //int dis_tsd_w_r=loc_tsd[w2][2]-(BIN_buff+1);
-                            //int dis_tsd_w_l=(BIN_5+1)-loc_tsd[w2][1];
-                            //if(loc_tsd[w2][2]<(BIN_buff+1)){
-                            //    dis_tsd_w_r=(BIN_buff+1)-loc_tsd[w2][2];
-                            //}
-                            //if(loc_tsd[w2][1]>(BIN_5+1)){
-                            //    dis_tsd_w_l=loc_tsd[w2][1]-(BIN_5+1);
-                            //}
+                            
+                            
                             dis_tsd_w=loc_tsd[w2][2]-loc_tsd[w2][1]-len_tsd_w;
                             //dis_tsd_w=dis_tsd_w_r+dis_tsd_w_l;
                             if(dis_tsd_w<dis_tsd){
@@ -1211,15 +1180,8 @@ int calling(string WD_dir, string t, int tsd_index){
                         }
                         
                         else if(orien[i]=="-"){
-                            //int dis_tsd_w_l=loc_tsd[w2][0]-(BIN_buff+1);
-                            //int dis_tsd_w_r=(BIN_3+1)-loc_tsd[w2][3];
-                            //if(loc_tsd[w2][0]<(BIN_buff+1)){
-                            //    dis_tsd_w_l=(BIN_buff+1)-loc_tsd[w2][0];
-                            //}
-                            //if(loc_tsd[w2][3]>(BIN_3+1)){
-                            //    dis_tsd_w_r=loc_tsd[w2][3]-(BIN_3+1);
-                            //}
-                            //dis_tsd_w=dis_tsd_w_r+dis_tsd_w_l;
+                            
+                            
                             dis_tsd_w=loc_tsd[w2][0]-loc_tsd[w2][3]-len_tsd_w;
                             if(dis_tsd_w<dis_tsd){
                                 number_buff=w2;
@@ -1416,50 +1378,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         }
 //5' 26mer output
                         file4<<'\t'<<kmerseq_tsd[number_buff][w]<<'\t';
-                        /*
-                        string kmer_0, kmer_1, kmer_2, kmer_3;
-                        stringstream ss_kmer_0;
-                        ss_kmer_0.clear();
-                        ss_kmer_0<<ls[number_buff][w];
-                        kmer_0=ss_kmer_0.str();
                         
-                        stringstream ss_kmer_1;
-                        ss_kmer_1.clear();
-                        ss_kmer_1<<le[number_buff][w];
-                        kmer_1=ss_kmer_1.str();
-                        
-                        stringstream ss_kmer_2;
-                        ss_kmer_2.clear();
-                        ss_kmer_2<<rs[number_buff][w];
-                        kmer_2=ss_kmer_2.str();
-                        
-                        stringstream ss_kmer_3;
-                        ss_kmer_3.clear();
-                        ss_kmer_3<<re[number_buff][w];
-                        kmer_3=ss_kmer_3.str();
-                        
-                        string kmer_index;
-                        kmer_index=name_tag+"."+kmer_0.c_str()+"."+kmer_1.c_str()+"."+kmer_2.c_str()+"."+kmer_3.c_str()+".5kmer.fasta";
-                        
-                        //cout<<kmer_index<<endl;
-                        
-                        ifstream file26;
-                        
-                        string sys_kmer_index = WD_dir+kmer_index;
-                        char *syst_kmer_index = new char[sys_kmer_index.length()+1];
-                        strcpy(syst_kmer_index, sys_kmer_index.c_str());
-                        
-                        file26.open(syst_kmer_index);
-                        
-                        string input_kmer;
-                        file26>>input_kmer;
-                        file26>>input_kmer;
-                        
-                        file4<<'\t'<<input_kmer<<'\t';
-                        
-                        file26.close();
-                        file26.clear();
-                        */
 //whole insertin sequence output
                         
                         if(orien[i]=="+"){
@@ -1855,7 +1774,6 @@ int calling(string WD_dir, string t, int tsd_index){
                                 file4<<seq3[n];
                             }
                             file4<<'\t';
-                            file4<<'\t';
                             if(re_new>=info[read_seq][3].length()-BIN_buff){
                                 file4<<"N/A";
                             }
@@ -1869,50 +1787,7 @@ int calling(string WD_dir, string t, int tsd_index){
 //5' 26mer output
                         file4<<'\t'<<kmerseq_tsd[number_buff][w]<<'\t';
                         
-                        /*
-                        string kmer_0, kmer_1, kmer_2, kmer_3;
-                        stringstream ss_kmer_0;
-                        ss_kmer_0.clear();
-                        ss_kmer_0<<ls[number_buff][w];
-                        kmer_0=ss_kmer_0.str();
-                        
-                        stringstream ss_kmer_1;
-                        ss_kmer_1.clear();
-                        ss_kmer_1<<le[number_buff][w];
-                        kmer_1=ss_kmer_1.str();
-                        
-                        stringstream ss_kmer_2;
-                        ss_kmer_2.clear();
-                        ss_kmer_2<<rs[number_buff][w];
-                        kmer_2=ss_kmer_2.str();
-                        
-                        stringstream ss_kmer_3;
-                        ss_kmer_3.clear();
-                        ss_kmer_3<<re[number_buff][w];
-                        kmer_3=ss_kmer_3.str();
-                        
-                        string kmer_index;
-                        kmer_index=name_tag+"."+kmer_0.c_str()+"."+kmer_1.c_str()+"."+kmer_2.c_str()+"."+kmer_3.c_str()+".5kmer.fasta";
-                        
-                        //cout<<kmer_index<<endl;
-                        
-                        ifstream file26;
-                        
-                        string sys_kmer_index = WD_dir+kmer_index;
-                        char *syst_kmer_index = new char[sys_kmer_index.length()+1];
-                        strcpy(syst_kmer_index, sys_kmer_index.c_str());
-                        
-                        file26.open(syst_kmer_index);
-                        
-                        string input_kmer;
-                        file26>>input_kmer;
-                        file26>>input_kmer;
-                        
-                        file4<<'\t'<<input_kmer<<'\t';
-                        
-                        file26.close();
-                        file26.clear();
-                        */
+                       
 //whole insertin sequence output
                         
                         if(orien[i]=="+"){

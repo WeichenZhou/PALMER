@@ -3,7 +3,7 @@ CPP_FILES = $(shell ls *.cpp)
 BASE = $(basename $(CPP_FILES))
 
 $(TARGET):$(OBJS)
-	g++ -o $(TARGET) $(BASE).cpp -O3 -w -std=c++11
+	g++ -o $(TARGET) $(BASE).cpp -O3 -w -std=c++11 -pthread
 
 clean :
 	rm PALMER

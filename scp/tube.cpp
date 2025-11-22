@@ -26,7 +26,7 @@
 #include "8_calling.cpp"
 using namespace std;
 
-int tube(string working_dir, string input_bam, string chr, int start, int end, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len, string mode, int mapq){
+int tube(string working_dir, string input_bam, string chr, int start, int end, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len, string mode, int mapq, int intermediate){
     
     //std::ios::sync_with_stdio(false);
     //std::cin.tie(0);
@@ -131,6 +131,14 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
     calling(WD_tube, type, tsd);
     cout<<"Calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
+
+    if(intermediate==0){
+        string clean_cmd = "find \"" + WD_tube + "\" -mindepth 1 ! -name 'calls.txt' ! -name 'TSD_output.txt' -exec rm -rf {} +";
+        char *syst_clean_cmd = new char[clean_cmd.length()+1];
+        strcpy(syst_clean_cmd, clean_cmd.c_str());
+        system(syst_clean_cmd);
+        delete [] syst_clean_cmd;
+    }
     
     return 0;
 }
