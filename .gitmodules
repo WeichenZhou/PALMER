@@ -1,6 +1,0 @@
-[submodule "samtools"]
-	path = samtools
-	url = https://github.com/samtools/samtools.git
-[submodule "htslib"]
-	path = htslib
-	url = https://github.com/samtools/htslib.git
