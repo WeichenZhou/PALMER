@@ -400,12 +400,10 @@ string genotype_calls(const string &calls_path, const string &bam_path, int mapq
         }
 
         double alt_reads = idx < normalized.size() ? observations[idx] : 0.0;
-        double total_reads = alt_reads;
-        if (coverage_est > 0.0 && isfinite(coverage_est)) {
-            total_reads = coverage_est;
-        }
+        bool has_coverage = coverage_est > 0.0 && isfinite(coverage_est);
+        double total_reads = has_coverage ? coverage_est : 0.0;
 
-        if (total_reads < alt_reads) {
+        if (has_coverage && total_reads < alt_reads) {
             total_reads = alt_reads;
         }
 
