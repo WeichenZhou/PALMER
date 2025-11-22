@@ -206,7 +206,7 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
     return length_sum / static_cast<double>(read_count);
 }
 
-double estimate_local_coverage(const string &bam_path, const string &chrom, long long pos, long long bin_size = 10000) {
+double estimate_local_coverage(const string &bam_path, const string &chrom, long long pos, int mapq_threshold, long long bin_size = 10000) {
     if (chrom.empty() || pos <= 0) {
         return -1.0;
     }
@@ -218,7 +218,7 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
     stringstream region;
     region << chrom << ":" << region_start << "-" << region_end;
 
-    string command = "samtools depth -aa -F 0x700 -r " + region.str() + " " + bam_path;
+    string command = "samtools view -F 0x700 -q " + to_string(mapq_threshold) + " -b " + bam_path + " | samtools depth -a -r " + region.str() + " -";
     FILE *pipe = popen(command.c_str(), "r");
     if (!pipe) {
         return -1.0;
@@ -248,7 +248,7 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
     return depth_sum / static_cast<double>(position_count);
 }
 
-string genotype_calls(const string &calls_path, const string &bam_path) {
+string genotype_calls(const string &calls_path, const string &bam_path, int mapq_threshold) {
     ifstream calls_stream(calls_path);
     if (!calls_stream.is_open()) {
         cerr << "CANNOT OPEN MERGED CALLS FILE: " << calls_path << endl;
@@ -306,7 +306,7 @@ string genotype_calls(const string &calls_path, const string &bam_path) {
                 if (it != coverage_cache.end()) {
                     coverage_estimate = it->second;
                 } else {
-                    coverage_estimate = estimate_local_coverage(bam_path, chrom, pos_val, 10000);
+                    coverage_estimate = estimate_local_coverage(bam_path, chrom, pos_val, mapq_threshold, 10000);
                     coverage_cache[cache_key] = coverage_estimate;
                 }
             }
@@ -1834,7 +1834,7 @@ int main(int argc, char *argv[]){
     string calls_for_vcf = sys_final_title;
     if(run_genotyping==1){
         cout<<"Genotyping enabled (--GT=1). Running genotyping module."<<endl;
-        calls_for_vcf = genotype_calls(sys_final_title, inputF);
+        calls_for_vcf = genotype_calls(sys_final_title, inputF, mapq_int);
     }
     else {
         cout<<"Genotyping skipped (--GT=0)."<<endl;
