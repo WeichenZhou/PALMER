@@ -399,24 +399,46 @@ string genotype_calls(const string &calls_path, const string &bam_path, int mapq
             coverage_str = cov_ss.str();
         }
 
-        double p_low = 0.0;
-        double p_high = 0.0;
-        if (model.components.size() == 2) {
-            p_low = model.components[low_idx].weight * generalized_gaussian_pdf(value, model.components[low_idx].mean, model.components[low_idx].alpha, model.beta);
-            p_high = model.components[high_idx].weight * generalized_gaussian_pdf(value, model.components[high_idx].mean, model.components[high_idx].alpha, model.beta);
+        double alt_reads = idx < normalized.size() ? observations[idx] : 0.0;
+        bool has_coverage = coverage_est > 0.0 && isfinite(coverage_est);
+        double total_reads = has_coverage ? coverage_est : 0.0;
+
+        if (has_coverage && total_reads < alt_reads) {
+            total_reads = alt_reads;
         }
+
+        double ref_reads = max(total_reads - alt_reads, 0.0);
 
         const double tiny = 1e-12;
-        double p_ref = tiny;
-        double total_prob = p_ref + p_low + p_high;
-        if (total_prob < tiny) {
-            total_prob = tiny;
-        }
+        auto log_likelihood = [&](double allele_fraction) {
+            double p = min(max(allele_fraction, tiny), 1.0 - tiny);
+            return alt_reads * log10(p) + ref_reads * log10(1.0 - p);
+        };
 
         vector<double> gl_values(3, log10(tiny));
-        gl_values[0] = log10(max(p_ref / total_prob, tiny));
-        gl_values[1] = log10(max(p_low / total_prob, tiny));
-        gl_values[2] = log10(max(p_high / total_prob, tiny));
+        if (total_reads > tiny) {
+            gl_values[0] = log_likelihood(0.01);  // ~0% alt allele for 0/0
+            gl_values[1] = log_likelihood(0.5);   // ~50% alt allele for 0/1
+            gl_values[2] = log_likelihood(0.99);  // ~100% alt allele for 1/1
+        }
+        else {
+            double p_low = 0.0;
+            double p_high = 0.0;
+            if (model.components.size() == 2) {
+                p_low = model.components[low_idx].weight * generalized_gaussian_pdf(value, model.components[low_idx].mean, model.components[low_idx].alpha, model.beta);
+                p_high = model.components[high_idx].weight * generalized_gaussian_pdf(value, model.components[high_idx].mean, model.components[high_idx].alpha, model.beta);
+            }
+
+            double p_ref = tiny;
+            double total_prob = p_ref + p_low + p_high;
+            if (total_prob < tiny) {
+                total_prob = tiny;
+            }
+
+            gl_values[0] = log10(max(p_ref / total_prob, tiny));
+            gl_values[1] = log10(max(p_low / total_prob, tiny));
+            gl_values[2] = log10(max(p_high / total_prob, tiny));
+        }
 
         double max_gl = *max_element(gl_values.begin(), gl_values.end());
         vector<int> pl_values(3, 999);
@@ -431,16 +453,8 @@ string genotype_calls(const string &calls_path, const string &bam_path, int mapq
             gq_value = pl_sorted[1];
         }
 
-        string genotype = "UNK";
-        if (model.components.size() == 2) {
-            double total = p_low + p_high;
-            double confidence = total > 0.0 ? fabs(p_low - p_high) / total : 0.0;
-            if (confidence < 0.05) {
-                genotype = "UNK";
-            } else {
-                genotype = (value < boundary) ? "0/1" : "1/1";
-            }
-        }
+        size_t best_gl_idx = distance(gl_values.begin(), max_element(gl_values.begin(), gl_values.end()));
+        string genotype = (best_gl_idx == 0) ? "0/0" : (best_gl_idx == 1) ? "0/1" : "1/1";
 
         stringstream gl_stream;
         gl_stream << fixed << setprecision(3) << gl_values[0] << ',' << gl_values[1] << ',' << gl_values[2];
