@@ -171,7 +171,7 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
         return -1.0;
     }
 
-    char buffer[4096];
+    char buffer[65536];
     size_t read_count = 0;
     double length_sum = 0.0;
 
@@ -206,6 +206,49 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
     return length_sum / static_cast<double>(read_count);
 }
 
+static string g_filtered_bam_path;
+
+void cleanup_filtered_bam() {
+    if (g_filtered_bam_path.empty()) {
+        return;
+    }
+    remove(g_filtered_bam_path.c_str());
+    string temp_bai = g_filtered_bam_path + ".bai";
+    remove(temp_bai.c_str());
+}
+
+string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
+    if (!g_filtered_bam_path.empty()) {
+        return g_filtered_bam_path;
+    }
+
+    char temp_template[] = "/tmp/palmer_cov_XXXXXX.bam";
+    int temp_fd = mkstemps(temp_template, 4);
+    if (temp_fd == -1) {
+        return string();
+    }
+    close(temp_fd);
+
+    g_filtered_bam_path = string(temp_template);
+    atexit(cleanup_filtered_bam);
+
+    string filter_command = "samtools view -F 0x700 -q " + to_string(mapq_threshold) + " -b " + bam_path + " > " + g_filtered_bam_path;
+    if (system(filter_command.c_str()) != 0) {
+        cleanup_filtered_bam();
+        g_filtered_bam_path.clear();
+        return string();
+    }
+
+    string index_command = "samtools index " + g_filtered_bam_path;
+    if (system(index_command.c_str()) != 0) {
+        cleanup_filtered_bam();
+        g_filtered_bam_path.clear();
+        return string();
+    }
+
+    return g_filtered_bam_path;
+}
+
 double estimate_local_coverage(const string &bam_path, const string &chrom, long long pos, int mapq_threshold, long long bin_size = 10000) {
     if (chrom.empty() || pos <= 0) {
         return -1.0;
@@ -218,13 +261,18 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
     stringstream region;
     region << chrom << ":" << region_start << "-" << region_end;
 
-    string command = "samtools view -F 0x700 -q " + to_string(mapq_threshold) + " -b " + bam_path + " | samtools depth -a -r " + region.str() + " -";
-    FILE *pipe = popen(command.c_str(), "r");
+    string filtered_bam = prepare_filtered_bam(bam_path, mapq_threshold);
+    if (filtered_bam.empty()) {
+        return -1.0;
+    }
+
+    string depth_command = "samtools depth -a -r " + region.str() + " " + filtered_bam;
+    FILE *pipe = popen(depth_command.c_str(), "r");
     if (!pipe) {
         return -1.0;
     }
 
-    char buffer[4096];
+    char buffer[65536];
     long long position_count = 0;
     double depth_sum = 0.0;
 
