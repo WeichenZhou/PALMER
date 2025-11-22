@@ -1,17 +1,16 @@
-# PALMER
+# PALMER Ver2.2
 
-Pre-mAsking Long reads for Mobile Element inseRtion
-
-* PALMER detects non-reference MEI events (LINE, Alu, SVA, and HERVK) and other insertions by using the indexed reference-aligned BAM/CRAM files from long-read technology as inputs. It masks the aligned portions of reads, defines the significant characteristics of MEIs (TSD motifs, 5' inverted sequence, 3' transduction sequence, polyA-tail), and reports sequences for each insertion event.
-* The ideal structure of an MEI event would be 5’-TSD-(5'inverted)-MEI-polyA-(TransD-polyA)-TSD-3’.
-* PALMER can detect other categories (e.g. numts) of non-reference insertion sequences under the customized setup by the user.
+* PALMER detects non-reference MEIs (LINE, Alu, SVA, and HERVK) and other insertions (e.g. NUMTs, HPV insertions).
+* PALMER detects non-reference germline and somatic signals of your interest. 
+* PALMER detects non-reference signals from long-read WGS data, assembled contigs, targeted long-reads (see NanoPal, https://github.com/WeichenZhou/NanoPal-and-Cas9-targeted-enrichment-pipelines), and single-cell long-reads (see PALMESOM, https://github.com/HelloYanming/PALMESOM).
+* PALMER utilizes multi-threads for runs and outputs vcf files.
+* For MEIs, it characterizes hallmark feature within MEIs including TSD motifs, 5' inverted sequence, 5' or 3' transduction sequence, polyA-tail, and reports sequences for each high-confidence candidate insertion. The ideal structure of an MEI event would be 5’-TSD-(5'TransD)-(5'inverted)-MEI-polyA-(3'TransD-polyA)-TSD-3’.
 
 Required resources:
 ```
  samtools/1.3.1  https://github.com/samtools/samtools
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
 ```
-
 
 ## Getting started
 
@@ -66,6 +65,9 @@ Optional
 --mapq (default: MAPQ=10)
         the minimum MAPQ of the read for PALMER to process
 
+--thread (default: number of available hardware threads)
+        number of concurrent region workers to launch during preprocessing and calling
+
 --len_custom_seq (MUST set up when activating TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)
          interger value for the length of your customized sequence WITHOUT polyA tact
 
@@ -74,6 +76,9 @@ Optional
 
 --output (default: output)
          the prefix of the output file
+
+--intermediate (optional, default: 0)
+         omit to delete intermediate subfolders after completion; set to 1 to retain them
 ```
 
 Examples
@@ -116,17 +121,24 @@ We have two outputs: 'output_calls.txt' & 'output_TSD_reads.txt'.
 
 'output_TSD_reads.txt' contains all details you want for the high confident (HC) supporting reads (SRs).
 
-## Note 
+## Recommendation (VERY IMPORTANT)
+
+* Please use ncbi-blast++/2.10.0 for better efficiency than other versions. Otherwise, please use `export BLAST_USAGE_REPORT=0` and add it to your shell config (.bashrc / .zshrc) for persistent behavior.
+* Resource: to run PALMER on chr1/GRCh38, calling would cost ~24 CPU hours (LINE-1/GRCh37), ~28 CPU hours (Alu), or ~4 CPU hours (SVA), for 8 GB running memory minimum.
+
+* Please run PALMER in parallel in separate chromosomes.
+* Recommended for a single-node run: Use --cpus-per-task=N in sbatch (or srun if launching via srun) to reserve N cores; Run PALMER with --thread N to actually use those N cores.
+* Keep --ntasks-per-node=1 for a single PALMER process; increase --ntasks-per-node only if you intend to run multiple independent PALMER jobs on different chromosomes simultaneously (each with its own --thread limit and matching --cpus-per-task request).
 
 * By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
-* Resource: to run PALMER on chr1/GRCh38, calling would cost ~24 hours (LINE-1/GRCh37), ~28 hours (Alu), or ~4 hours (SVA), for 8 GB running memory minimum.
-* Please run PALMER in parallel in separate chromosomes.
-* Please use ncbi-blast++/2.10.0 for better efficiency than other versions.
+* Currently, please set a reasonable cutoff for somatic insertion signals. 
+
+* If you retain the intermediate files for other usages, please be cautious that the number of files would be very large.
 * If you have trouble running  Ver2.1.1, especially on ALUs, please use Ver2.0.1.
 
 ## Citation
 
-For PALMER /* where it begins */:
+For PALMER /* where it begins (Pre-mAsking Long reads for Mobile Element inseRtion) */:
 * Weichen Zhou et al., [Identification and characterization of occult human-specific LINE-1 insertions using long-read sequencing technology](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1173/5680708), Nucleic Acids Research, 2019, gkz1173, `https://doi.org/10.1093/nar/gkz1173`
 
 For TEnCATS/NanoPal:
@@ -143,10 +155,19 @@ For SMaHT benchmarking:
 * arthurz@umich.edu
 
 ## Logs
+**Ver2.2** Dec.25th.2025! PALMER2.2. Melly Chlistmas!
+
+* Add a module for multi-threads. 
+* Add a module to output to VCF files.
+* Disable function of blastn of reporting usage statistics to NCBI.
+* Add a module for removing (or keeping) intermediate files to avoid crashing file system.
+* Minor format bugs fixed.
+* README updated.
+
 **Ver2.1.1** Aug.20th.2025! PALMER2.1 
 
 * Frozen version for SMaHT "Benchmarking and integrative detection of low frequency somatic mobile element insertions in human tissue". Good luck!
-* A major bug in calling when the sequencing depth is very deep. It stole the supporting reads.
+* A major bug in calling when the sequencing depth is very deep. It stealed the supporting reads.
 * Add an option to set MAPQ
 * Minor bugs fixed
 
@@ -265,3 +286,7 @@ For SMaHT benchmarking:
 * Alu and SAV detection module online.
 
 **Ver1.0** Feb.14th.2018
+
+
+## COPYRIGHT
+ArthurZhou @ UMich&Fudan&HUST
