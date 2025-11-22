@@ -3,7 +3,7 @@
 * PALMER detects non-reference MEIs (LINE, Alu, SVA, and HERVK) and other insertions (e.g., NUMTs, HPV insertions).
 * PALMER detects non-reference germline and somatic signals of your interest. 
 * PALMER detects non-reference signals from long-read WGS data, assembled contigs, targeted long-reads (see NanoPal, https://github.com/WeichenZhou/NanoPal-and-Cas9-targeted-enrichment-pipelines), and single-cell long-reads (see PALMESOM, https://github.com/HelloYanming/PALMESOM).
-* PALMER utilizes multi-threads for runs and outputs VCF files.
+* PALMER utilizes multi-threads for runs and outputs calls and genotypes (use caution) in VCF.
 * For MEIs, it characterizes hallmark features within MEIs, including TSD motifs, 5' inverted sequence, 5' or 3' transduction sequence, polyA-tail, and reports sequences for each high-confidence candidate insertion. The ideal structure of an MEI event would be 5’-TSD-(5'TransD)-(5'inverted)-MEI-polyA-(3'TransD-polyA)-TSD-3’.
 
 Required resources:
