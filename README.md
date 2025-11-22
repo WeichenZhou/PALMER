@@ -170,6 +170,7 @@ For SMaHT benchmarking:
 * Add a module for removing (or keeping) intermediate files to avoid crashing the file system.
 * Add a genotyping module based on a Generalized Gaussian Mixture model. But still under development.
 * Minor format bugs fixed.
+* Example updated.
 * Scripts cleaned.
 * README updated.
 
