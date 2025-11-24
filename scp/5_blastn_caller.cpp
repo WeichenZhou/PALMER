@@ -1,19 +1,5 @@
 ////copyright by ArthurZhou @ UMich&Fudan&HUST
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <string.h>
-#include <fstream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-#include <iomanip>
-#include <cstdlib>
-
-using namespace std;
+#include "common.hpp"
 
 int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len){
         

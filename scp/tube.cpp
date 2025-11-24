@@ -1,21 +1,5 @@
 //copyright by ArthurZhou @ UMich&Fudan&HUST
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <string.h>
-#include <fstream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-#include <iomanip>
-#include <cstdlib>
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "common.hpp"
 #include "1_samtools.cpp"
 //#include "2_rm_selector.cpp"
 #include "3_read_masker.cpp"
@@ -24,7 +8,6 @@
 #include "6_TSD_seq.cpp"
 #include "7_FP_ex.cpp"
 #include "8_calling.cpp"
-using namespace std;
 
 int tube(string working_dir, string input_bam, string chr, int start, int end, string type, int ref_n, string direc, string ref_fa, int tsd, int L_len, int cus_seq_len, string mode, int mapq, int intermediate){
     

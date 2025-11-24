@@ -1,22 +1,5 @@
 //copyright by ArthurZhou @ UMich&Fudan&HUST
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <string.h>
-#include <fstream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-#include <iomanip>
-#include <cstdlib>
-#include <numeric>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-using namespace std;
+#include "common.hpp"
 
 int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     
