@@ -1,21 +1,5 @@
 //copyright by ArthurZhou @ UMich&Fudan&HUST
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <string.h>
-#include <fstream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-#include <iomanip>
-#include <cstdlib>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-using namespace std;
+#include "common.hpp"
 
 int tsd_module(string WD_dir, string t, int tsd_index){
     

@@ -1,19 +1,5 @@
 ////copyright by ArthurZhou @ UMich&Fudan&HUST
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <string.h>
-#include <fstream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-#include <iomanip>
-#include <cstdlib>
-
-using namespace std;
+#include "common.hpp"
 
 int samtools(string working_dir, string input_bam, string chr, string start, string end, string fasta, string MAPQ){
 
