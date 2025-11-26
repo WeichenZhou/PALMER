@@ -590,8 +590,6 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
             }
             //file20.clear();
             //file20.close();
-            file21.close();
-            file21.clear();
         }
         
         for(int w=0;w!=line_tsd;++w){
