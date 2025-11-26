@@ -9,8 +9,31 @@
 Required resources:
 ```
  samtools/1.3.1  https://github.com/samtools/samtools
+ htslib development headers (pkg-config detectable, e.g., libhts-dev or htslib-devel)
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
 ```
+
+### Installing htslib
+PALMER uses htslib directly from C++; please install htslib **before** running `make` so that `pkg-config --cflags --libs htslib` succeeds.
+
+Common options:
+
+* Ubuntu/Debian: `sudo apt-get install libhts-dev`
+* CentOS/RHEL/Fedora: `sudo yum install htslib-devel`
+* Homebrew (macOS): `brew install htslib`
+* Conda: `conda install -c bioconda htslib`
+
+From source (https://github.com/samtools/htslib):
+```bash
+git clone https://github.com/samtools/htslib.git
+cd htslib
+autoheader && autoconf   # skip if using a release tarball
+./configure
+make
+sudo make install
+```
+
+After installing, verify that `pkg-config --libs htslib` returns linker flags (for example, `-lhts`) before building PALMER.
 
 ## Getting started
 
@@ -18,6 +41,7 @@ Download and Install
 ```
 git clone https://github.com/WeichenZhou/PALMER.git
 cd PALMER
+# Install htslib headers/libraries so that `pkg-config --cflags --libs htslib` succeeds
 make
 ```
 
