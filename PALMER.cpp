@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "scp/common.hpp"
 #include "scp/tube.cpp"
 
 using namespace std;
@@ -165,40 +166,35 @@ GgmResult fit_generalized_gaussian_mixture(const vector<double> &values, double 
 }
 
 double estimate_average_read_length(const string &bam_path, size_t max_reads = 2000) {
-    string command = "samtools view -F 0x700 " + bam_path + " | head -n " + to_string(max_reads);
-    FILE *pipe = popen(command.c_str(), "r");
-    if (!pipe) {
-        return -1.0;
-    }
-
-    char buffer[65536];
+    vector<string> args = {"samtools", "view", "-F", "0x700", bam_path};
     size_t read_count = 0;
     double length_sum = 0.0;
 
-    while (fgets(buffer, sizeof(buffer), pipe)) {
-        string line(buffer);
-        if (!line.empty() && line[0] == '@') {
-            continue;
-        }
-
-        stringstream ss(line);
-        string field;
-        int field_index = 0;
-        while (getline(ss, field, '\t')) {
-            if (field_index == 9) {
-                length_sum += static_cast<double>(field.size());
-                ++read_count;
-                break;
+    stream_process_output(args, [&](const char *buffer, ssize_t count) {
+        string chunk(buffer, static_cast<size_t>(count));
+        stringstream ss(chunk);
+        string line;
+        while (getline(ss, line)) {
+            if (!line.empty() && line[0] == '@') {
+                continue;
             }
-            ++field_index;
+            stringstream line_ss(line);
+            string field;
+            int field_index = 0;
+            while (getline(line_ss, field, '\t')) {
+                if (field_index == 9) {
+                    length_sum += static_cast<double>(field.size());
+                    ++read_count;
+                    break;
+                }
+                ++field_index;
+            }
+            if (read_count >= max_reads) {
+                return false;
+            }
         }
-
-        if (read_count >= max_reads) {
-            break;
-        }
-    }
-
-    pclose(pipe);
+        return read_count < max_reads;
+    });
     if (read_count == 0) {
         return -1.0;
     }
@@ -232,15 +228,16 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     g_filtered_bam_path = string(temp_template);
     atexit(cleanup_filtered_bam);
 
-    string filter_command = "samtools view -F 0x700 -q " + to_string(mapq_threshold) + " -b " + bam_path + " > " + g_filtered_bam_path;
-    if (system(filter_command.c_str()) != 0) {
+    vector<string> filter_args = {"samtools", "view", "-F", "0x700", "-q", to_string(mapq_threshold),
+                                 "-b", bam_path};
+    if (run_process(filter_args, g_filtered_bam_path) != 0) {
         cleanup_filtered_bam();
         g_filtered_bam_path.clear();
         return string();
     }
 
-    string index_command = "samtools index " + g_filtered_bam_path;
-    if (system(index_command.c_str()) != 0) {
+    vector<string> index_args = {"samtools", "index", g_filtered_bam_path};
+    if (run_process(index_args) != 0) {
         cleanup_filtered_bam();
         g_filtered_bam_path.clear();
         return string();
@@ -266,29 +263,29 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
         return -1.0;
     }
 
-    string depth_command = "samtools depth -a -r " + region.str() + " " + filtered_bam;
-    FILE *pipe = popen(depth_command.c_str(), "r");
-    if (!pipe) {
-        return -1.0;
-    }
-
-    char buffer[65536];
+    vector<string> depth_args = {"samtools", "depth", "-a", "-r", region.str(), filtered_bam};
     long long position_count = 0;
     double depth_sum = 0.0;
 
-    while (fgets(buffer, sizeof(buffer), pipe)) {
-        string line(buffer);
-        if (line.empty()) continue;
-        stringstream ss(line);
-        string ref_name;
-        long long pos_value = 0;
-        double depth = 0.0;
-        ss >> ref_name >> pos_value >> depth;
-        depth_sum += depth;
-        ++position_count;
+    bool success = stream_process_output(depth_args, [&](const char *buffer, ssize_t count) {
+        string chunk(buffer, static_cast<size_t>(count));
+        stringstream ss(chunk);
+        string depth_line;
+        while (getline(ss, depth_line)) {
+            if (depth_line.empty()) continue;
+            stringstream line_ss(depth_line);
+            string ref_name;
+            long long pos_value = 0;
+            double depth = 0.0;
+            line_ss >> ref_name >> pos_value >> depth;
+            depth_sum += depth;
+            ++position_count;
+        }
+        return true;
+    });
+    if (!success) {
+        return -1.0;
     }
-
-    pclose(pipe);
     if (position_count == 0) {
         return -1.0;
     }

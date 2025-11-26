@@ -1,5 +1,6 @@
 ////copyright by ArthurZhou @ UMich&Fudan&HUST
 #include "common.hpp"
+#include <array>
 
 int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len){
         
@@ -16,16 +17,6 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         }
     }
     
-    string sys_blastncaller;
-    
-    sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
-    
-    
-    char *syst_blastncaller = new char[sys_blastncaller.length()+1];
-    strcpy(syst_blastncaller, sys_blastncaller.c_str());
-    
-    system(syst_blastncaller);
-     
 //Blastn Caller
     string sys_cigar = WD_dir+"cigar.2";
     char *syst_cigar =  new char[sys_cigar.length()+1];
@@ -40,18 +31,12 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         //exit(1);
         return 0;
     }
-    
-    string sys_blastnrefine = WD_dir+"blastn_refine.txt";
-    char *syst_blastnrefine =  new char[sys_blastnrefine.length()+1];
-    strcpy(syst_blastnrefine, sys_blastnrefine.c_str());
-    
-    ifstream file2;
-    file2.open(syst_blastnrefine);
-    
+
+    string blast_path = WD_dir+"blastn.txt";
+    ifstream file2(blast_path);
     if (!file2.is_open())
     {
-        cout <<"CANNOT OPEN FILE, 'blastn_refine.txt'"<< endl;
-        //exit(1);
+        cout <<"CANNOT OPEN FILE, 'blastn.txt'"<< endl;
         return 0;
     }
 
@@ -72,64 +57,56 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     string sys_readresult = WD_dir+"read_result_pre.txt";
     char *syst_readresult =  new char[sys_readresult.length()+1];
     strcpy(syst_readresult, sys_readresult.c_str());
-    
+
     ofstream file5;
     file5.open(syst_readresult);
-    
-    //ifstream file6;
-    
-    int line;
+
+    vector<string> blast_raw;
     string input;
-    for(int i=0;!file3.eof();++i){
-        getline(file3,input);
-        line=i;
+    while (getline(file2, input)) {
+        if (!input.empty() && input[0] != '#') {
+            blast_raw.push_back(input);
+        }
     }
-    int blast;
-    for(int i=0;!file2.eof();++i){
-        getline(file2,input);
-        blast=i;
-    }
-    
-    file3.close();
-    file3.clear();
-    file3.open(syst_selecinfo);
-    
     file2.close();
-    file2.clear();
-    file2.open(syst_blastnrefine);
-    
-    int **bla;
-    bla=new int*[blast];
-    for(int i=0;i!=blast;++i) bla[i]=new int[8];
-    
-    string *bla_name;
-    bla_name=new string[blast];
-    
-    string *orient;
-    orient = new string[blast];
-    
-    string **read;
-    read=new string*[line];
-    for(int i=0;i!=line;++i) read[i]=new string[4];
-    int *read_loc;
-    read_loc= new int[line];
-    int *read_le;
-    read_le= new int[line];
-    
-    
-    for(int i=0;i!=blast;++i){
-        file2>>input;
-        file2>>bla_name[i];     //read name
-        file2>>input;
-        file2>>bla[i][0];       //L1 s
-        file2>>bla[i][1];       //L1 e
-        file2>>bla[i][2];       //read s
-        file2>>bla[i][3];       //read e
-        orient[i]="+";          //orientation
-        bla[i][4]=0;            //insert site s
-        bla[i][5]=0;            //insert site e
-        bla[i][6]=0;            //flag_bn
+
+    int blast = static_cast<int>(blast_raw.size());
+
+    int line = 0;
+    while (getline(file3, input)) {
+        if (!input.empty()) {
+            ++line;
+        }
     }
+
+    file3.clear();
+    file3.seekg(0);
+
+    vector<array<int,8>> bla(blast, array<int,8>{});
+    vector<string> bla_name(blast);
+    vector<string> orient(blast, "+");
+
+    for (int i = 0; i < blast; ++i) {
+        stringstream ss(blast_raw[i]);
+        string skip;
+        ss >> skip;            // qacc
+        ss >> bla_name[i];
+        ss >> skip;            // evalue
+        ss >> bla[i][0];       // L1 s
+        ss >> bla[i][1];       // L1 e
+        ss >> bla[i][2];       // read s
+        ss >> bla[i][3];       // read e
+        bla[i][4] = 0;
+        bla[i][5] = 0;
+        bla[i][6] = 0;
+        bla[i][7] = 0;
+    }
+
+    vector<array<string,4>> read(line);
+    vector<int> read_loc(line);
+    vector<int> read_le(line);
+    
+    
     for(int i=0;i!=line;++i){
         file1>>read[i][2];      //cigar
         file1>>input;   //tag #
@@ -659,23 +636,6 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     delete [] name;
     
-    
-    for(int i=0;i!=blast;++i){
-        delete [] bla[i];
-        //delete [] sam_loc[i];
-    }
-    delete [] bla;
-    
-    for(int i=0;i!=line;++i){
-        delete [] read[i];
-        //delete [] sam_loc[i];
-    }
-    delete [] read;
-    
-    delete [] bla_name;
-    delete [] orient;
-    delete [] read_loc;
-    delete [] read_le;
     
     file1.close();
     file1.clear();
