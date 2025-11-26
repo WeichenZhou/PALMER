@@ -213,23 +213,6 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
 
 static string g_filtered_bam_path;
 
-struct DepthAccumulator {
-    long long region_start = 0;
-    long long region_end = 0;
-    double depth_sum = 0.0;
-};
-
-int depth_callback(uint32_t /*tid*/, uint32_t pos, int n, const bam_pileup1_t * /*pl*/, void *data) {
-    DepthAccumulator *accumulator = static_cast<DepthAccumulator *>(data);
-    long long genomic_pos = static_cast<long long>(pos) + 1;  // 1-based
-    if (genomic_pos < accumulator->region_start || genomic_pos > accumulator->region_end) {
-        return 0;
-    }
-
-    accumulator->depth_sum += static_cast<double>(n);
-    return 0;
-}
-
 void cleanup_filtered_bam() {
     if (g_filtered_bam_path.empty()) {
         return;
@@ -381,21 +364,40 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
         return -1.0;
     }
 
-    DepthAccumulator accumulator;
-    accumulator.region_start = region_start;
-    accumulator.region_end = region_end;
-
-    bam_plbuf_t *plbuf = bam_plbuf_init(depth_callback, &accumulator);
     bam1_t *record = bam_init1();
 
     int read_status = 0;
+    long long coverage_sum = 0;
     while ((read_status = sam_itr_next(fp, itr, record)) >= 0) {
-        bam_plbuf_push(record, plbuf);
+        if (record->core.flag & BAM_FUNMAP) {
+            continue;
+        }
+
+        long long ref_pos = static_cast<long long>(record->core.pos) + 1;  // 1-based
+        uint32_t *cigar = bam_get_cigar(record);
+
+        for (uint32_t i = 0; i < record->core.n_cigar; ++i) {
+            int op = bam_cigar_op(cigar[i]);
+            long long op_len = static_cast<long long>(bam_cigar_oplen(cigar[i]));
+
+            if (op == BAM_CMATCH || op == BAM_CEQUAL || op == BAM_CDIFF) {
+                long long ref_start = ref_pos;
+                long long ref_end = ref_pos + op_len - 1;
+                long long overlap_start = max(region_start, ref_start);
+                long long overlap_end = min(region_end, ref_end);
+
+                if (overlap_start <= overlap_end) {
+                    coverage_sum += overlap_end - overlap_start + 1;
+                }
+
+                ref_pos += op_len;
+            } else if (op == BAM_CDEL || op == BAM_CREF_SKIP) {
+                ref_pos += op_len;
+            }
+        }
     }
-    bam_plbuf_push(nullptr, plbuf);
 
     bam_destroy1(record);
-    bam_plbuf_destroy(plbuf);
     hts_itr_destroy(itr);
     hts_idx_destroy(idx);
     bam_hdr_destroy(header);
@@ -406,7 +408,7 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
         return -1.0;
     }
 
-    return accumulator.depth_sum / static_cast<double>(region_length);
+    return coverage_sum / static_cast<double>(region_length);
 }
 
 string genotype_calls(const string &calls_path, const string &bam_path, int mapq_threshold) {
