@@ -15,6 +15,8 @@
 #include <numeric>
 #include <cstdio>
 
+#include <htslib/sam.h>
+
 #include <unordered_map>
 #include <utility>
 #include <ctime>
@@ -165,40 +167,43 @@ GgmResult fit_generalized_gaussian_mixture(const vector<double> &values, double 
 }
 
 double estimate_average_read_length(const string &bam_path, size_t max_reads = 2000) {
-    string command = "samtools view -F 0x700 " + bam_path + " | head -n " + to_string(max_reads);
-    FILE *pipe = popen(command.c_str(), "r");
-    if (!pipe) {
+    htsFile *in = sam_open(bam_path.c_str(), "r");
+    if (!in) {
         return -1.0;
     }
 
-    char buffer[65536];
+    bam_hdr_t *header = sam_hdr_read(in);
+    if (!header) {
+        sam_close(in);
+        return -1.0;
+    }
+
+    bam1_t *record = bam_init1();
+    if (!record) {
+        bam_hdr_destroy(header);
+        sam_close(in);
+        return -1.0;
+    }
+
     size_t read_count = 0;
     double length_sum = 0.0;
 
-    while (fgets(buffer, sizeof(buffer), pipe)) {
-        string line(buffer);
-        if (!line.empty() && line[0] == '@') {
+    while (read_count < max_reads && sam_read1(in, header, record) >= 0) {
+        if (record->core.flag & 0x700) {
             continue;
         }
 
-        stringstream ss(line);
-        string field;
-        int field_index = 0;
-        while (getline(ss, field, '\t')) {
-            if (field_index == 9) {
-                length_sum += static_cast<double>(field.size());
-                ++read_count;
-                break;
-            }
-            ++field_index;
-        }
-
-        if (read_count >= max_reads) {
-            break;
+        int read_length = record->core.l_qseq;
+        if (read_length > 0) {
+            length_sum += static_cast<double>(read_length);
+            ++read_count;
         }
     }
 
-    pclose(pipe);
+    bam_destroy1(record);
+    bam_hdr_destroy(header);
+    sam_close(in);
+
     if (read_count == 0) {
         return -1.0;
     }
@@ -207,6 +212,23 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
 }
 
 static string g_filtered_bam_path;
+
+struct DepthAccumulator {
+    long long region_start = 0;
+    long long region_end = 0;
+    double depth_sum = 0.0;
+};
+
+int depth_callback(uint32_t /*tid*/, uint32_t pos, int n, const bam_pileup1_t * /*pl*/, void *data) {
+    DepthAccumulator *accumulator = static_cast<DepthAccumulator *>(data);
+    long long genomic_pos = static_cast<long long>(pos) + 1;  // 1-based
+    if (genomic_pos < accumulator->region_start || genomic_pos > accumulator->region_end) {
+        return 0;
+    }
+
+    accumulator->depth_sum += static_cast<double>(n);
+    return 0;
+}
 
 void cleanup_filtered_bam() {
     if (g_filtered_bam_path.empty()) {
@@ -232,15 +254,82 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     g_filtered_bam_path = string(temp_template);
     atexit(cleanup_filtered_bam);
 
-    string filter_command = "samtools view -F 0x700 -q " + to_string(mapq_threshold) + " -b " + bam_path + " > " + g_filtered_bam_path;
-    if (system(filter_command.c_str()) != 0) {
+    htsFile *in = sam_open(bam_path.c_str(), "r");
+    if (!in) {
         cleanup_filtered_bam();
         g_filtered_bam_path.clear();
         return string();
     }
 
-    string index_command = "samtools index " + g_filtered_bam_path;
-    if (system(index_command.c_str()) != 0) {
+    bam_hdr_t *header = sam_hdr_read(in);
+    if (!header) {
+        sam_close(in);
+        cleanup_filtered_bam();
+        g_filtered_bam_path.clear();
+        return string();
+    }
+
+    htsFile *out = sam_open(g_filtered_bam_path.c_str(), "wb");
+    if (!out) {
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam();
+        g_filtered_bam_path.clear();
+        return string();
+    }
+
+    if (sam_hdr_write(out, header) < 0) {
+        sam_close(out);
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam();
+        g_filtered_bam_path.clear();
+        return string();
+    }
+
+    bam1_t *record = bam_init1();
+    if (!record) {
+        sam_close(out);
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam();
+        g_filtered_bam_path.clear();
+        return string();
+    }
+
+    while (sam_read1(in, header, record) >= 0) {
+        if ((record->core.flag & 0x700) != 0) {
+            continue;
+        }
+
+        if (record->core.qual < mapq_threshold) {
+            continue;
+        }
+
+        if (sam_write1(out, header, record) < 0) {
+            bam_destroy1(record);
+            sam_close(out);
+            bam_hdr_destroy(header);
+            sam_close(in);
+            cleanup_filtered_bam();
+            g_filtered_bam_path.clear();
+            return string();
+        }
+    }
+
+    bam_destroy1(record);
+    if (sam_close(out) != 0) {
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam();
+        g_filtered_bam_path.clear();
+        return string();
+    }
+
+    bam_hdr_destroy(header);
+    sam_close(in);
+
+    if (sam_index_build3(g_filtered_bam_path.c_str(), nullptr, 0, 0) != 0) {
         cleanup_filtered_bam();
         g_filtered_bam_path.clear();
         return string();
@@ -266,34 +355,58 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
         return -1.0;
     }
 
-    string depth_command = "samtools depth -a -r " + region.str() + " " + filtered_bam;
-    FILE *pipe = popen(depth_command.c_str(), "r");
-    if (!pipe) {
+    htsFile *fp = sam_open(filtered_bam.c_str(), "r");
+    if (!fp) {
         return -1.0;
     }
 
-    char buffer[65536];
-    long long position_count = 0;
-    double depth_sum = 0.0;
-
-    while (fgets(buffer, sizeof(buffer), pipe)) {
-        string line(buffer);
-        if (line.empty()) continue;
-        stringstream ss(line);
-        string ref_name;
-        long long pos_value = 0;
-        double depth = 0.0;
-        ss >> ref_name >> pos_value >> depth;
-        depth_sum += depth;
-        ++position_count;
-    }
-
-    pclose(pipe);
-    if (position_count == 0) {
+    bam_hdr_t *header = sam_hdr_read(fp);
+    if (!header) {
+        sam_close(fp);
         return -1.0;
     }
 
-    return depth_sum / static_cast<double>(position_count);
+    hts_idx_t *idx = sam_index_load(fp, filtered_bam.c_str());
+    if (!idx) {
+        bam_hdr_destroy(header);
+        sam_close(fp);
+        return -1.0;
+    }
+
+    hts_itr_t *itr = sam_itr_querys(idx, header, region.str().c_str());
+    if (!itr) {
+        hts_idx_destroy(idx);
+        bam_hdr_destroy(header);
+        sam_close(fp);
+        return -1.0;
+    }
+
+    DepthAccumulator accumulator;
+    accumulator.region_start = region_start;
+    accumulator.region_end = region_end;
+
+    bam_plbuf_t *plbuf = bam_plbuf_init(depth_callback, &accumulator);
+    bam1_t *record = bam_init1();
+
+    int read_status = 0;
+    while ((read_status = sam_itr_next(fp, itr, record)) >= 0) {
+        bam_plbuf_push(record, plbuf);
+    }
+    bam_plbuf_push(nullptr, plbuf);
+
+    bam_destroy1(record);
+    bam_plbuf_destroy(plbuf);
+    hts_itr_destroy(itr);
+    hts_idx_destroy(idx);
+    bam_hdr_destroy(header);
+    sam_close(fp);
+
+    long long region_length = region_end - region_start + 1;
+    if (region_length <= 0) {
+        return -1.0;
+    }
+
+    return accumulator.depth_sum / static_cast<double>(region_length);
 }
 
 string genotype_calls(const string &calls_path, const string &bam_path, int mapq_threshold) {
@@ -573,6 +686,43 @@ vector<pair<string, long long>> load_contigs_from_fasta(const string &reference_
 
     flush_contig(current_contig, current_length);
     return contigs;
+}
+
+bool write_bam_header_index_lists(const string &bam_path, const string &output_dir, string &chr_path, string &length_path) {
+    htsFile *fp = sam_open(bam_path.c_str(), "r");
+    if (!fp) {
+        return false;
+    }
+
+    bam_hdr_t *header = sam_hdr_read(fp);
+    if (!header) {
+        sam_close(fp);
+        return false;
+    }
+
+    chr_path = output_dir + "chr.list";
+    length_path = output_dir + "length.list";
+
+    ofstream chr_out(chr_path);
+    ofstream len_out(length_path);
+    if (!chr_out.is_open() || !len_out.is_open()) {
+        bam_hdr_destroy(header);
+        sam_close(fp);
+        return false;
+    }
+
+    for (int i = 0; i < header->n_targets; ++i) {
+        chr_out << header->target_name[i] << '\n';
+        len_out << header->target_len[i] << '\n';
+    }
+
+    bool chr_ok = static_cast<bool>(chr_out);
+    bool len_ok = static_cast<bool>(len_out);
+
+    bam_hdr_destroy(header);
+    sam_close(fp);
+
+    return chr_ok && len_ok;
 }
 
 unordered_map<string, string> load_reference_sequences(const string &reference_path) {
@@ -1463,28 +1613,20 @@ int main(int argc, char *argv[]){
         
         string sys_build;
         sys_build="mkdir "+buildup;
-        
+
         char *syst_build = new char[sys_build.length()+1];
         strcpy(syst_build, sys_build.c_str());
         system(syst_build);
-        
-        string sys1;
-        sys1="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $3}' >"+buildup+"chr.list";
-        
-        string sys2;
-        sys2="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $5}' >"+buildup+"length.list";
-        
-        char *syst1 = new char[sys1.length()+1];
-        strcpy(syst1, sys1.c_str());
-        system(syst1);
-        
-        char *syst2 = new char[sys2.length()+1];
-        strcpy(syst2, sys2.c_str());
-        system(syst2);
-        
-        sys_region_index_chr=buildup+"chr.list";
-        sys_region_index_length=buildup+"length.list";
-        sys_region_index=buildup+"region.split.index";
+
+        string chr_list_path;
+        string length_list_path;
+        if (!write_bam_header_index_lists(inputF, buildup, chr_list_path, length_list_path)) {
+            cerr << "FAILED TO GENERATE HEADER INDEX LISTS FROM " << inputF << endl;
+        }
+
+        sys_region_index_chr = chr_list_path.empty() ? buildup + "chr.list" : chr_list_path;
+        sys_region_index_length = length_list_path.empty() ? buildup + "length.list" : length_list_path;
+        sys_region_index = buildup + "region.split.index";
     }
     //cout<<sys_region_index<<" "<<sys_line_region<<endl;
  //original

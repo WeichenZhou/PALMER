@@ -1,5 +1,36 @@
 //copyright by ArthurZhou @ UMich&Fudan&HUST
 #include "common.hpp"
+#include <htslib/faidx.h>
+
+bool write_region_fasta(const string &fasta, const string &region, const string &output_path) {
+    faidx_t *fai = fai_load(fasta.c_str());
+    if (!fai) {
+        return false;
+    }
+
+    int seq_len = 0;
+    char *seq = fai_fetch(fai, region.c_str(), &seq_len);
+    if (!seq) {
+        fai_destroy(fai);
+        return false;
+    }
+
+    ofstream out(output_path);
+    if (!out.is_open()) {
+        free(seq);
+        fai_destroy(fai);
+        return false;
+    }
+
+    out << '>' << region << '\n';
+    out.write(seq, seq_len);
+    out << '\n';
+
+    free(seq);
+    fai_destroy(fai);
+
+    return static_cast<bool>(out);
+}
 
 int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     
@@ -274,22 +305,14 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
             ss_e_junc.clear();
             ss_e_junc<<end_junc;
             s_end_junc=ss_e_junc.str();
-            
-            ofstream file21;
+
             string ref_junc_file;
             ref_junc_file=WD_dir+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str()+".junc.ref.fasta";
             //cout<<ref_file<<endl;
-            char *syst_ref_junc_file = new char[ref_junc_file.length()+1];
-            strcpy(syst_ref_junc_file, ref_junc_file.c_str());
-            file21.open(syst_ref_junc_file);
-            
-            string sys_ref_junc;
-            sys_ref_junc="samtools faidx "+fasta+" "+chr+":"+s_start_junc+"-"+s_end_junc+" > "+ref_junc_file;
-            //cout<<sys_ref<<endl;
-            
-            char *syst_ref_junc = new char[sys_ref_junc.length()+1];
-            strcpy(syst_ref_junc, sys_ref_junc.c_str());
-            system(syst_ref_junc);
+            string region_string = chr + ":" + s_start_junc + "-" + s_end_junc;
+            if (!write_region_fasta(fasta, region_string, ref_junc_file)) {
+                cerr << "FAILED TO WRITE FASTA REGION " << region_string << " TO " << ref_junc_file << endl;
+            }
 
     //FP exclude module
             //3' 26mer identify based on TSD
