@@ -6,9 +6,8 @@
 * PALMER utilizes multi-threads for runs and outputs calls and genotypes (use caution) in VCF.
 * For MEIs, it characterizes hallmark features within MEIs, including TSD motifs, 5' inverted sequence, 5' or 3' transduction sequence, polyA-tail, and reports sequences for each high-confidence candidate insertion. The ideal structure of an MEI event would be 5’-TSD-(5'TransD)-(5'inverted)-MEI-polyA-(3'TransD-polyA)-TSD-3’.
 
-Required resources:
+## Required resources:
 ```
- samtools/1.3.1  https://github.com/samtools/samtools
  htslib development headers (pkg-config detectable, e.g., libhts-dev or htslib-devel)
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
 ```
@@ -193,6 +192,7 @@ For SMaHT benchmarking:
 * Disable the function of blastn for reporting usage statistics to NCBI.
 * Add a module for removing (or keeping) intermediate files to avoid crashing the file system.
 * Add a genotyping module based on a Generalized Gaussian Mixture model. But still under development.
+* Replace htslib with samtools
 * Minor format bugs fixed.
 * Example updated.
 * Scripts cleaned.
