@@ -5,7 +5,14 @@
 bool write_region_fasta(const string &fasta, const string &region, const string &output_path) {
     faidx_t *fai = fai_load(fasta.c_str());
     if (!fai) {
-        return false;
+        if (fai_build(fasta.c_str()) != 0) {
+            return false;
+        }
+
+        fai = fai_load(fasta.c_str());
+        if (!fai) {
+            return false;
+        }
     }
 
     int seq_len = 0;
