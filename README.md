@@ -9,6 +9,7 @@
 Required resources:
 ```
  samtools/1.3.1  https://github.com/samtools/samtools
+ htslib development headers (pkg-config detectable, e.g., libhts-dev or htslib-devel)
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
 ```
 
@@ -18,6 +19,7 @@ Download and Install
 ```
 git clone https://github.com/WeichenZhou/PALMER.git
 cd PALMER
+# Install htslib headers/libraries so that `pkg-config --cflags --libs htslib` succeeds
 make
 ```
 
