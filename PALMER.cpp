@@ -170,31 +170,43 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
     size_t read_count = 0;
     double length_sum = 0.0;
 
+    string pending_line;
+
+    auto process_line = [&](const string &line) {
+        if (!line.empty() && line[0] == '@') {
+            return true;
+        }
+        stringstream line_ss(line);
+        string field;
+        int field_index = 0;
+        while (getline(line_ss, field, '\t')) {
+            if (field_index == 9) {
+                length_sum += static_cast<double>(field.size());
+                ++read_count;
+                break;
+            }
+            ++field_index;
+        }
+        return read_count < max_reads;
+    };
+
     stream_process_output(args, [&](const char *buffer, ssize_t count) {
-        string chunk(buffer, static_cast<size_t>(count));
-        stringstream ss(chunk);
-        string line;
-        while (getline(ss, line)) {
-            if (!line.empty() && line[0] == '@') {
-                continue;
-            }
-            stringstream line_ss(line);
-            string field;
-            int field_index = 0;
-            while (getline(line_ss, field, '\t')) {
-                if (field_index == 9) {
-                    length_sum += static_cast<double>(field.size());
-                    ++read_count;
-                    break;
-                }
-                ++field_index;
-            }
-            if (read_count >= max_reads) {
+        pending_line.append(buffer, static_cast<size_t>(count));
+
+        size_t newline_pos = 0;
+        while ((newline_pos = pending_line.find('\n')) != string::npos) {
+            string line = pending_line.substr(0, newline_pos);
+            pending_line.erase(0, newline_pos + 1);
+            if (!process_line(line)) {
                 return false;
             }
         }
         return read_count < max_reads;
     });
+
+    if (read_count < max_reads && !pending_line.empty()) {
+        process_line(pending_line);
+    }
     if (read_count == 0) {
         return -1.0;
     }
