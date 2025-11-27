@@ -16,17 +16,6 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         }
     }
     
-    string sys_blastncaller;
-    
-    sys_blastncaller = "cat "+WD_dir+"blastn.txt |grep -v \"#\" > "+WD_dir+"blastn_refine.txt";
-    
-    
-    char *syst_blastncaller = new char[sys_blastncaller.length()+1];
-    strcpy(syst_blastncaller, sys_blastncaller.c_str());
-    
-    system(syst_blastncaller);
-     
-//Blastn Caller
     string sys_cigar = WD_dir+"cigar.2";
     char *syst_cigar =  new char[sys_cigar.length()+1];
     strcpy(syst_cigar, sys_cigar.c_str());
@@ -41,12 +30,9 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         return 0;
     }
     
-    string sys_blastnrefine = WD_dir+"blastn_refine.txt";
-    char *syst_blastnrefine =  new char[sys_blastnrefine.length()+1];
-    strcpy(syst_blastnrefine, sys_blastnrefine.c_str());
-    
     ifstream file2;
-    file2.open(syst_blastnrefine);
+    string sys_blastnrefine = WD_dir+"blastn_refine.txt";
+    file2.open(sys_blastnrefine);
     
     if (!file2.is_open())
     {
@@ -84,30 +70,38 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         getline(file3,input);
         line=i;
     }
-    int blast;
-    for(int i=0;!file2.eof();++i){
-        getline(file2,input);
-        blast=i;
-    }
-    
     file3.close();
     file3.clear();
     file3.open(syst_selecinfo);
-    
-    file2.close();
-    file2.clear();
-    file2.open(syst_blastnrefine);
-    
-    int **bla;
-    bla=new int*[blast];
-    for(int i=0;i!=blast;++i) bla[i]=new int[8];
-    
-    string *bla_name;
-    bla_name=new string[blast];
-    
-    string *orient;
-    orient = new string[blast];
-    
+
+    vector<array<int,8>> bla;
+    vector<string> bla_name;
+    vector<string> orient;
+
+    string qacc;
+    while (file2 >> qacc) {
+        string name;
+        double ident = 0.0;
+        int L1_s = 0;
+        int L1_e = 0;
+        int r_s = 0;
+        int r_e = 0;
+
+        if (!(file2 >> name >> ident >> L1_s >> L1_e >> r_s >> r_e)) {
+            break;
+        }
+
+        if(t=="ALU" && ident < 90.0){
+            continue;
+        }
+
+        bla.push_back({L1_s, L1_e, r_s, r_e, 0, 0, 0, 0});
+        bla_name.push_back(name);
+        orient.push_back("+");
+    }
+
+    int blast = bla.size();
+
     string **read;
     read=new string*[line];
     for(int i=0;i!=line;++i) read[i]=new string[4];
@@ -115,21 +109,6 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     read_loc= new int[line];
     int *read_le;
     read_le= new int[line];
-    
-    
-    for(int i=0;i!=blast;++i){
-        file2>>input;
-        file2>>bla_name[i];     //read name
-        file2>>input;
-        file2>>bla[i][0];       //L1 s
-        file2>>bla[i][1];       //L1 e
-        file2>>bla[i][2];       //read s
-        file2>>bla[i][3];       //read e
-        orient[i]="+";          //orientation
-        bla[i][4]=0;            //insert site s
-        bla[i][5]=0;            //insert site e
-        bla[i][6]=0;            //flag_bn
-    }
     for(int i=0;i!=line;++i){
         file1>>read[i][2];      //cigar
         file1>>input;   //tag #
@@ -659,21 +638,11 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     delete [] name;
     
-    
-    for(int i=0;i!=blast;++i){
-        delete [] bla[i];
-        //delete [] sam_loc[i];
-    }
-    delete [] bla;
-    
     for(int i=0;i!=line;++i){
         delete [] read[i];
         //delete [] sam_loc[i];
     }
     delete [] read;
-    
-    delete [] bla_name;
-    delete [] orient;
     delete [] read_loc;
     delete [] read_le;
     
