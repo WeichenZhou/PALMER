@@ -2,45 +2,111 @@
 #include "common.hpp"
 #include <htslib/faidx.h>
 #include <array>
+#include <filesystem>
 #include <utility>
 #include <vector>
 #include <numeric>
+#include <sstream>
 
-bool write_region_fasta(const string &fasta, const string &region, const string &output_path) {
-    faidx_t *fai = fai_load(fasta.c_str());
-    if (!fai) {
-        if (fai_build(fasta.c_str()) != 0) {
-            return false;
-        }
+namespace {
 
-        fai = fai_load(fasta.c_str());
-        if (!fai) {
-            return false;
-        }
+struct TempFastaFile {
+    std::filesystem::path path;
+    bool created{false};
+
+    explicit TempFastaFile(const std::string &prefix) {
+        path = std::filesystem::temp_directory_path() /
+               std::filesystem::path(prefix + "-" + std::filesystem::unique_path("%%%%%%%%").string() + ".fasta");
     }
 
+    bool write(const std::string &header, const std::string &sequence) {
+        ofstream out(path);
+        if (!out.is_open()) {
+            return false;
+        }
+
+        out << '>' << header << '\n' << sequence << '\n';
+        created = true;
+        return static_cast<bool>(out);
+    }
+
+    ~TempFastaFile() {
+        if (created) {
+            std::error_code ec;
+            std::filesystem::remove(path, ec);
+        }
+    }
+};
+
+string fetch_region_sequence(faidx_t *fai, const string &region) {
     int seq_len = 0;
     char *seq = fai_fetch(fai, region.c_str(), &seq_len);
     if (!seq) {
-        fai_destroy(fai);
-        return false;
+        return {};
     }
 
-    ofstream out(output_path);
-    if (!out.is_open()) {
-        free(seq);
-        fai_destroy(fai);
-        return false;
-    }
-
-    out << '>' << region << '\n';
-    out.write(seq, seq_len);
-    out << '\n';
-
+    string sequence(seq, seq_len);
     free(seq);
-    fai_destroy(fai);
+    return sequence;
+}
 
-    return static_cast<bool>(out);
+int count_blast_hits(const std::string &query_path, const std::string &subject_path, int min_length) {
+    const std::string command =
+        "BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn -query " + query_path +
+        " -subject " + subject_path + " -dust no -outfmt 7 std";
+
+    FILE *pp = popen(command.c_str(), "r");
+    if (!pp) {
+        return -1;
+    }
+
+    string line;
+    int count = 0;
+    char buffer[4096];
+    while (fgets(buffer, sizeof(buffer), pp)) {
+        line.assign(buffer);
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+
+        istringstream iss(line);
+        string qseqid, sseqid;
+        double pident = 0.0;
+        int align_len = 0;
+        int mismatch = 0;
+        int gapopen = 0;
+        int qstart = 0;
+        int qend = 0;
+        int sstart = 0;
+        int send = 0;
+        double evalue = 0.0;
+        double bitscore = 0.0;
+
+        // qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
+        if (iss >> qseqid >> sseqid >> pident >> align_len >> mismatch >> gapopen >> qstart >> qend >> sstart >> send >> evalue >> bitscore) {
+            if (pident >= 80.0 && align_len >= min_length && (send - sstart) > 0) {
+                ++count;
+            }
+        }
+    }
+
+    pclose(pp);
+    return count;
+}
+
+string to_dot_join(const vector<string> &parts) {
+    if (parts.empty()) {
+        return {};
+    }
+    string result = parts.front();
+    for (size_t idx = 1; idx < parts.size(); ++idx) {
+        result.push_back('.');
+        result += parts[idx];
+    }
+    return result;
+}
+
+}
 }
 
 int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
@@ -146,71 +212,32 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     const int line = static_cast<int>(info.size());
     const int line_tsd = static_cast<int>(info_tsd.size());
 
+    faidx_t *fai = fai_load(fasta.c_str());
+    if (!fai) {
+        if (fai_build(fasta.c_str()) != 0) {
+            cerr << "Failed to build FAI index for " << fasta << endl;
+            return 0;
+        }
+        fai = fai_load(fasta.c_str());
+        if (!fai) {
+            cerr << "Failed to load FAI index for " << fasta << endl;
+            return 0;
+        }
+    }
+
     
     //cout<<"ready to process this"<<endl;
 //FP_ex module
     if(tsd_index==1){
         for(int i=0;i!=line;++i){
             
-            string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
-            stringstream ss_0;
-            ss_0.clear();
-            ss_0<<loc[i][0];
-            loc_0=ss_0.str();
-            stringstream ss_1;
-            ss_1.clear();
-            ss_1<<loc[i][1];
-            loc_1=ss_1.str();
-            stringstream ss_2;
-            ss_2.clear();
-            ss_2<<loc[i][2];
-            loc_2=ss_2.str();
-            stringstream ss_3;
-            ss_3.clear();
-            ss_3<<loc[i][3];
-            loc_3=ss_3.str();
-            stringstream ss_4;
-            ss_4.clear();
-            ss_4<<loc[i][4];
-            loc_4=ss_4.str();
-            stringstream ss_5;
-            ss_5.clear();
-            ss_5<<loc[i][5];
-            loc_5=ss_5.str();
-            
-            string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
-            stringstream ss_TP_0;
-            ss_TP_0.clear();
-            ss_TP_0<<loc_TP[i][0];
-            loc_TP_0=ss_TP_0.str();
-            stringstream ss_TP_1;
-            ss_TP_1.clear();
-            ss_TP_1<<loc_TP[i][1];
-            loc_TP_1=ss_TP_1.str();
-            stringstream ss_TP_2;
-            ss_TP_2.clear();
-            ss_TP_2<<loc_TP[i][2];
-            loc_TP_2=ss_TP_2.str();
-            stringstream ss_TP_3;
-            ss_TP_3.clear();
-            ss_TP_3<<loc_TP[i][3];
-            loc_TP_3=ss_TP_3.str();
-            stringstream ss_TP_4;
-            ss_TP_4.clear();
-            ss_TP_4<<loc_TP[i][4];
-            loc_TP_4=ss_TP_4.str();
-            stringstream ss_TP_5;
-            ss_TP_5.clear();
-            ss_TP_5<<loc_TP[i][5];
-            loc_TP_5=ss_TP_5.str();
-            stringstream ss_TP_6;
-            ss_TP_6.clear();
-            ss_TP_6<<loc_TP[i][6];
-            loc_TP_6=ss_TP_6.str();
-            
-            string seq_index;
-            
-            seq_index=info[i][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+            vector<string> seq_parts = {
+                info[i][0], to_string(loc[i][0]), to_string(loc[i][1]), to_string(loc[i][2]), to_string(loc[i][3]),
+                to_string(loc[i][4]), to_string(loc[i][5]), info[i][1], info[i][2], to_string(loc_TP[i][0]), to_string(loc_TP[i][1]),
+                to_string(loc_TP[i][2]), to_string(loc_TP[i][3]), to_string(loc_TP[i][4]), to_string(loc_TP[i][5]), to_string(loc_TP[i][6])
+            };
+
+            string seq_index = to_dot_join(seq_parts);
      
             
     //ref pull out for 5mer
@@ -275,12 +302,12 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
             ss_e_junc<<end_junc;
             s_end_junc=ss_e_junc.str();
 
-            string ref_junc_file;
-            ref_junc_file=WD_dir+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[i][1]+"."+info[i][2]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str()+".junc.ref.fasta";
-            //cout<<ref_file<<endl;
-            string region_string = chr + ":" + s_start_junc + "-" + s_end_junc;
-            if (!write_region_fasta(fasta, region_string, ref_junc_file)) {
-                cerr << "FAILED TO WRITE FASTA REGION " << region_string << " TO " << ref_junc_file << endl;
+            const string region_string = chr + ":" + s_start_junc + "-" + s_end_junc;
+            const string ref_sequence = fetch_region_sequence(fai, region_string);
+            TempFastaFile ref_junc_file("palmer-ref");
+            if (ref_sequence.empty() || !ref_junc_file.write(region_string, ref_sequence)) {
+                cerr << "FAILED TO PREPARE FASTA REGION " << region_string << endl;
+                continue;
             }
 
     //FP exclude module
@@ -443,44 +470,27 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     string fasta5_str_length=to_string(fasta5_str_len);
                     string fasta3_str_length=to_string(fasta3_str_len);
                     
-                    string sys_3_blast = "bash -c \"BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn -query <(printf "+(fasta5_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta5_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
-                    //> "+WD_dir+"read_result_junc_fake.txt";
-                    //cout<<sys_3_blast<<endl;
-                    
-                    vector<string> pp_3_int;
-                    pp_3_int.clear();
-                    FILE *pp_3 =popen(sys_3_blast.c_str(),"r");
-                    char tmp[1024];
-                    while (fgets(tmp, sizeof(tmp), pp_3) != NULL) {
-                        if (tmp[strlen(tmp) - 1] == '\n') {
-                            tmp[strlen(tmp) - 1] = '\0';
-                        }
-                        //cout<<tmp<<endl;
-                        pp_3_int.push_back(tmp);
-                        
+                    TempFastaFile query5_file("palmer-query5");
+                    if (!query5_file.write(seq_index, fasta5_str)) {
+                        cerr << "FAILED TO WRITE QUERY FASTA FOR " << seq_index << endl;
+                        continue;
                     }
-                    pclose(pp_3);
-                    //loc_tsd_fp[w][0]=pp_3_int;
-                    loc_tsd_fp[w][0]=accumulate(pp_3_int.begin(),pp_3_int.end(),loc_tsd_fp[w][0]);
 
-                    string sys_3_blast_2 = "bash -c \"BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn -query <(printf "+(fasta3_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta3_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
-                    //> "+WD_dir+"read_result_junc_fake.txt";
-                    //cout<<sys_3_blast_2<<endl;
-
-                    vector<string> pp_3_int_2;
-                    pp_3_int_2.clear();
-                    FILE *pp_3_2 =popen(sys_3_blast_2.c_str(),"r");
-                    char tmp_2[1024];
-                    while (fgets(tmp_2, sizeof(tmp_2), pp_3_2) != NULL) {
-                        if (tmp_2[strlen(tmp_2) - 1] == '\n') {
-                            tmp_2[strlen(tmp_2) - 1] = '\0';
-                        }
-                        //cout<<tmp_2<<endl;
-                        pp_3_int_2.push_back(tmp_2);
+                    const int blast5_hits = count_blast_hits(query5_file.path.string(), ref_junc_file.path.string(), fasta5_str_len);
+                    if (blast5_hits >= 0) {
+                        loc_tsd_fp[w][0] = to_string(blast5_hits);
                     }
-                    pclose(pp_3_2);
-                    loc_tsd_fp[w][1]=accumulate(pp_3_int_2.begin(),pp_3_int_2.end(),loc_tsd_fp[w][1]);
-                    //loc_tsd_fp[w][1]=pp_3_int_2;
+
+                    TempFastaFile query3_file("palmer-query3");
+                    if (!query3_file.write(seq_index, fasta3_str)) {
+                        cerr << "FAILED TO WRITE QUERY FASTA FOR " << seq_index << endl;
+                        continue;
+                    }
+
+                    const int blast3_hits = count_blast_hits(query3_file.path.string(), ref_junc_file.path.string(), fasta3_str_len);
+                    if (blast3_hits >= 0) {
+                        loc_tsd_fp[w][1] = to_string(blast3_hits);
+                    }
 
                     if(loc_tsd_fp[w][0]==""){
                         loc_tsd_fp[w][0]="-1";
@@ -553,6 +563,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
     }
     
     // containers clean up automatically
+    fai_destroy(fai);
     return 0;
-    
+
 }
