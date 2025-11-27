@@ -10,7 +10,7 @@ $(error "htslib headers not found. Please install htslib and ensure pkg-config c
 endif
 
 $(TARGET): $(OBJS)
-	g++ -o $(TARGET) $(HTS_CFLAGS) $(BASE).cpp -O3 -w -std=c++11 -pthread $(HTS_LIBS)
+        g++ -o $(TARGET) $(HTS_CFLAGS) $(BASE).cpp -O3 -w -std=c++17 -pthread -lstdc++fs $(HTS_LIBS)
 
 clean:
 	rm -f PALMER
