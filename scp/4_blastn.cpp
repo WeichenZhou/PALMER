@@ -56,6 +56,11 @@ int blastn(string WD_dir, string t, string direc){
         //exit(1);
         return 0;
     }
+
+    if (file1.peek() == ifstream::traits_type::eof()) {
+        cout << "Skipping blastn: masked read file '" << sys_blast << "' is empty; no reads available for BLAST alignment." << endl;
+        return 0;
+    }
     string query;
     if(t=="LINE"){
         query = direc+"/lib/L1.3.fasta";
