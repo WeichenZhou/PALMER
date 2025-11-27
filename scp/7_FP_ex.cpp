@@ -2,7 +2,9 @@
 #include "common.hpp"
 #include <htslib/faidx.h>
 #include <array>
+#include <chrono>
 #include <filesystem>
+#include <random>
 #include <utility>
 #include <vector>
 #include <numeric>
@@ -15,8 +17,19 @@ struct TempFastaFile {
     bool created{false};
 
     explicit TempFastaFile(const std::string &prefix) {
+        const auto now = std::chrono::steady_clock::now().time_since_epoch().count();
+        std::mt19937_64 rng(static_cast<unsigned long>(now));
+        std::uniform_int_distribution<int> dist(0, 35);
+
+        std::string suffix;
+        suffix.reserve(12);
+        for (int idx = 0; idx < 12; ++idx) {
+            const int value = dist(rng);
+            suffix.push_back(static_cast<char>(value < 10 ? '0' + value : 'a' + value - 10));
+        }
+
         path = std::filesystem::temp_directory_path() /
-               std::filesystem::path(prefix + "-" + std::filesystem::unique_path("%%%%%%%%").string() + ".fasta");
+               std::filesystem::path(prefix + "-" + std::to_string(now) + "-" + suffix + ".fasta");
     }
 
     bool write(const std::string &header, const std::string &sequence) {
@@ -106,7 +119,6 @@ string to_dot_join(const vector<string> &parts) {
     return result;
 }
 
-}
 }
 
 int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
