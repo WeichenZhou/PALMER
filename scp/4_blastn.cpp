@@ -57,7 +57,14 @@ int blastn(string WD_dir, string t, string direc){
         return 0;
     }
 
+    string output_file = WD_dir+"blastn_refine.txt";
+
     if (file1.peek() == ifstream::traits_type::eof()) {
+        ofstream empty_output(output_file, ios::trunc);
+        if (!empty_output.is_open()) {
+            cout << "CANNOT CREATE FILE, 'blastn_refine.txt'" << endl;
+            return 0;
+        }
         cout << "Skipping blastn: masked read file '" << sys_blast << "' is empty; no reads available for BLAST alignment." << endl;
         return 0;
     }
@@ -93,8 +100,6 @@ int blastn(string WD_dir, string t, string direc){
         args.emplace_back("-perc_identity");
         args.emplace_back("90");
     }
-
-    string output_file = WD_dir+"blastn_refine.txt";
 
     if (RunBlastn(args, output_file) != 0) {
         return 0;
