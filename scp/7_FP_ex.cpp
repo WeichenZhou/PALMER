@@ -4,6 +4,7 @@
 #include <array>
 #include <utility>
 #include <vector>
+#include <numeric>
 
 bool write_region_fasta(const string &fasta, const string &region, const string &output_path) {
     faidx_t *fai = fai_load(fasta.c_str());
@@ -308,11 +309,8 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     ss_tsd_3<<loc_tsd[w][3];
                     loc_tsd_3=ss_tsd_3.str();
                     
-                    char *seq3= new char[info[i][4].length()+1];
-                    strcpy(seq3, info[i][4].c_str());
-                    
-                    char *seq5= new char[info[i][3].length()+1];
-                    strcpy(seq5, info[i][3].c_str());
+                    const string &seq3 = info[i][4];
+                    const string &seq5 = info[i][3];
                     
      //FP construct junction module
                     
@@ -449,12 +447,10 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast<<endl;
                     
-                    char *syst_3_blast = new char[sys_3_blast.length()+1];
-                    strcpy(syst_3_blast, sys_3_blast.c_str());
                     vector<string> pp_3_int;
                     pp_3_int.clear();
-                    FILE *pp_3 =popen(syst_3_blast,"r");
-                    char *tmp=new char[1024];
+                    FILE *pp_3 =popen(sys_3_blast.c_str(),"r");
+                    char tmp[1024];
                     while (fgets(tmp, sizeof(tmp), pp_3) != NULL) {
                         if (tmp[strlen(tmp) - 1] == '\n') {
                             tmp[strlen(tmp) - 1] = '\0';
@@ -466,17 +462,15 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     pclose(pp_3);
                     //loc_tsd_fp[w][0]=pp_3_int;
                     loc_tsd_fp[w][0]=accumulate(pp_3_int.begin(),pp_3_int.end(),loc_tsd_fp[w][0]);
-                    
+
                     string sys_3_blast_2 = "bash -c \"BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn -query <(printf "+(fasta3_str)+") -subject "+ref_junc_file+" -dust no -outfmt \\\"7 std\\\" |grep -v \\\"#\\\" | awk '{if(\\\$3>=80&&\\\$4>="+fasta3_str_length+"&&(\\\$10-\\\$9)>0) print \\\"1\\\"}' |wc -l \"";
                     //> "+WD_dir+"read_result_junc_fake.txt";
                     //cout<<sys_3_blast_2<<endl;
-                    
-                    char *syst_3_blast_2 = new char[sys_3_blast_2.length()+1];
-                    strcpy(syst_3_blast_2, sys_3_blast_2.c_str());
+
                     vector<string> pp_3_int_2;
                     pp_3_int_2.clear();
-                    FILE *pp_3_2 =popen(syst_3_blast_2,"r");
-                    char *tmp_2=new char[1024];
+                    FILE *pp_3_2 =popen(sys_3_blast_2.c_str(),"r");
+                    char tmp_2[1024];
                     while (fgets(tmp_2, sizeof(tmp_2), pp_3_2) != NULL) {
                         if (tmp_2[strlen(tmp_2) - 1] == '\n') {
                             tmp_2[strlen(tmp_2) - 1] = '\0';
@@ -487,16 +481,13 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     pclose(pp_3_2);
                     loc_tsd_fp[w][1]=accumulate(pp_3_int_2.begin(),pp_3_int_2.end(),loc_tsd_fp[w][1]);
                     //loc_tsd_fp[w][1]=pp_3_int_2;
-                    
+
                     if(loc_tsd_fp[w][0]==""){
                         loc_tsd_fp[w][0]="-1";
                     }
                     if(loc_tsd_fp[w][1]==""){
                         loc_tsd_fp[w][1]="-1";
                     }
-                    
-                    delete [] tmp;
-                    delete [] tmp_2;
 
                     
                     if(info[i][2]=="+"){
@@ -543,9 +534,6 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
                     }
 
                     loc_tsd[w][6]=0;
-
-                    delete [] seq3;
-                    delete [] seq5;
                     
                 }
             }
@@ -564,23 +552,7 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
         }
     }
     
-    for(int i=0;i!=line;++i){
-        delete [] info[i];
-        delete [] loc[i];
-        delete [] loc_TP[i];
-    }
-    delete [] info;
-    delete [] loc;
-    
-    for(int i=0;i!=line_tsd;++i){
-        //delete [] info_tsd[i];
-        delete [] loc_tsd[i];
-        delete [] loc_tsd_fp[i];
-    }
-    delete [] info_tsd;
-    delete [] loc_tsd;
-    delete [] loc_TP;
-    delete [] loc_tsd_fp;
+    // containers clean up automatically
     return 0;
     
 }
