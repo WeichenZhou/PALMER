@@ -1,6 +1,9 @@
 //copyright by ArthurZhou @ UMich&Fudan&HUST
 #include "common.hpp"
 #include <htslib/faidx.h>
+#include <array>
+#include <utility>
+#include <vector>
 
 bool write_region_fasta(const string &fasta, const string &region, const string &output_path) {
     faidx_t *fai = fai_load(fasta.c_str());
@@ -63,126 +66,84 @@ int fp_ex(string WD_dir, string fasta, string chr, string t, int tsd_index){
         tsd_index=0;
     }
     
-    ifstream file2;
-    //ifstream file3;
-    
     string sys_junc = WD_dir+"read_result_junction.txt";
-    char *syst_junc = new char[sys_junc.length()+1];
-    strcpy(syst_junc, sys_junc.c_str());
-    file2.open(syst_junc);
-    
-    
+    ifstream file2(sys_junc);
+
     if (!file2.is_open())
     {
         cout <<"CANNOT OPEN FILE, 'read_result_junction.txt'"<< endl;
         //exit(1);
         return 0;
     }
-    
-    int line;
-    string input;
-    for(int i=0;!file2.eof();++i){
-        getline(file2,input);
-        line=i;
+
+    vector<array<string,5>> info;
+    vector<array<int,7>> loc;
+    vector<array<int,7>> loc_TP;
+    info.reserve(1024);
+    loc.reserve(1024);
+    loc_TP.reserve(1024);
+
+    while (file2)
+    {
+        array<string,5> info_entry;
+        array<int,7> loc_entry{};
+        array<int,7> loc_TP_entry{};
+        if (!(file2>>info_entry[0]>>loc_entry[0]>>loc_entry[1]>>loc_entry[2]>>loc_entry[3]
+              >>loc_entry[4]>>loc_entry[5]>>info_entry[1]>>info_entry[2]>>loc_entry[6]
+              >>info_entry[3]>>info_entry[4]
+              >>loc_TP_entry[0]>>loc_TP_entry[1]>>loc_TP_entry[2]>>loc_TP_entry[3]
+              >>loc_TP_entry[4]>>loc_TP_entry[5]>>loc_TP_entry[6]))
+        {
+            break;
+        }
+        info.push_back(move(info_entry));
+        loc.push_back(move(loc_entry));
+        loc_TP.push_back(move(loc_TP_entry));
     }
-    
-    file2.close();
-    file2.clear();
-    file2.open(syst_junc);
-    
-    string **info;
-    info=new string *[line];
-    for(int i=0;i!=line;++i) info[i]=new string[5];
-    
-    int **loc;
-    loc=new int*[line];
-    for(int i=0;i!=line;++i) loc[i]=new int[7];
-    
-    int **loc_TP;
-    loc_TP=new int*[line];
-    for(int i=0;i!=line;++i) loc_TP[i]=new int[7];
-    
-    for(int i=0;i!=line;++i){
-        file2>>info[i][0];  //probe name
-        file2>>loc[i][0];   //L_loc
-        file2>>loc[i][1];   //L_loc
-        file2>>loc[i][2];   //R_loc
-        file2>>loc[i][3];   //R_loc
-        file2>>loc[i][4];   //G_loc
-        file2>>loc[i][5];   //G_loc
-        file2>>info[i][1];  //chr
-        file2>>info[i][2];  //orientation
-        file2>>loc[i][6];  //read length
-        file2>>info[i][3]; //junc 5' seq
-        file2>>info[i][4]; //junc 3' seq
-        file2>>loc_TP[i][0];
-        file2>>loc_TP[i][1];
-        file2>>loc_TP[i][2];
-        file2>>loc_TP[i][3];
-        file2>>loc_TP[i][4];
-        file2>>loc_TP[i][5];
-        file2>>loc_TP[i][6];
-    }
-    
+
     ifstream file1;
-    
+
     string sys_input = WD_dir+"TSD_blastn_pre.txt";
-    char *syst_input = new char[sys_input.length()+1];
-    strcpy(syst_input, sys_input.c_str());
-    file1.open(syst_input);
-    
+    file1.open(sys_input);
+
     ofstream file11;
     string sys_output = WD_dir+"TSD_blastn.txt";
-    char *syst_output = new char[sys_output.length()+1];
-    strcpy(syst_output, sys_output.c_str());
-    file11.open(syst_output);
-    
+    file11.open(sys_output);
+
     if (!file1.is_open())
     {
         cout <<"CANNOT OPEN FILE, 'TSD_blastn_pre.txt'"<< endl;
         //exit(1);
         return 0;
     }
-    
-    
-    int line_tsd;
-    for(int i=0;!file1.eof();++i){
-        getline(file1,input);
-        line_tsd=i;
+
+    vector<string> info_tsd;
+    vector<array<int,7>> loc_tsd;
+    vector<array<string,2>> loc_tsd_fp;
+    vector<string> kmer_tsd;
+    info_tsd.reserve(1024);
+    loc_tsd.reserve(1024);
+    loc_tsd_fp.reserve(1024);
+    kmer_tsd.reserve(1024);
+
+    while (file1)
+    {
+        string info_entry;
+        array<int,7> loc_entry{};
+        if (!(file1>>info_entry>>loc_entry[0]>>loc_entry[1]>>loc_entry[2]>>loc_entry[3]
+              >>loc_entry[4]>>loc_entry[5]))
+        {
+            break;
+        }
+        loc_entry[6] = -1;
+        info_tsd.push_back(move(info_entry));
+        loc_tsd.push_back(loc_entry);
+        loc_tsd_fp.push_back({"",""});
+        kmer_tsd.push_back("");
     }
-    file1.close();
-    file1.clear();
-    file1.open(syst_input);
-    
-    string *info_tsd;
-    info_tsd= new string[line_tsd];
-    
-    int **loc_tsd;
-    loc_tsd=new int*[line_tsd];
-    for(int i=0;i!=line_tsd;++i) loc_tsd[i]=new int[7];
-    
-    string **loc_tsd_fp;
-    loc_tsd_fp=new string*[line_tsd];
-    for(int i=0;i!=line_tsd;++i) loc_tsd_fp[i]=new string[2];
-    
-    string *kmer_tsd;
-    kmer_tsd= new string[line_tsd];
-    
-    for(int i=0;i!=line_tsd;++i){
-        file1>>info_tsd[i];
-        file1>>loc_tsd[i][0];
-        file1>>loc_tsd[i][1];
-        file1>>loc_tsd[i][2];
-        file1>>loc_tsd[i][3];
-        file1>>loc_tsd[i][4];
-        file1>>loc_tsd[i][5];
-        loc_tsd[i][6]=-1;
-        //loc_tsd[i][7]=-1;
-        //loc_tsd[i][8]=-1;
-        loc_tsd_fp[i][0]="";
-        loc_tsd_fp[i][1]="";
-        kmer_tsd[i]="";
-    }
+
+    const int line = static_cast<int>(info.size());
+    const int line_tsd = static_cast<int>(info_tsd.size());
 
     
     //cout<<"ready to process this"<<endl;
