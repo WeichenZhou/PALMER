@@ -8,8 +8,8 @@ ifeq ($(strip $(HTS_CFLAGS)),)
 $(error "htslib headers not found. Please install htslib and ensure pkg-config can locate it (see README.md).")
 endif
 
-$(TARGET): $(CPP_FILES)
-	g++ -o $@ $(HTS_CFLAGS) $^ -O3 -w -std=c++17 -pthread -lstdc++fs $(HTS_LIBS)
+$(TARGET): $(OBJS)
+        g++ -o $(TARGET) $(HTS_CFLAGS) $(BASE).cpp -O3 -w -std=c++17 -pthread -lstdc++fs $(HTS_LIBS)
 
 .PHONY: clean
 clean:
