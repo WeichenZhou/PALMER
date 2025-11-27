@@ -638,21 +638,11 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     delete [] name;
     
-    
-    for(int i=0;i!=blast;++i){
-        delete [] bla[i];
-        //delete [] sam_loc[i];
-    }
-    delete [] bla;
-    
     for(int i=0;i!=line;++i){
         delete [] read[i];
         //delete [] sam_loc[i];
     }
     delete [] read;
-    
-    delete [] bla_name;
-    delete [] orient;
     delete [] read_loc;
     delete [] read_le;
     
