@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <numeric>
 #include <cstdio>
+#include <memory>
+#include <mutex>
 
 #include <htslib/sam.h>
 
@@ -212,16 +214,47 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
 }
 
 static string g_filtered_bam_path;
+static std::mutex g_filtered_bam_mutex;
 
-void cleanup_filtered_bam() {
-    if (g_filtered_bam_path.empty()) {
-        return;
+struct FilteredBamContext {
+    string source_bam;
+    int mapq_threshold = 0;
+    string filtered_path;
+    htsFile *fp = nullptr;
+    bam_hdr_t *header = nullptr;
+    hts_idx_t *idx = nullptr;
+};
+
+static unique_ptr<FilteredBamContext> g_filtered_bam_context;
+
+void cleanup_filtered_bam_locked() {
+    if (g_filtered_bam_context) {
+        if (g_filtered_bam_context->idx) {
+            hts_idx_destroy(g_filtered_bam_context->idx);
+        }
+        if (g_filtered_bam_context->header) {
+            bam_hdr_destroy(g_filtered_bam_context->header);
+        }
+        if (g_filtered_bam_context->fp) {
+            sam_close(g_filtered_bam_context->fp);
+        }
+        g_filtered_bam_context.reset();
     }
-    remove(g_filtered_bam_path.c_str());
-    string temp_bai = g_filtered_bam_path + ".bai";
-    remove(temp_bai.c_str());
+
+    if (!g_filtered_bam_path.empty()) {
+        remove(g_filtered_bam_path.c_str());
+        string temp_bai = g_filtered_bam_path + ".bai";
+        remove(temp_bai.c_str());
+        g_filtered_bam_path.clear();
+    }
 }
 
+void cleanup_filtered_bam() {
+    lock_guard<mutex> lock(g_filtered_bam_mutex);
+    cleanup_filtered_bam_locked();
+}
+
+// NOTE: Caller must hold g_filtered_bam_mutex before invoking this helper.
 string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     if (!g_filtered_bam_path.empty()) {
         return g_filtered_bam_path;
@@ -239,16 +272,14 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
 
     htsFile *in = sam_open(bam_path.c_str(), "r");
     if (!in) {
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+        cleanup_filtered_bam_locked();
         return string();
     }
 
     bam_hdr_t *header = sam_hdr_read(in);
     if (!header) {
         sam_close(in);
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+        cleanup_filtered_bam_locked();
         return string();
     }
 
@@ -256,8 +287,7 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     if (!out) {
         bam_hdr_destroy(header);
         sam_close(in);
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+        cleanup_filtered_bam_locked();
         return string();
     }
 
@@ -265,8 +295,7 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
         sam_close(out);
         bam_hdr_destroy(header);
         sam_close(in);
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+        cleanup_filtered_bam_locked();
         return string();
     }
 
@@ -275,8 +304,7 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
         sam_close(out);
         bam_hdr_destroy(header);
         sam_close(in);
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+        cleanup_filtered_bam_locked();
         return string();
     }
 
@@ -294,8 +322,7 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
             sam_close(out);
             bam_hdr_destroy(header);
             sam_close(in);
-            cleanup_filtered_bam();
-            g_filtered_bam_path.clear();
+            cleanup_filtered_bam_locked();
             return string();
         }
     }
@@ -304,8 +331,7 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     if (sam_close(out) != 0) {
         bam_hdr_destroy(header);
         sam_close(in);
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+        cleanup_filtered_bam_locked();
         return string();
     }
 
@@ -313,12 +339,53 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     sam_close(in);
 
     if (sam_index_build3(g_filtered_bam_path.c_str(), nullptr, 0, 0) != 0) {
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+        cleanup_filtered_bam_locked();
         return string();
     }
 
     return g_filtered_bam_path;
+}
+
+static FilteredBamContext *get_filtered_bam_context_locked(const string &bam_path, int mapq_threshold) {
+    if (g_filtered_bam_context &&
+        g_filtered_bam_context->source_bam == bam_path &&
+        g_filtered_bam_context->mapq_threshold == mapq_threshold &&
+        g_filtered_bam_context->fp && g_filtered_bam_context->header && g_filtered_bam_context->idx) {
+        return g_filtered_bam_context.get();
+    }
+
+    cleanup_filtered_bam_locked();
+
+    string filtered_bam = prepare_filtered_bam(bam_path, mapq_threshold);
+    if (filtered_bam.empty()) {
+        return nullptr;
+    }
+
+    auto context = make_unique<FilteredBamContext>();
+    context->source_bam = bam_path;
+    context->mapq_threshold = mapq_threshold;
+    context->filtered_path = filtered_bam;
+
+    context->fp = sam_open(filtered_bam.c_str(), "r");
+    if (!context->fp) {
+        cleanup_filtered_bam_locked();
+        return nullptr;
+    }
+
+    context->header = sam_hdr_read(context->fp);
+    if (!context->header) {
+        cleanup_filtered_bam_locked();
+        return nullptr;
+    }
+
+    context->idx = sam_index_load(context->fp, filtered_bam.c_str());
+    if (!context->idx) {
+        cleanup_filtered_bam_locked();
+        return nullptr;
+    }
+
+    g_filtered_bam_context = std::move(context);
+    return g_filtered_bam_context.get();
 }
 
 double estimate_local_coverage(const string &bam_path, const string &chrom, long long pos, int mapq_threshold, long long bin_size = 10000) {
@@ -333,34 +400,15 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
     stringstream region;
     region << chrom << ":" << region_start << "-" << region_end;
 
-    string filtered_bam = prepare_filtered_bam(bam_path, mapq_threshold);
-    if (filtered_bam.empty()) {
+    unique_lock<mutex> lock(g_filtered_bam_mutex);
+
+    FilteredBamContext *context = get_filtered_bam_context_locked(bam_path, mapq_threshold);
+    if (!context) {
         return -1.0;
     }
 
-    htsFile *fp = sam_open(filtered_bam.c_str(), "r");
-    if (!fp) {
-        return -1.0;
-    }
-
-    bam_hdr_t *header = sam_hdr_read(fp);
-    if (!header) {
-        sam_close(fp);
-        return -1.0;
-    }
-
-    hts_idx_t *idx = sam_index_load(fp, filtered_bam.c_str());
-    if (!idx) {
-        bam_hdr_destroy(header);
-        sam_close(fp);
-        return -1.0;
-    }
-
-    hts_itr_t *itr = sam_itr_querys(idx, header, region.str().c_str());
+    hts_itr_t *itr = sam_itr_querys(context->idx, context->header, region.str().c_str());
     if (!itr) {
-        hts_idx_destroy(idx);
-        bam_hdr_destroy(header);
-        sam_close(fp);
         return -1.0;
     }
 
@@ -368,7 +416,7 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
 
     int read_status = 0;
     long long coverage_sum = 0;
-    while ((read_status = sam_itr_next(fp, itr, record)) >= 0) {
+    while ((read_status = sam_itr_next(context->fp, itr, record)) >= 0) {
         if (record->core.flag & BAM_FUNMAP) {
             continue;
         }
@@ -399,9 +447,7 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
 
     bam_destroy1(record);
     hts_itr_destroy(itr);
-    hts_idx_destroy(idx);
-    bam_hdr_destroy(header);
-    sam_close(fp);
+    lock.unlock();
 
     long long region_length = region_end - region_start + 1;
     if (region_length <= 0) {
