@@ -64,11 +64,13 @@ string fetch_region_sequence(faidx_t *fai, const string &region) {
 }
 
 int count_blast_hits(const std::string &query_path, const std::string &subject_path, int min_length) {
-    const std::string command =
-        "BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn -query " + query_path +
-        " -subject " + subject_path + " -dust no -outfmt 7 std";
+    std::ostringstream command;
+    command << "BLAST_USAGE_REPORT=0 blastn -evalue 0.05 -task blastn"
+            << " -query \"" << query_path << "\""
+            << " -subject \"" << subject_path << "\""
+            << " -dust no -outfmt '7 std'";
 
-    FILE *pp = popen(command.c_str(), "r");
+    FILE *pp = popen(command.str().c_str(), "r");
     if (!pp) {
         return -1;
     }
