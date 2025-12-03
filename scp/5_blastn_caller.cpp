@@ -74,6 +74,8 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     file3.clear();
     file3.open(syst_selecinfo);
 
+    constexpr double identity_cutoff = 90.0;
+
     vector<array<int,8>> bla;
     vector<string> bla_name;
     vector<string> orient;
@@ -91,7 +93,10 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
             break;
         }
 
-        if(t=="ALU" && ident < 90.0){
+        // Filter out low-identity alignments as a safeguard in case the
+        // blastn invocation did not enforce the cutoff (e.g., when parsing
+        // precomputed results that lacked the -perc_identity flag).
+        if((t=="ALU" || t=="LINE") && ident < identity_cutoff){
             continue;
         }
 
