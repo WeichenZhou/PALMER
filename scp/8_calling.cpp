@@ -1441,9 +1441,9 @@ int calling(string WD_dir, string t, int tsd_index){
                                 loc_TP_6=ss_TP_6.str();
 
                                 string seq_index;
-                                seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                seq_index=info[j][0]+"."+loc_0+"."+loc_1+"."+loc_2+"."+loc_3+"."+loc_4+"."+loc_5+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0+"."+loc_TP_1+"."+loc_TP_2+"."+loc_TP_3+"."+loc_TP_4+"."+loc_TP_5+"."+loc_TP_6;
                                 string seq_index_2;
-                                seq_index_2=loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                seq_index_2=loc_0+"."+loc_1+"."+loc_2+"."+loc_3+"."+loc_4+"."+loc_5+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0+"."+loc_TP_1+"."+loc_TP_2+"."+loc_TP_3+"."+loc_TP_4+"."+loc_TP_5+"."+loc_TP_6;
 
                                 if(info_tsd[w]==seq_index || info_tsd[w]==seq_index_2){
                                     read_seq=j;
