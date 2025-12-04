@@ -1094,7 +1094,89 @@ int calling(string WD_dir, string t, int tsd_index){
                         if(loc_tsd[w][5]>potential_p) potential_p=loc_tsd[w][5];
                     }
                 }
-                
+
+                int potential_number_buff=0;
+                int potential_ls_buff=0;
+                int potential_le_buff=0;
+                int potential_rs_buff=0;
+                int potential_re_buff=0;
+
+                if(potential_p>0){
+                    int dis_tsd_w=10000;
+                    int len_tsd_w;
+                    int potential_dis_tsd;
+                    int potential_len_tsd;
+
+                    if(orien[i]=="+"){
+                        potential_ls_buff=0;
+                        potential_le_buff=0;
+                        potential_rs_buff=le_3;
+                        potential_re_buff=le_3;
+                        potential_number_buff=0;
+                        potential_dis_tsd=potential_rs_buff-potential_le_buff;
+                        potential_len_tsd=potential_le_buff-potential_ls_buff+potential_re_buff-potential_rs_buff;
+                    }
+                    else{
+                        potential_ls_buff=le_5;
+                        potential_le_buff=le_5;
+                        potential_rs_buff=0;
+                        potential_re_buff=0;
+                        potential_number_buff=0;
+                        potential_dis_tsd=potential_ls_buff-potential_re_buff;
+                        potential_len_tsd=potential_le_buff-potential_ls_buff+potential_re_buff-potential_rs_buff;
+                    }
+
+                    for(int w2=0;w2!=line_tsd;++w2){
+                        if(loc_tsd[w2][4]==1&&loc_tsd[w2][5]==potential_p){
+                            dis_tsd_w=10000;
+                            len_tsd_w=loc_tsd[w2][1]-loc_tsd[w2][0]+loc_tsd[w2][3]-loc_tsd[w2][2];
+
+                            if(orien[i]=="+"){
+                                dis_tsd_w=loc_tsd[w2][2]-loc_tsd[w2][1]-len_tsd_w;
+                                if(dis_tsd_w<potential_dis_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                                else if(dis_tsd_w==potential_dis_tsd&&len_tsd_w>potential_len_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                            }
+                            else if(orien[i]=="-"){
+                                dis_tsd_w=loc_tsd[w2][0]-loc_tsd[w2][3]-len_tsd_w;
+                                if(dis_tsd_w<potential_dis_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                                else if(dis_tsd_w==potential_dis_tsd&&len_tsd_w>potential_len_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 //cout<<"p="<<p<<endl;
                 if(p==0){
 
@@ -1335,12 +1417,6 @@ int calling(string WD_dir, string t, int tsd_index){
                 int len_tsd;
                 len_tsd=le_buff-ls_buff+re_buff-rs_buff;
 
-                int potential_number_buff=0;
-                int potential_ls_buff=0;
-                int potential_le_buff=0;
-                int potential_rs_buff=0;
-                int potential_re_buff=0;
-                
                 if(orien[i]=="+"){
                     ls_buff=0;
                     le_buff=0;
