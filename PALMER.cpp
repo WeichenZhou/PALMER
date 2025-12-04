@@ -1989,7 +1989,7 @@ int main(int argc, char *argv[]){
     ofstream file3;
     file3.open(syst_final_title,ios::trunc);
     
-    file3<<"cluster_id"<<'\t'<<"chr"<<'\t'<<"start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Potential_supporting_reads_from_5'_end"<<'\t'<<"Potential_supporting_reads_from_3'_end"<<'\t'<<"Potential_supporting_reads_from_go_through"<<'\t'<<"Total_potential_supporting_reads"<<'\t'<<"Ptential_segmental_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
+    file3<<"cluster_id"<<'\t'<<"chr"<<'\t'<<"start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Total_potential_supporting_reads"<<'\t'<<"Potential_supporting_reads_from_go_through"<<'\t'<<"Potential_segmental_supporting_reads"<<'\t'<<"Potential_supporting_reads_from_5'_end"<<'\t'<<"Potential_supporting_reads_from_3'_end"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
     
     string sys_final_tsd_title = WD+output+"_TSD_reads.txt";
     char *syst_final_tsd_title = new char[sys_final_tsd_title.length()+1];
