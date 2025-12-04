@@ -85,7 +85,7 @@ int blastn(string WD_dir, string t, string direc){
         query = t;
     }
 
-    const string identity_cutoff = "90";
+    //const string identity_cutoff = "90";
 
     vector<string> args = {
         "blastn",
@@ -98,10 +98,10 @@ int blastn(string WD_dir, string t, string direc){
         "-outfmt", "6 qacc sacc pident qstart qend sstart send"
     };
 
-    if(t=="ALU" || t=="LINE"){
-        args.emplace_back("-perc_identity");
-        args.emplace_back(identity_cutoff);
-    }
+    //if(t=="ALU" || t=="LINE"){
+    //    args.emplace_back("-perc_identity");
+    //    args.emplace_back(identity_cutoff);
+    //}
 
     if (RunBlastn(args, output_file) != 0) {
         return 0;
