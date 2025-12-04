@@ -971,9 +971,16 @@ int calling(string WD_dir, string t, int tsd_index){
             //cout<<"number_ture is "<<number_true<<endl;
             //cout<<"number_all is "<<number_all<<endl;
             
-            
+            int supporting_reads_from_5_end = number_all_5;
+            int supporting_reads_from_3_end = number_all_3;
+            if (orien[i] == "-") {
+                supporting_reads_from_5_end = number_all_3;
+                supporting_reads_from_3_end = number_all_5;
+            }
+            int total_potential_supporting_reads = number_all;
+
             if(tsd_index==1){
-            
+
 //TSD_indentifier
             string **name_tsd;
             name_tsd =new string*[line_tsd];
@@ -1067,14 +1074,6 @@ int calling(string WD_dir, string t, int tsd_index){
             //transD ployA
             int flag_ployA=0;
             int flag_trans=1;
-
-            int supporting_reads_from_5_end = number_all_5;
-            int supporting_reads_from_3_end = number_all_3;
-            if (orien[i] == "-") {
-                supporting_reads_from_5_end = number_all_3;
-                supporting_reads_from_3_end = number_all_5;
-            }
-            int total_potential_supporting_reads = number_all;
 
             for(;flag_ployA==0&&flag_trans==1;){
                 
