@@ -107,35 +107,43 @@ Optional
          omit to delete intermediate subfolders after completion; set to 1 to retain them
 ```
 
-Examples
+## Examples
+### Test samples
 ```
-1) Running PALMER on the example PacBio subreads bam file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
-./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1
+Running PALMER on the example PacBio reads bam file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
+./PALMER --input $PALMER_Path/example/sample.raw.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.raw --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1
 
-Results (sample_calls.txt & sample_TSD_reads.txt)  from the example BAM file can also be found under the 'example' folder.
+Results (sample.raw_calls.txt, sample.raw_TSD_reads.txt, and sample.raw_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
 ```
 ```
-2) Running PALMER on your aligned sequences on the GRCh37 reference genome to call LINE-1 insertions in chromosome 3 at positions from 200,000 to 400,000
+Running PALMER on the example HPRC contig bam file under the 'example' folder to call ALU insertions on the GRCh38 genome with a 10-thread run, genotyping, and keeping intermediate files.
+./PALMER --input $PALMER_Path/example/sample.asm.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.asm --type ALU --mode asm --chr chr21 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1 --intermediate 1
+
+Results (ample.asm_calls.txt, sample.asm_TSD_reads.txt, and sample.asm_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
+```
+
+### Others
+```
+Running PALMER on your aligned sequences on the GRCh37 reference genome to call LINE-1 insertions in chromosome 3 at positions from 200,000 to 400,000
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.output.prefix --type LINE --mode raw --chr 3 --start 200000 --end 400000 --ref_fa $your.reference.file.path/hs37d5.fa --thread (int)
 ```
 ```
-3) Running PALMER on your aligned assembled contigs in CRAM based on the GRCh38 reference genome to call SVA insertions in chromosome 3
+Running PALMER on your aligned assembled contigs in CRAM based on the GRCh38 reference genome to call SVA insertions in chromosome 3
 ./PALMER --input $DirPath/your.cram.file --workdir $DirPath/ --ref_ver GRCh38 --output your.output.prefix --type SVA --mode asm --chr chr3 --ref_fa $your.reference.file.path/GRCh38.fa --thread (int)
 ```
 ```
-4) Running PALMER on your aligned BAM to call Alu insertions in chromosome 2a of the chimpanzee genome
+Running PALMER on your aligned BAM to call Alu insertions in chromosome 2a of the chimpanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --mode raw --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa --thread (int)
 ```
 ```
-5) Running PALMER on your aligned BAM to call NumtS in chromosome 5 of the chimpanzee genome
+Running PALMER on your aligned BAM to call NumtS in chromosome 5 of the chimpanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt --thread (int)
 ```
 ```
-6) Running PALMER on your aligned BAM to call LINE-1 insertions in chromosomeX of the mouse genome
+Running PALMER on your aligned BAM to call LINE-1 insertions in chromosomeX of the mouse genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --TSD_finding TRUE --len_custom_seq (int) --thread (int)
 ```
 ```
-7)
 A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Project trio derived from the Genome in a Bottle (GIAB) Consortium] using PALMER is available under:
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
@@ -185,7 +193,19 @@ For SMaHT benchmarking:
 * arthurz@umich.edu
 
 ## Logs
-**Ver2.2** Dec.25th.2025! PALMER2.2. Happy Thanksgiving!
+**Ver2.3** Dec.4th.2025! PALMER2.3
+
+* Add columns in the output files for potential supporting reads from 5' end and 3' end.
+* Optimized ALU calling in terms of running time and identity accuracy. 
+* Optimized BLASTn calling
+* Implemented samtools API. 
+* Decreased the number of intermediate files.
+* Minor format bugs fixed.
+* Example updated.
+* Scripts cleaned.
+* README updated.
+
+**Ver2.2** Nov.25th.2025! PALMER2.2 Happy Thanksgiving!
 
 * Add a module for multi-threads. 
 * Add a module to output to VCF files.
