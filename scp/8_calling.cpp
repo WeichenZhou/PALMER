@@ -1087,12 +1087,216 @@ int calling(string WD_dir, string t, int tsd_index){
                         if(loc_tsd[w][5]>p) p=loc_tsd[w][5];
                     }
                 }
+
+                int potential_p=0;
+                for(int w=0;w!=line_tsd;++w){
+                    if(loc_tsd[w][4]==1){
+                        if(loc_tsd[w][5]>potential_p) potential_p=loc_tsd[w][5];
+                    }
+                }
                 
                 //cout<<"p="<<p<<endl;
                 if(p==0){
-                    
+
                     file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<total_potential_supporting_reads<<'\t'<<(number_all-number)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
-                    file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
+                    if(potential_p>0){
+                        int number_supporting=loc_tsd[potential_number_buff][5];
+                        for(int w=0;w!=number_supporting;++w){
+                            int ls_new, le_new, rs_new, re_new;
+
+                            if(orien[i]=="+"){
+                                ls_new=ls[potential_number_buff][w]-le_5+len_5[potential_number_buff][w];
+                                le_new=le[potential_number_buff][w]-le_5+len_5[potential_number_buff][w];
+                                rs_new=rs[potential_number_buff][w];
+                                re_new=re[potential_number_buff][w];
+                            }
+                            else if(orien[i]=="-"){
+                                ls_new=ls[potential_number_buff][w];
+                                le_new=le[potential_number_buff][w];
+                                rs_new=rs[potential_number_buff][w]-le_3+len_3[potential_number_buff][w];
+                                re_new=re[potential_number_buff][w]-le_3+len_3[potential_number_buff][w];
+                            }
+
+                            //TSD seq
+                            int read_seq=-1;
+                            string name_tag;
+                            for(int j=0;j!=line;++j){
+
+                                string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
+                                stringstream ss_0;
+                                ss_0.clear();
+                                ss_0<<loc[j][0];
+                                loc_0=ss_0.str();
+                                stringstream ss_1;
+                                ss_1.clear();
+                                ss_1<<loc[j][1];
+                                loc_1=ss_1.str();
+                                stringstream ss_2;
+                                ss_2.clear();
+                                ss_2<<loc[j][2];
+                                loc_2=ss_2.str();
+                                stringstream ss_3;
+                                ss_3.clear();
+                                ss_3<<loc[j][3];
+                                loc_3=ss_3.str();
+                                stringstream ss_4;
+                                ss_4.clear();
+                                ss_4<<loc[j][4];
+                                loc_4=ss_4.str();
+                                stringstream ss_5;
+                                ss_5.clear();
+                                ss_5<<loc[j][5];
+                                loc_5=ss_5.str();
+
+                                string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
+                                stringstream ss_TP_0;
+                                ss_TP_0.clear();
+                                ss_TP_0<<loc_TP[j][0];
+                                loc_TP_0=ss_TP_0.str();
+                                stringstream ss_TP_1;
+                                ss_TP_1.clear();
+                                ss_TP_1<<loc_TP[j][1];
+                                loc_TP_1=ss_TP_1.str();
+                                stringstream ss_TP_2;
+                                ss_TP_2.clear();
+                                ss_TP_2<<loc_TP[j][2];
+                                loc_TP_2=ss_TP_2.str();
+                                stringstream ss_TP_3;
+                                ss_TP_3.clear();
+                                ss_TP_3<<loc_TP[j][3];
+                                loc_TP_3=ss_TP_3.str();
+                                stringstream ss_TP_4;
+                                ss_TP_4.clear();
+                                ss_TP_4<<loc_TP[j][4];
+                                loc_TP_4=ss_TP_4.str();
+                                stringstream ss_TP_5;
+                                ss_TP_5.clear();
+                                ss_TP_5<<loc_TP[j][5];
+                                loc_TP_5=ss_TP_5.str();
+                                stringstream ss_TP_6;
+                                ss_TP_6.clear();
+                                ss_TP_6<<loc_TP[j][6];
+                                loc_TP_6=ss_TP_6.str();
+
+                                string seq_index,seq_index_2;
+
+                                seq_index=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+
+                                seq_index_2="";
+                                seq_index_2=seq_index_2+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+
+                                if(name_tsd[potential_number_buff][w]==seq_index){
+                                    read_seq=j;
+                                    break;
+                                }
+                                if(name_tsd[potential_number_buff][w]==seq_index_2){
+                                    read_seq=j;
+                                    break;
+                                }
+
+                            }
+
+                            //5' kmer output
+                            file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<name_tsd[potential_number_buff][w]<<'\t';
+
+                            //5' and 3' TSD output
+                            char *seq5 = new char[info[read_seq][2].length()+1];
+                            strcpy(seq5, info[read_seq][2].c_str());
+
+                            char *seq3 = new char[info[read_seq][3].length()+1];
+                            strcpy(seq3, info[read_seq][3].c_str());
+
+                            char *seq_line = new char[info_line[read_seq][2].length()+1];
+                            strcpy(seq_line, info_line[read_seq][2].c_str());
+
+                            if(orien[i]=="+"){
+                                for(int n=ls_new-1;n!=le_new;++n){
+                                    file4<<seq5[n];
+                                }
+                                file4<<'\t';
+
+                                for(int n=rs_new-1;n!=re_new;++n){
+                                    file4<<seq3[n];
+                                }
+                                file4<<'\t';
+
+                                if(rs_new-1<=(BIN_buff+1)){
+                                    file4<<"N/A";
+                                }
+                                else {
+                                    for(int n=0;n!=rs_new-1;++n){
+                                        file4<<seq3[n];
+                                    }
+                                }
+                            }
+
+                            else if(orien[i]=="-"){
+                                for(int n=ls_new-1;n!=le_new;++n){
+                                    file4<<seq5[n];
+                                }
+                                file4<<'\t';
+
+                                for(int n=rs_new-1;n!=re_new;++n){
+                                    file4<<seq3[n];
+                                }
+                                file4<<'\t';
+                                if(re_new>=info[read_seq][3].length()-BIN_buff){
+                                    file4<<"N/A";
+                                }
+                                else {
+                                    for(int n=re_new;n!=info[read_seq][3].length();++n){
+                                        file4<<seq3[n];
+                                    }
+                                }
+                            }
+
+//5' 26mer output
+                            file4<<'\t'<<kmerseq_tsd[potential_number_buff][w]<<'\t';
+
+
+//whole insertin sequence output
+
+                            if(orien[i]=="+"){
+                                for(int n=le_new;n!=info[read_seq][2].length();++n){
+                                    file4<<seq5[n];
+                                }
+
+                                for(int n=BIN_buff;n!=info_line[read_seq][2].length()-1-BIN_buff;++n){
+                                    file4<<seq_line[n];
+                                }
+
+                                for(int n=0;n!=rs_new-1;++n){
+                                    file4<<seq3[n];
+                                }
+                            }
+
+                            else if(orien[i]=="-"){
+
+                                for(int n=re_new;n!=info[read_seq][3].length();++n){
+                                    file4<<seq3[n];
+                                }
+
+                                for(int n=1+BIN_buff;n!=info_line[read_seq][2].length()-1-BIN_buff;++n){
+                                    file4<<seq_line[n];
+                                }
+
+                                for(int n=0;n!=ls_new-1;++n){
+                                    file4<<seq5[n];
+                                }
+
+                            }
+
+
+                            file4<<endl;
+
+                            delete [] seq3;
+                            delete [] seq5;
+                            delete [] seq_line;
+                        }
+                    }
+                    else{
+                        file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
+                    }
                     
                     
                     for(int j=0;j!=line_tsd;++j) {delete [] name_tsd[j];}
@@ -1130,6 +1334,12 @@ int calling(string WD_dir, string t, int tsd_index){
                 int dis_tsd;
                 int len_tsd;
                 len_tsd=le_buff-ls_buff+re_buff-rs_buff;
+
+                int potential_number_buff=0;
+                int potential_ls_buff=0;
+                int potential_le_buff=0;
+                int potential_rs_buff=0;
+                int potential_re_buff=0;
                 
                 if(orien[i]=="+"){
                     ls_buff=0;
@@ -1202,7 +1412,83 @@ int calling(string WD_dir, string t, int tsd_index){
                                 dis_tsd=dis_tsd_w;
                             }
                         }
-                        
+
+                    }
+                }
+
+                if(potential_p>0){
+                    int dis_tsd_w=10000;
+                    int len_tsd_w;
+                    int potential_dis_tsd;
+                    int potential_len_tsd;
+
+                    if(orien[i]=="+"){
+                        potential_ls_buff=0;
+                        potential_le_buff=0;
+                        potential_rs_buff=le_3;
+                        potential_re_buff=le_3;
+                        potential_number_buff=0;
+                        potential_dis_tsd=potential_rs_buff-potential_le_buff;
+                        potential_len_tsd=potential_le_buff-potential_ls_buff+potential_re_buff-potential_rs_buff;
+                    }
+                    else{
+                        potential_ls_buff=le_5;
+                        potential_le_buff=le_5;
+                        potential_rs_buff=0;
+                        potential_re_buff=0;
+                        potential_number_buff=0;
+                        potential_dis_tsd=potential_ls_buff-potential_re_buff;
+                        potential_len_tsd=potential_le_buff-potential_ls_buff+potential_re_buff-potential_rs_buff;
+                    }
+
+                    for(int w2=0;w2!=line_tsd;++w2){
+                        if(loc_tsd[w2][4]==1&&loc_tsd[w2][5]==potential_p){
+                            dis_tsd_w=10000;
+                            len_tsd_w=loc_tsd[w2][1]-loc_tsd[w2][0]+loc_tsd[w2][3]-loc_tsd[w2][2];
+
+                            if(orien[i]=="+"){
+                                dis_tsd_w=loc_tsd[w2][2]-loc_tsd[w2][1]-len_tsd_w;
+                                if(dis_tsd_w<potential_dis_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                                else if(dis_tsd_w==potential_dis_tsd&&len_tsd_w>potential_len_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                            }
+                            else if(orien[i]=="-"){
+                                dis_tsd_w=loc_tsd[w2][0]-loc_tsd[w2][3]-len_tsd_w;
+                                if(dis_tsd_w<potential_dis_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                                else if(dis_tsd_w==potential_dis_tsd&&len_tsd_w>potential_len_tsd){
+                                    potential_number_buff=w2;
+                                    potential_rs_buff=loc_tsd[w2][2];
+                                    potential_re_buff=loc_tsd[w2][3];
+                                    potential_ls_buff=loc_tsd[w2][0];
+                                    potential_le_buff=loc_tsd[w2][1];
+                                    potential_dis_tsd=dis_tsd_w;
+                                    potential_len_tsd=len_tsd_w;
+                                }
+                            }
+                        }
                     }
                 }
                 
