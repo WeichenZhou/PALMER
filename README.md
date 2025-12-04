@@ -1,4 +1,4 @@
-# PALMER Ver2.2
+# PALMER Ver2.3
 
 * PALMER detects non-reference MEIs (LINE, Alu, SVA, and HERVK) and other insertions (e.g., NUMTs, HPV insertions).
 * PALMER detects non-reference germline and somatic signals of your interest. 
