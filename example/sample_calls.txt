@@ -1,4 +1,4 @@
-cluster_id	chr start1	start2	end1	end2	start1_inVariant	start2_inVariant	end1_inVariant	end2_inVariant	Confident_supporting_reads	Potential_supporting_reads	Ptential_segmental_supporting_reads	orientation	polyA-tail_size	5'_TSD_size	3'_TSD_size	Predicted_transD_size	Has_5'_inverted_sequence?	5'_inverted_seq_end	5'_seq_start
+cluster_id	chr	start1	start2	end1	end2	start1_inVariant	start2_inVariant	end1_inVariant	end2_inVariant	Confident_supporting_reads	Potential_supporting_reads_from_5'_end	Potential_supporting_reads_from_3'_end	Total_potential_supporting_reads	Ptential_segmental_supporting_reads	orientation	polyA-tail_size	5'_TSD_size	3'_TSD_size	Predicted_transD_size	Has_5'_inverted_sequence?	5'_inverted_seq_end	5'_seq_start
 cluster0_chr19_4912583_4912583_4912583_4912583	chr19	4912583	4912583	4912583	4912583	3698	3698	6032	6032	0	1	0	-	-	0	0	0	1	3749	4681
 cluster1_chr19_4777212_4777212_4777212_4777212	chr19	4777212	4777212	4777212	4777212	5241	5241	6046	6046	0	1	0	-	-	0	0	0	1	5717	5727
 cluster2_chr19_4974781_4974781_4974781_4974781	chr19	4974781	4974781	4974781	4974781	5350	5350	6033	6033	0	1	0	+	-	0	0	0	1	5599	5725
