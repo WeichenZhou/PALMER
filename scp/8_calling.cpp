@@ -1,5 +1,6 @@
 //copyright by ArthurZhou @ UMich&Fudan&HUST
 #include "common.hpp"
+#include <set>
 
 int calling(string WD_dir, string t, int tsd_index){
     
@@ -153,6 +154,16 @@ int calling(string WD_dir, string t, int tsd_index){
         file1>>loc_TP[i][6];
     }
     
+    auto build_seq_index = [&](int idx) {
+        stringstream seq_index_builder;
+        seq_index_builder << info[idx][0] << "." << loc[idx][0] << "." << loc[idx][1] << "." << loc[idx][2] << "."
+                          << loc[idx][3] << "." << loc[idx][4] << "." << loc[idx][5] << "." << info[idx][1] << "."
+                          << orien[idx] << "." << loc_TP[idx][0] << "." << loc_TP[idx][1] << "." << loc_TP[idx][2]
+                          << "." << loc_TP[idx][3] << "." << loc_TP[idx][4] << "." << loc_TP[idx][5] << "."
+                          << loc_TP[idx][6];
+        return seq_index_builder.str();
+    };
+    
     //TSD_calling
     ifstream file3;
     string sys_input_TSD = WD_dir+"TSD_blastn.txt";
@@ -263,6 +274,8 @@ int calling(string WD_dir, string t, int tsd_index){
             int number_all_3=1;
             loc[i][6]=-1;
             int flag=1;
+            vector<int> left_supporting_read_indices;
+            vector<int> right_supporting_read_indices;
             
             string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
             stringstream ss_0;
@@ -457,6 +470,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     loc[j][6]=-1;
                                     number_all=number_all+1;
                                     number_all_5=number_all_5+1;
+                                    left_supporting_read_indices.push_back(j);
                                     
                                     string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                                     stringstream ss_0;
@@ -539,6 +553,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     loc[j][6]=-1;
                                     number_all=number_all+1;
                                     number_all_5=number_all_5+1;
+                                    left_supporting_read_indices.push_back(j);
                                     
                                     string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                                     stringstream ss_0;
@@ -626,6 +641,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     
                                     number_all=number_all+1;
                                     number_all_3=number_all_3+1;
+                                    right_supporting_read_indices.push_back(j);
                                     
                                     string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                                     stringstream ss_0;
@@ -709,6 +725,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     
                                     number_all=number_all+1;
                                     number_all_3=number_all_3+1;
+                                    right_supporting_read_indices.push_back(j);
                                     
                                     string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
                                     stringstream ss_0;
@@ -2356,6 +2373,33 @@ int calling(string WD_dir, string t, int tsd_index){
                 file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<total_potential_supporting_reads<<'\t'<<potential_supporting_reads_from_go_through<<'\t'<<(number_all-number)<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
                 file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
             }
+
+            stringstream cluster_id_builder;
+            cluster_id_builder<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S;
+            const string cluster_id = cluster_id_builder.str();
+
+            const vector<int> &number_5_reads = (orien[i]=="+") ? left_supporting_read_indices : right_supporting_read_indices;
+            const vector<int> &number_3_reads = (orien[i]=="+") ? right_supporting_read_indices : left_supporting_read_indices;
+            set<int> emitted_support_reads;
+
+            auto emit_support_read = [&](int read_idx, const string &label, bool is_five_end) {
+                string read_name = label + "|" + build_seq_index(read_idx);
+                string five_tsd_seq = is_five_end ? info[read_idx][2] : "N";
+                string three_tsd_seq = is_five_end ? "N" : info[read_idx][3];
+
+                file4<<cluster_id<<'\t'<<read_name<<'\t'<<five_tsd_seq<<'\t'<<three_tsd_seq<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[read_idx][2]<<endl;
+            };
+
+            for(const auto &read_idx:number_5_reads){
+                if(emitted_support_reads.insert(read_idx).second){
+                    emit_support_read(read_idx,"number_5",true);
+                }
+            }
+            for(const auto &read_idx:number_3_reads){
+                if(emitted_support_reads.insert(read_idx).second){
+                    emit_support_read(read_idx,"number_3",false);
+                }
+            }
                 
         }
     }
@@ -2384,4 +2428,3 @@ int calling(string WD_dir, string t, int tsd_index){
     
     return 0;
 }
-
