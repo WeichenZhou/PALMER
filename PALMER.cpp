@@ -945,6 +945,7 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
     vcf_stream << "##INFO=<ID=PS,Number=1,Type=Integer,Description=\"Total potential supporting reads\">" << endl;
     vcf_stream << "##INFO=<ID=PS5,Number=1,Type=Integer,Description=\"Potential supporting reads from the insertion 5' end\">" << endl;
     vcf_stream << "##INFO=<ID=PS3,Number=1,Type=Integer,Description=\"Potential supporting reads from the insertion 3' end\">" << endl;
+    vcf_stream << "##INFO=<ID=PSG,Number=1,Type=Integer,Description=\"Potential supporting reads from go-through evidence\">" << endl;
     vcf_stream << "##INFO=<ID=SEG,Number=1,Type=Integer,Description=\"Potential segmental supporting reads\">" << endl;
     vcf_stream << "##INFO=<ID=ORIENTATION,Number=1,Type=String,Description=\"Insertion orientation\">" << endl;
     vcf_stream << "##INFO=<ID=POLYA,Number=1,Type=Integer,Description=\"polyA tail size\">" << endl;
@@ -987,7 +988,7 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
             fields.push_back(field);
         }
 
-        if (fields.size() < 23) {
+        if (fields.size() < 24) {
             continue;
         }
 
@@ -1012,18 +1013,19 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         info_prefix += ";SUBTYPE=" + (ins_type.empty() ? string("NA") : ins_type);
         info_prefix += ";END=" + end;
         info_prefix += ";CS=" + fields[10];
-        info_prefix += ";PS=" + fields[13];
+        info_prefix += ";PS=" + fields[14];
         info_prefix += ";PS5=" + fields[11];
         info_prefix += ";PS3=" + fields[12];
-        info_prefix += ";SEG=" + fields[14];
-        info_prefix += ";ORIENTATION=" + fields[15];
-        info_prefix += ";POLYA=" + fields[16];
-        info_prefix += ";TSD5=" + fields[17];
-        info_prefix += ";TSD3=" + fields[18];
-        info_prefix += ";TRANSD=" + fields[19];
-        info_prefix += ";INV5=" + fields[20];
-        info_prefix += ";INV5_END=" + fields[21];
-        info_prefix += ";INV5_START=" + fields[22];
+        info_prefix += ";PSG=" + fields[13];
+        info_prefix += ";SEG=" + fields[15];
+        info_prefix += ";ORIENTATION=" + fields[16];
+        info_prefix += ";POLYA=" + fields[17];
+        info_prefix += ";TSD5=" + fields[18];
+        info_prefix += ";TSD3=" + fields[19];
+        info_prefix += ";TRANSD=" + fields[20];
+        info_prefix += ";INV5=" + fields[21];
+        info_prefix += ";INV5_END=" + fields[22];
+        info_prefix += ";INV5_START=" + fields[23];
         info_prefix += ";START_INVAR=" + to_string(start_invariant);
         info_prefix += ";END_INVAR=" + to_string(end_invariant);
 
@@ -1041,7 +1043,7 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         }
 
         string key;
-        size_t key_fields = min(fields.size(), static_cast<size_t>(23));
+        size_t key_fields = min(fields.size(), static_cast<size_t>(24));
         for (size_t i = 1; i < key_fields; ++i) {
             if (i > 1) key += "|";
             key += fields[i];
