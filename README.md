@@ -154,7 +154,9 @@ We have several outputs: `sample_calls.txt`, `sample_all_reads_output.txt`, `sam
 
 `sample_calls.txt` is the summary for all non-reference insertion calls.
 
-`sample_all_reads_output.txt` contains all potential supporting reads (including HC and non-HC) with the same columns as TSD output. `sample_TSD_reads_output.txt` contains only the high confidence (HC) supporting reads (SRs).
+`sample_all_reads_output.txt` lists all potential supporting reads (including HC and non-HC) with columns: cluster_id, type, read_name, read_name.info, whole_insertion_seq. When TSD finding is not enabled, all reads will be here.
+
+`sample_TSD_reads_output.txt` contains only the high confidence (HC) supporting reads (SRs) with cluster_id, read_name, read_name.info, TSD/TransD/26mer fields, and whole insertion sequence. When TSD finding is not enabled, no reads will be here.
 
 `sample_calls_genotyped.txt` contains the summary for all non-ref insertion calls with extra genotype information.
 

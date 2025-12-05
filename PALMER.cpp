@@ -852,7 +852,9 @@ int missing_fields(const TsdInfo &info) {
 
 int tsd_missing_bases(const vector<string> &fields) {
     int missing = 0;
-    for (size_t idx = 2; idx <= 6 && idx < fields.size(); ++idx) {
+    size_t start_idx = fields.size() > 3 ? 3 : 0;
+    size_t end_idx = min(fields.size(), static_cast<size_t>(7));
+    for (size_t idx = start_idx; idx < end_idx; ++idx) {
         const string &value = fields[idx];
         if (value == "N" || value == "NA" || value.empty()) {
             ++missing;
@@ -954,10 +956,10 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
                 fields.push_back(field);
             }
 
-            if (fields.size() < 7) continue;
+            if (fields.size() < 8) continue;
 
             int n_count = 0;
-            for (size_t idx = 2; idx <= 6; ++idx) {
+            for (size_t idx = 3; idx <= 6; ++idx) {
                 if (fields[idx] == "N") {
                     ++n_count;
                 }
@@ -976,11 +978,11 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
             if (should_replace) {
                 TsdInfo info;
                 info.read_name = normalize_field(fields[1]);
-                info.tsd5 = normalize_field(fields[2]);
-                info.tsd3 = normalize_field(fields[3]);
-                info.predicted_transd = normalize_field(fields[4]);
-                info.junction_26mer = normalize_field(fields[5]);
-                info.insertion_seq = normalize_field(fields[6]);
+                info.tsd5 = normalize_field(fields[3]);
+                info.tsd3 = normalize_field(fields[4]);
+                info.predicted_transd = normalize_field(fields[5]);
+                info.junction_26mer = normalize_field(fields[6]);
+                info.insertion_seq = normalize_field(fields[7]);
                 info.n_count = n_count;
                 tsd_records[fields[0]] = info;
             }
