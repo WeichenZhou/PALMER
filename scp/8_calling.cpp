@@ -2,6 +2,15 @@
 #include "common.hpp"
 #include <set>
 #include <unordered_set>
+#include <sstream>
+
+static string clean_read_name(const string &name) {
+    size_t last = name.rfind('_');
+    if (last == string::npos) return name;
+    size_t prev = name.rfind('_', last == 0 ? 0 : last - 1);
+    if (prev == string::npos) return name;
+    return name.substr(0, prev);
+}
 
 int calling(string WD_dir, string t, int tsd_index){
     
@@ -1366,7 +1375,7 @@ int calling(string WD_dir, string t, int tsd_index){
 
                             }
 
-                            string read_name_col = (read_seq>=0)?info[read_seq][0]:"NA";
+                            string read_name_col = (read_seq>=0)?clean_read_name(info[read_seq][0]):"NA";
 
                             //5' kmer output
                             file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<read_name_col<<'\t'<<name_tsd[potential_number_buff][w]<<'\t';
@@ -1467,7 +1476,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         }
                     }
                     else{
-                        file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<"cluster_member"<<'\t'<<info[i][0]<<'\t'<<seq_index_a<<'\t'<<info_line[i][2]<<endl;
+                        file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<"cluster_member"<<'\t'<<clean_read_name(info[i][0])<<'\t'<<seq_index_a<<'\t'<<info_line[i][2]<<endl;
                     }
 
                     for(int w=0; w!=line_tsd; ++w){
@@ -1546,7 +1555,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 insertion_seq = info_line[read_seq][2];
                             }
 
-                            file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<"cluster_member"<<'\t'<<(read_seq>=0?info[read_seq][0]:"NA")<<'\t'<<info_tsd[w]<<'\t'<<insertion_seq<<endl;
+                            file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<"cluster_member"<<'\t'<<(read_seq>=0?clean_read_name(info[read_seq][0]):"NA")<<'\t'<<info_tsd[w]<<'\t'<<insertion_seq<<endl;
                         }
                     }
 
@@ -1869,7 +1878,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         char *seq_line = new char[info_line[read_seq][2].length()+1];
                         strcpy(seq_line, info_line[read_seq][2].c_str());
                         
-                        string read_name_col = (read_seq>=0)?info[read_seq][0]:"NA";
+                        string read_name_col = (read_seq>=0)?clean_read_name(info[read_seq][0]):"NA";
                         file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<read_name_col<<'\t'<<name_tsd[number_buff][w]<<'\t';
                         
                         if(orien[i]=="+"){
@@ -2276,7 +2285,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         char *seq_line = new char[info_line[read_seq][2].length()+1];
                         strcpy(seq_line, info_line[read_seq][2].c_str());
                         
-                        string read_name_col = (read_seq>=0)?info[read_seq][0]:"NA";
+                        string read_name_col = (read_seq>=0)?clean_read_name(info[read_seq][0]):"NA";
                         file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<read_name_col<<'\t'<<name_tsd[number_buff][w]<<'\t';
                         
                         if(orien[i]=="+"){
@@ -2439,7 +2448,7 @@ int calling(string WD_dir, string t, int tsd_index){
             }
             else if (tsd_index==0){
                 file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
-                file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<"cluster_member"<<'\t'<<info[i][0]<<'\t'<<seq_index_a<<'\t'<<info_line[i][2]<<endl;
+                file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<"cluster_member"<<'\t'<<clean_read_name(info[i][0])<<'\t'<<seq_index_a<<'\t'<<info_line[i][2]<<endl;
             }
 
             stringstream cluster_id_builder;
@@ -2452,7 +2461,7 @@ int calling(string WD_dir, string t, int tsd_index){
             set<int> emitted_support_reads;
 
             auto emit_all_read = [&](int read_idx, const string &label) {
-                file5<<cluster_id<<'\t'<<label<<'\t'<<info[read_idx][0]<<'\t'<<build_seq_index(read_idx)<<'\t'<<info_line[read_idx][2]<<endl;
+                file5<<cluster_id<<'\t'<<label<<'\t'<<clean_read_name(info[read_idx][0])<<'\t'<<build_seq_index(read_idx)<<'\t'<<info_line[read_idx][2]<<endl;
             };
 
             for(const auto &read_idx:go_through_read_indices){
