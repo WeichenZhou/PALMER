@@ -2097,13 +2097,13 @@ int main(int argc, char *argv[]){
     ofstream file31;
     file31.open(syst_final_tsd_title,ios::trunc);
     
-    //file31<<"cluster_id"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
+    file31<<"cluster_id"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
     string sys_final_reads_title = WD+output+"_all_reads_output.txt";
     char *syst_final_reads_title = new char[sys_final_reads_title.length()+1];
     strcpy(syst_final_reads_title, sys_final_reads_title.c_str());
     ofstream file32;
     file32.open(syst_final_reads_title,ios::trunc);
-    //file32<<"cluster_id"<<'\t'<<"type"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"Whole_insertion_seq"<<endl;
+    file32<<"cluster_id"<<'\t'<<"type"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"Whole_insertion_seq"<<endl;
     file3.close();
     file31.close();
     file32.close();

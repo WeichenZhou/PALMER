@@ -200,8 +200,7 @@ int calling(string WD_dir, string t, int tsd_index){
     strcpy(syst_output_reads, sys_output_reads.c_str());
     file5.open(syst_output_reads);
 
-    file4<<"cluster_id"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
-    file5<<"cluster_id"<<'\t'<<"type"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"Whole_insertion_seq"<<endl;
+    // Headers are written once in the merged outputs; skip per-region headers.
     
     int line_tsd;
     for(int i=0;!file3.eof();++i){
@@ -2458,29 +2457,29 @@ int calling(string WD_dir, string t, int tsd_index){
             unordered_set<int> left_set(left_type_reads.begin(), left_type_reads.end());
             unordered_set<int> right_set(right_type_reads.begin(), right_type_reads.end());
 
-            set<int> emitted_support_reads;
+            unordered_set<string> emitted_read_names;
 
             auto emit_all_read = [&](int read_idx, const string &label) {
-                file5<<cluster_id<<'\t'<<label<<'\t'<<clean_read_name(info[read_idx][0])<<'\t'<<build_seq_index(read_idx)<<'\t'<<info_line[read_idx][2]<<endl;
+                string base_name = clean_read_name(info[read_idx][0]);
+                if(!emitted_read_names.insert(base_name).second){
+                    return;
+                }
+                file5<<cluster_id<<'\t'<<label<<'\t'<<base_name<<'\t'<<build_seq_index(read_idx)<<'\t'<<info_line[read_idx][2]<<endl;
             };
 
             for(const auto &read_idx:go_through_read_indices){
-                if(emitted_support_reads.insert(read_idx).second){
-                    emit_all_read(read_idx,"potential_go_through");
-                }
+                emit_all_read(read_idx,"potential_go_through");
             }
 
             for(const auto &read_idx:cluster_members){
-                if(emitted_support_reads.insert(read_idx).second){
-                    if(left_set.count(read_idx)){
-                        emit_all_read(read_idx,"cluster_member_5'");
-                    }
-                    else if(right_set.count(read_idx)){
-                        emit_all_read(read_idx,"cluster_member_3'");
-                    }
-                    else {
-                        emit_all_read(read_idx,"cluster_member");
-                    }
+                if(left_set.count(read_idx)){
+                    emit_all_read(read_idx,"cluster_member_5'");
+                }
+                else if(right_set.count(read_idx)){
+                    emit_all_read(read_idx,"cluster_member_3'");
+                }
+                else {
+                    emit_all_read(read_idx,"cluster_member");
                 }
             }
                 
