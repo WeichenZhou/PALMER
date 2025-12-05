@@ -1002,14 +1002,16 @@ int calling(string WD_dir, string t, int tsd_index){
                     }
                     
                     //left
-                    else if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc[j][1]<L1_e1||loc[j][1]>L1_e2)){
+                    else if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc[j][1]<L1_e1)){
                         number_all_5=number_all_5+1;
+                        left_supporting_read_indices.push_back(j);
                     }
                     
                     
                     //right
-                    else if((loc[j][0]<L1_s1||loc[j][0]>L1_s2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)){
+                    else if((loc[j][0]>L1_s2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)){
                         number_all_3=number_all_3+1;
+                        right_supporting_read_indices.push_back(j);
                     }
                 }
             }
@@ -1019,18 +1021,18 @@ int calling(string WD_dir, string t, int tsd_index){
             //cout<<"number_ture is "<<number_true<<endl;
             //cout<<"number_all is "<<number_all<<endl;
             
-            int supporting_reads_from_5_end = number_all_5;
-            int supporting_reads_from_3_end = number_all_3;
+            //int number_all_5 = number_all_5;
+            //int number_all_3 = number_all_3;
             //if (orien[i] == "-") {
-            //    supporting_reads_from_5_end = number_all_3;
-            //    supporting_reads_from_3_end = number_all_5;
+            //    number_all_5 = number_all_3;
+            //    number_all_3 = number_all_5;
             //}
-            int potential_supporting_reads_from_go_through = number;
-            int total_potential_supporting_reads = number_all;
+            //int number = number;
+            //int number_all = number_all;
 
             if(tsd_index==1){
 
-//TSD_indentifier
+            //TSD_indentifier
             string **name_tsd;
             name_tsd =new string*[line_tsd];
             for(int j=0;j!=line_tsd;++j) name_tsd[j]= new string[number];
@@ -1228,7 +1230,7 @@ int calling(string WD_dir, string t, int tsd_index){
                 //cout<<"p="<<p<<endl;
                 if(p==0){
 
-                    file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<total_potential_supporting_reads<<'\t'<<potential_supporting_reads_from_go_through<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
+                    file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
                     if(potential_p>0){
                         int number_supporting=loc_tsd[potential_number_buff][5];
                         for(int w=0;w!=number_supporting;++w){
@@ -1949,11 +1951,11 @@ int calling(string WD_dir, string t, int tsd_index){
                     
                     //cluster output
                     if(pa_len<0){
-                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<total_potential_supporting_reads<<'\t'<<potential_supporting_reads_from_go_through<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
+                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
                         
                     }
                     else {
-                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<total_potential_supporting_reads<<'\t'<<potential_supporting_reads_from_go_through<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<orien[i]<<'\t'<<pa_len<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
+                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<pa_len<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
                     }
                     
                     //return
@@ -2357,11 +2359,11 @@ int calling(string WD_dir, string t, int tsd_index){
                     
                     //cluster output
                     if(pa_len<0){
-                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<total_potential_supporting_reads<<'\t'<<potential_supporting_reads_from_go_through<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
+                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
                         
                     }
                     else {
-                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<total_potential_supporting_reads<<'\t'<<potential_supporting_reads_from_go_through<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<orien[i]<<'\t'<<pa_len<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
+                        file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<p<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<pa_len<<'\t'<<l_len<<'\t'<<r_len<<'\t'<<trans_len<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
                     }
                     
                     //return
@@ -2394,7 +2396,7 @@ int calling(string WD_dir, string t, int tsd_index){
             }
             }
             else if (tsd_index==0){
-                file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<total_potential_supporting_reads<<'\t'<<potential_supporting_reads_from_go_through<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<supporting_reads_from_5_end<<'\t'<<supporting_reads_from_3_end<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
+                file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
                 file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
             }
 
