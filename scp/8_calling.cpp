@@ -1002,13 +1002,13 @@ int calling(string WD_dir, string t, int tsd_index){
                     }
                     
                     //left
-                    else if(loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc[j][1]<L1_e1||loc[j][1]>L1_e2){
+                    else if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc[j][1]<L1_e1||loc[j][1]>L1_e2)){
                         number_all_5=number_all_5+1;
                     }
                     
                     
                     //right
-                    else if(loc[j][0]<L1_s1||loc[j][0]>L1_s2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2){
+                    else if((loc[j][0]<L1_s1||loc[j][0]>L1_s2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)){
                         number_all_3=number_all_3+1;
                     }
                 }
