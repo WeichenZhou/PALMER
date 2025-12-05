@@ -116,7 +116,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     cout<<"Calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
 
     if(intermediate==0){
-        string clean_cmd = "find \"" + WD_tube + "\" -mindepth 1 ! -name 'calls.txt' ! -name 'TSD_output.txt' -exec rm -rf {} +";
+        string clean_cmd = "find \"" + WD_tube + "\" -mindepth 1 ! -name 'calls.txt' ! -name 'TSD_reads_output.txt' ! -name 'all_reads_output.txt' -exec rm -rf {} +";
         char *syst_clean_cmd = new char[clean_cmd.length()+1];
         strcpy(syst_clean_cmd, clean_cmd.c_str());
         system(syst_clean_cmd);

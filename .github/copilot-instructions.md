@@ -1,47 +1,46 @@
-<!-- Copilot / AI agent instructions for the PALMER repo -->
-# PALMER — Copilot Instructions (concise)
+<!-- Copilot / AI agent instructions for PALMER -->
+# PALMER — Quick AI Agent Guide
 
-Goal: Help AI coding agents become productive quickly in this repository.
+Purpose: get an AI coding agent productive fast — build, test, and safely modify the PALMER pipeline.
 
-- **Primary build**: the top-level `Makefile` builds the `PALMER` binary. It expects htslib available via `pkg-config`.
-  - Build: `make` (or ensure `pkg-config` finds htslib; see `makefile` for error message).
-  - If you need more debugging output, set `CXXFLAGS` before invoking `make`, e.g.
+- **Build**: top-level `Makefile` builds the `PALMER` binary. Ensure `htslib` is installable via `pkg-config`.
+  - Quick: `make`
+  - Debug build (AddressSanitizer):
     - `export CXXFLAGS="-g -O0 -fsanitize=address,undefined" && make`
+  - Verify: `pkg-config --cflags --libs htslib` must succeed before `make`.
 
-- **Key entry points & structure**
-  - `PALMER.cpp` — the primary program built by `make`.
-  - `scp/` — a pipeline-style folder containing numbered components (e.g. `1_samtools.cpp`, `3_read_masker.cpp`, ..., `8_calling.cpp`) plus `common.hpp` and `tube.cpp`. These implement the stepwise processing used by the tool.
-  - `lib/` — fasta libraries used by the tool (e.g. `AluY.fasta`, `L1.3.fasta`).
-  - `index/` and `example/` — index resources and small example inputs you can use for quick manual testing.
+- **High-level architecture**:
+  - `PALMER.cpp` — main program and CLI wrapper.
+  - `scp/` — the core pipeline steps implemented as numbered components (`1_samtools.cpp`, `3_read_masker.cpp`, ... `8_calling.cpp`) plus `common.hpp` and `tube.cpp` (orchestration).
+  - `lib/` — reference fasta assets (e.g. `AluY.fasta`, `L1.3.fasta`).
+  - `index/` and `example/` — pre-built indexes and small example BAMs for manual testing.
 
-- **Coding patterns and conventions to respect**
-  - The codebase uses manual dynamic arrays and `new[]`/`delete[]` frequently (see `scp/8_calling.cpp`). Avoid sweeping refactors that replace raw arrays with STL containers in many files at once.
-  - Many algorithms rely on global-style 2D arrays (`loc`, `loc_TP`, `loc_tsd`) and integer magic constants (`S`, `L`, `BIN_buff`, `le_3`, `le_5`). Search for definitions in `scp/common.hpp` before changing these constants.
-  - I/O is typically done with `std::ofstream` objects named like `file2`, `file4` inside the `scp` logic; these are relied on for downstream steps — preserve their output format when editing logic.
-  - Conversion between ints and strings is done with `std::stringstream` repeatedly; string concatenation forms identifiers like `info[j][0] + "." + loc_0 + ...` — be careful when altering these formats, they are used as keys (see `info_tsd` / `loc_tsd`).
+- **Dataflow & conventions (critical)**:
+  - `scp/` steps exchange tabular files and string identifiers built by concatenation (sequence id + location fields). These identifiers are treated as keys across steps — do NOT change delimiter or ordering without updating all consumers.
+  - I/O often uses `std::ofstream` names like `file2` and `file4`; their column order and file names are relied on downstream.
+  - Many algorithms use raw `new[]`/`delete[]` arrays and global 2D arrays (`loc`, `loc_TP`, `loc_tsd`). Constants (e.g., `S`, `L`, `BIN_buff`, `le_3`, `le_5`) are defined in `scp/common.hpp` and affect behavior widely.
 
-- **Important dataflow notes**
-  - The `scp/` programs interact by producing and consuming tabular files and identifiers created from concatenated fields (sequence identifiers + location fields). Changing the delimiter/order will break matching logic across steps.
-  - `example/` contains small `.bam` and `.bai` files to exercise the pipeline locally — use these when iterating on code changes.
+- **Where to read first**:
+  - `scp/common.hpp` — constants and shared structures.
+  - `scp/8_calling.cpp` — complex clustering & TSD logic; read before changing calling behavior.
+  - `scp/tube.cpp` — orchestration; shows expected inputs/outputs and execution order.
 
-- **Where to look first for common change targets**
-  - `scp/common.hpp` — definitions for constants and shared declarations.
-  - `scp/8_calling.cpp` — large, complex clustering and TSD-identification logic. Good to read before modifying higher-level behavior.
-  - `scp/tube.cpp` — likely orchestration for invoking the steps; useful to understand expected inputs/outputs.
+- **Repo-specific grep examples**:
+  - TSD logic: `grep -R "loc_tsd\[" scp/ -n`
+  - Output producers: `grep -R "file2<<\|file4<<" scp/ -n`
+  - Constants: `grep -R "#define S\|int S\|le_3\|le_5" scp/ -n`
 
-- **Debugging and testing advice**
-  - Use `make` for normal builds. For runtime memory issues, prefer AddressSanitizer via `CXXFLAGS` rather than valgrind on macOS.
-  - Run small end-to-end checks with the files in `example/` to verify no format changes broke the pipeline.
-  - Grep helpers: `grep -R "loc_tsd\|loc_TP\|info_tsd\|file2<<\|file4<<" -n` helps locate critical matching logic and output producers.
+- **External dependencies & runtime**:
+  - `htslib` (pkg-config), `ncbi-blast+` **2.10.0** recommended (older versions cause bugs).
+  - Example builds and runs are in `README.md` and `example/` (use `--intermediate 1` to keep intermediate files for debugging).
 
-- **Safe-editing rules for AI agents**
-  - Don't globally replace raw arrays with STL containers in a single change — do it in small, testable PRs.
-  - Preserve the string-identifiers used as keys (the concatenation format) unless you update all consumers across `scp/` and other code that reads those files.
-  - When changing numeric thresholds (S, L, BIN_buff, le_3, le_5), search where those values are used to ensure all dependent logic is updated.
+- **Editing guidance for agents**:
+  - Make minimal, focused changes. Avoid repo-wide replacements (e.g., raw arrays -> STL) in a single PR.
+  - Preserve identifier concatenation formats and tabular column orders unless you update ALL producers/consumers.
+  - When adjusting numeric thresholds or constants, search usages across `scp/` and run the pipeline on `example/` to validate.
 
-- **Examples of repo-specific searches**
-  - Find TSD logic: `grep -R "loc_tsd\[" scp/ -n`
-  - Find output files & columns: `grep -R "file2<<\|file4<<" scp/ -n`
-  - Find constants: `grep -R "#define S\|int S\|le_3\|le_5" -n scp/`
+- **Debug & test tips**:
+  - Use `export CXXFLAGS="-g -O0 -fsanitize=address,undefined" && make` and run small inputs from `example/`.
+  - To examine intermediate outputs, run with `--intermediate 1` and review files produced by `scp/` steps.
 
-If anything here is unclear or you want additional examples (e.g., a small checklist for making safe refactors in `8_calling.cpp`), tell me which area to expand and I will iterate.
+If you want, I can add a short checklist for safely refactoring `scp/8_calling.cpp` or create example mutation PRs. Tell me what to expand.

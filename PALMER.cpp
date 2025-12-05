@@ -496,9 +496,9 @@ string genotype_calls(const string &calls_path, const string &bam_path, int mapq
         while (getline(ss, field, '\t')) {
             fields.push_back(field);
         }
-        if (fields.size() > 10) {
+        if (fields.size() > 11) {
             try {
-                observations.push_back(stod(fields[10]));
+                observations.push_back(stod(fields[11]));
             } catch (...) {
                 observations.push_back(0.0);
             }
@@ -850,7 +850,87 @@ int missing_fields(const TsdInfo &info) {
     return missing;
 }
 
-void write_vcf_output(const string &calls_path, const string &tsd_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line, const string &sample_name) {
+int tsd_missing_bases(const vector<string> &fields) {
+    int missing = 0;
+    for (size_t idx = 2; idx <= 6 && idx < fields.size(); ++idx) {
+        const string &value = fields[idx];
+        if (value == "N" || value == "NA" || value.empty()) {
+            ++missing;
+        }
+    }
+    return missing;
+}
+
+void deduplicate_tsd_output(const string &tsd_path) {
+    ifstream in(tsd_path);
+    if (!in.is_open()) {
+        cerr << "CANNOT OPEN TSD OUTPUT FILE FOR DEDUPLICATION: " << tsd_path << endl;
+        return;
+    }
+
+    string header;
+    if (!getline(in, header)) {
+        in.close();
+        return;
+    }
+
+    unordered_map<string, pair<string, int>> best_record;
+    vector<string> order;
+    string line;
+    while (getline(in, line)) {
+        if (line.empty()) continue;
+
+        stringstream ss(line);
+        vector<string> fields;
+        string field;
+        while (getline(ss, field, '\t')) {
+            fields.push_back(field);
+        }
+
+        if (fields.empty()) {
+            continue;
+        }
+
+        int missing = tsd_missing_bases(fields);
+        string read_id = (fields.size() > 1) ? fields[1] : string();
+        size_t pipe_pos = read_id.rfind('|');
+        if (pipe_pos != string::npos && pipe_pos + 1 < read_id.size()) {
+            read_id = read_id.substr(pipe_pos + 1);
+        }
+
+        string key = fields[0] + "|" + read_id;
+
+        auto it = best_record.find(key);
+        bool replace = false;
+        if (it == best_record.end()) {
+            replace = true;
+            order.push_back(key);
+        } else if (missing < it->second.second) {
+            replace = true;
+        }
+
+        if (replace) {
+            best_record[key] = {line, missing};
+        }
+    }
+    in.close();
+
+    ofstream out(tsd_path, ios::trunc);
+    if (!out.is_open()) {
+        cerr << "CANNOT WRITE DEDUPLICATED TSD OUTPUT FILE: " << tsd_path << endl;
+        return;
+    }
+
+    out << header << '\n';
+    for (const auto &key : order) {
+        auto it = best_record.find(key);
+        if (it != best_record.end()) {
+            out << it->second.first << '\n';
+        }
+    }
+}
+
+void write_vcf_output(const string &calls_path, const string &tsd_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line, const string &sample_name, bool tsd_enabled) {
 
     unordered_map<string, TsdInfo> tsd_records;
 
@@ -964,6 +1044,7 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
     vcf_stream << "##INFO=<ID=TRANSD_READ,Number=1,Type=String,Description=\"Predicted transduction sequence (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=JUNC_26MER,Number=1,Type=String,Description=\"Unique 26-mer at 5' junction (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=INS_SEQ,Number=1,Type=String,Description=\"Representative insertion sequence (NA if unavailable)\">" << endl;
+    vcf_stream << "##FILTER=<ID=LowConf,Description=\"No high-confidence TSD-supported read; insertion sequence based on low-confidence evidence\">" << endl;
     vcf_stream << "##FORMAT=<ID=GL0,Number=G,Type=Float,Description=\"Genotype likelihoods with no frequency prior\">" << endl;
     vcf_stream << "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=\"Genotype Quality\">" << endl;
     vcf_stream << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << endl;
@@ -1013,10 +1094,10 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         info_prefix += ";SUBTYPE=" + (ins_type.empty() ? string("NA") : ins_type);
         info_prefix += ";END=" + end;
         info_prefix += ";CS=" + fields[10];
-        info_prefix += ";PS=" + fields[14];
-        info_prefix += ";PS5=" + fields[11];
-        info_prefix += ";PS3=" + fields[12];
-        info_prefix += ";PSG=" + fields[13];
+        info_prefix += ";PS=" + fields[11];
+        info_prefix += ";PSG=" + fields[12];
+        info_prefix += ";PS5=" + fields[13];
+        info_prefix += ";PS3=" + fields[14];
         info_prefix += ";SEG=" + fields[15];
         info_prefix += ";ORIENTATION=" + fields[16];
         info_prefix += ";POLYA=" + fields[17];
@@ -1107,12 +1188,24 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         tsd_info.insertion_seq = "NA";
 
         int best_missing = INT_MAX;
-        for (const auto &candidate : record.tsd_candidates) {
+        vector<size_t> high_conf_indices;
+        for (size_t idx = 0; idx < record.tsd_candidates.size(); ++idx) {
+            const auto &candidate = record.tsd_candidates[idx];
+            if (candidate.read_name != "NA" && candidate.insertion_seq != "NA") {
+                high_conf_indices.push_back(idx);
+            }
             int missing = missing_fields(candidate);
             if (missing < best_missing) {
                 best_missing = missing;
                 tsd_info = candidate;
             }
+        }
+
+        bool high_conf_available = false;
+        if (tsd_enabled && !high_conf_indices.empty()) {
+            size_t rand_idx = high_conf_indices[static_cast<size_t>(rand()) % high_conf_indices.size()];
+            tsd_info = record.tsd_candidates[rand_idx];
+            high_conf_available = true;
         }
 
         string info = record.info_prefix;
@@ -1133,13 +1226,18 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
 
         string sample_field = gt_value + ":" + gl0_value + ":" + gq_value + ":" + pl_value;
 
+        string filter_value = "PASS";
+        if (tsd_enabled && !high_conf_available) {
+            filter_value = "LowConf";
+        }
+
         vcf_stream << record.chrom << '\t'
                    << record.pos << '\t'
                    << id_field << '\t'
                    << record.ref_base << '\t'
                    << record.alt_symbol << '\t'
                    << '.' << '\t'
-                   << "PASS" << '\t'
+                   << filter_value << '\t'
                    << info << '\t'
                    << format_field << '\t'
                    << sample_field << endl;
@@ -1991,13 +2089,22 @@ int main(int argc, char *argv[]){
     
     file3<<"cluster_id"<<'\t'<<"chr"<<'\t'<<"start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Total_potential_supporting_reads"<<'\t'<<"Potential_supporting_reads_from_go_through"<<'\t'<<"Potential_supporting_reads_from_5'_end"<<'\t'<<"Potential_supporting_reads_from_3'_end"<<'\t'<<"Potential_segmental_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
     
-    string sys_final_tsd_title = WD+output+"_TSD_reads.txt";
+    string sys_final_tsd_title = WD+output+"_TSD_reads_output.txt";
     char *syst_final_tsd_title = new char[sys_final_tsd_title.length()+1];
     strcpy(syst_final_tsd_title, sys_final_tsd_title.c_str());
     ofstream file31;
     file31.open(syst_final_tsd_title,ios::trunc);
     
     file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
+    string sys_final_reads_title = WD+output+"_all_reads_output.txt";
+    char *syst_final_reads_title = new char[sys_final_reads_title.length()+1];
+    strcpy(syst_final_reads_title, sys_final_reads_title.c_str());
+    ofstream file32;
+    file32.open(syst_final_reads_title,ios::trunc);
+    file32<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
+    file3.close();
+    file31.close();
+    file32.close();
     
     /*
     for(int i=0;i!=line_index;){
@@ -2018,7 +2125,7 @@ int main(int argc, char *argv[]){
             strcpy(syst_final, sys_final.c_str());
             system(syst_final);
             
-            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
             //cout<<sys_final<<endl;
             char *syst_final_tsd = new char[sys_final_tsd.length()+1];
             strcpy(syst_final_tsd, sys_final_tsd.c_str());
@@ -2033,7 +2140,7 @@ int main(int argc, char *argv[]){
             strcpy(syst_final, sys_final.c_str());
             system(syst_final);
             
-            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
             //cout<<sys_final<<endl;
             char *syst_final_tsd = new char[sys_final_tsd.length()+1];
             strcpy(syst_final_tsd, sys_final_tsd.c_str());
@@ -2049,7 +2156,7 @@ int main(int argc, char *argv[]){
                 strcpy(syst_final, sys_final.c_str());
                 system(syst_final);
                 
-                string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+                string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
                 //cout<<sys_final<<endl;
                 char *syst_final_tsd = new char[sys_final_tsd.length()+1];
                 strcpy(syst_final_tsd, sys_final_tsd.c_str());
@@ -2071,12 +2178,18 @@ int main(int argc, char *argv[]){
         strcpy(syst_final, sys_final.c_str());
         system(syst_final);
         
-        string sys_final_tsd="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+        string sys_final_tsd="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
         char *syst_final_tsd = new char[sys_final_tsd.length()+1];
         strcpy(syst_final_tsd, sys_final_tsd.c_str());
         system(syst_final_tsd);
+        string sys_final_reads="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/all_reads_output.txt >> "+sys_final_reads_title;
+        char *syst_final_reads = new char[sys_final_reads.length()+1];
+        strcpy(syst_final_reads, sys_final_reads.c_str());
+        system(syst_final_reads);
     }
     
+    deduplicate_tsd_output(sys_final_tsd_title);
+    deduplicate_tsd_output(sys_final_reads_title);
 
     cout<<"Merging step completed."<<endl;
 
@@ -2098,7 +2211,7 @@ int main(int argc, char *argv[]){
         cout<<"Genotyping skipped (--GT=0)."<<endl;
     }
 
-    write_vcf_output(calls_for_vcf, sys_final_tsd_title, sys_final_vcf, T, ref_fa, command_line, output);
+    write_vcf_output(calls_for_vcf, sys_final_tsd_title, sys_final_vcf, T, ref_fa, command_line, output, flag_tsd==1);
 
     //colapse for the redundant calls
 

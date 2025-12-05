@@ -179,10 +179,16 @@ int calling(string WD_dir, string t, int tsd_index){
     }
     
     ofstream file4;
-    string sys_output_TSD = WD_dir+"TSD_output.txt";
+    string sys_output_TSD = WD_dir+"TSD_reads_output.txt";
     char *syst_output_TSD = new char[sys_output_TSD.length()+1];
     strcpy(syst_output_TSD, sys_output_TSD.c_str());
     file4.open(syst_output_TSD);
+
+    ofstream file5;
+    string sys_output_reads = WD_dir+"all_reads_output.txt";
+    char *syst_output_reads = new char[sys_output_reads.length()+1];
+    strcpy(syst_output_reads, sys_output_reads.c_str());
+    file5.open(syst_output_reads);
     
     int line_tsd;
     for(int i=0;!file3.eof();++i){
@@ -277,8 +283,24 @@ int calling(string WD_dir, string t, int tsd_index){
             
             loc[i][6]=-1;
             int flag=1;
-            vector<int> left_supporting_read_indices;
-            vector<int> right_supporting_read_indices;
+            vector<int> go_through_read_indices;
+
+            set<int> cluster_member_set;
+            vector<int> cluster_members;
+            auto add_member = [&](int idx) {
+                if(idx>=0 && idx<line && cluster_member_set.insert(idx).second){
+                    cluster_members.push_back(idx);
+                }
+            };
+            add_member(i);
+
+            set<int> go_through_seen;
+            auto add_go_through = [&](int idx) {
+                if(go_through_seen.insert(idx).second){
+                    go_through_read_indices.push_back(idx);
+                }
+                add_member(idx);
+            };
             
             string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
             stringstream ss_0;
@@ -356,6 +378,7 @@ int calling(string WD_dir, string t, int tsd_index){
 
                     if(info[i][0]==info[j][0]&&loc[j][6]==0&&info[i][1]==info[j][1]&&loc[i][0]==loc[j][0]&&loc[i][1]==loc[j][1]&&loc[i][2]==loc[j][2]&&loc[i][3]==loc[j][3]&&loc[i][4]==loc[j][4]&&loc[i][5]==loc[j][5]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]&&loc_TP[i][1]==loc_TP[j][1]&&loc_TP[i][2]==loc_TP[j][2]&&loc_TP[i][3]==loc_TP[j][3]&&loc_TP[i][4]==loc_TP[j][4]&&loc_TP[i][5]==loc_TP[j][5]&&loc_TP[i][6]==loc_TP[j][6]){
                         loc[j][6]=-1;
+                        add_member(j);
                         
                     }
                     else if(info[i][0]!=info[j][0]&&loc[j][6]==0&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]){
@@ -385,6 +408,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 
                                 flag=1;
                                 loc[j][6]=-1;
+                                add_member(j);
                                 number_all=number_all+1;
                                 //number_all_5=number_all_5+1;
                                 //number_all_3=number_all_3+1;
@@ -471,6 +495,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][0]+L>L1_s2) L1_s2=loc[j][0]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    add_member(j);
                                     number_all=number_all+1;
                                     //number_all_5=number_all_5+1;
                                     //left_supporting_read_indices.push_back(j);
@@ -554,6 +579,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][0]+L>L1_s2) L1_s2=loc[j][0]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    add_member(j);
                                     number_all=number_all+1;
                                     //number_all_5=number_all_5+1;
                                     //left_supporting_read_indices.push_back(j);
@@ -641,6 +667,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][1]+L>L1_e2) L1_e2=loc[j][1]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    add_member(j);
                                     
                                     number_all=number_all+1;
                                     //number_all_3=number_all_3+1;
@@ -725,6 +752,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][1]+L>L1_e2) L1_e2=loc[j][1]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    add_member(j);
                                     
                                     number_all=number_all+1;
                                     //number_all_3=number_all_3+1;
@@ -893,6 +921,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 }
                                 if(flag_number==1){
                                     number=number+1;
+                                    add_go_through(j);
                                     //cout<<seq_index<<endl;
                                 }
                                 //if(flag_true_number==1){
@@ -990,6 +1019,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 }
                                 if(flag_number==1){
                                     number=number+1;
+                                    add_go_through(j);
                                     //cout<<seq_index<<endl;
                                 }
                                 //if(flag_true_number==1){
@@ -1004,14 +1034,14 @@ int calling(string WD_dir, string t, int tsd_index){
                     //left
                     else if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc[j][1]<L1_e1)){
                         number_all_5=number_all_5+1;
-                        left_supporting_read_indices.push_back(j);
+                        add_member(j);
                     }
                     
                     
                     //right
                     else if((loc[j][0]>L1_s2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)){
                         number_all_3=number_all_3+1;
-                        right_supporting_read_indices.push_back(j);
+                        add_member(j);
                     }
                 }
             }
@@ -1427,7 +1457,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         }
                     }
                     else{
-                        file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
+                        file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
                     }
 
                     for(int w=0; w!=line_tsd; ++w){
@@ -1506,7 +1536,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 insertion_seq = info_line[read_seq][2];
                             }
 
-                            file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info_tsd[w]<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<insertion_seq<<endl;
+                            file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info_tsd[w]<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<insertion_seq<<endl;
                         }
                     }
 
@@ -2397,15 +2427,13 @@ int calling(string WD_dir, string t, int tsd_index){
             }
             else if (tsd_index==0){
                 file2<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<info[i][1]<<'\t'<<start1+S<<'\t'<<start2-S<<'\t'<<end1+S<<'\t'<<end2-S<<'\t'<<L1_s1+L<<'\t'<<L1_s2-L<<'\t'<<L1_e1+L<<'\t'<<L1_e2-L<<'\t'<<"0"<<'\t'<<number_all<<'\t'<<number<<'\t'<<number_all_5<<'\t'<<number_all_3<<'\t'<<(number_all-number-number_all_5-number_all_3)<<'\t'<<orien[i]<<'\t'<<"-"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<loc_TP[i][0]<<'\t'<<int((L1_s_TP1+L1_s_TP2)/2)<<'\t'<<int((L1_e_TP1+L1_e_TP2)/2)<<endl;
-                file4<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
+                file5<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S<<'\t'<<seq_index_a<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[i][2]<<endl;
             }
 
             stringstream cluster_id_builder;
             cluster_id_builder<<"cluster"<<i<<"_"<<info[i][1]<<"_"<<start1+S<<"_"<<start2-S<<"_"<<end1+S<<"_"<<end2-S;
             const string cluster_id = cluster_id_builder.str();
 
-            const vector<int> &number_5_reads = (orien[i]=="+") ? left_supporting_read_indices : right_supporting_read_indices;
-            const vector<int> &number_3_reads = (orien[i]=="+") ? right_supporting_read_indices : left_supporting_read_indices;
             set<int> emitted_support_reads;
 
             auto emit_support_read = [&](int read_idx, const string &label, bool is_five_end) {
@@ -2413,17 +2441,23 @@ int calling(string WD_dir, string t, int tsd_index){
                 string five_tsd_seq = is_five_end ? info[read_idx][2] : "N";
                 string three_tsd_seq = is_five_end ? "N" : info[read_idx][3];
 
-                file4<<cluster_id<<'\t'<<read_name<<'\t'<<five_tsd_seq<<'\t'<<three_tsd_seq<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[read_idx][2]<<endl;
+                file5<<cluster_id<<'\t'<<read_name<<'\t'<<five_tsd_seq<<'\t'<<three_tsd_seq<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[read_idx][2]<<endl;
             };
 
-            for(const auto &read_idx:number_5_reads){
+            auto emit_full_support_read = [&](int read_idx, const string &label) {
+                string read_name = label + "|" + build_seq_index(read_idx);
+                file5<<cluster_id<<'\t'<<read_name<<'\t'<<info[read_idx][2]<<'\t'<<info[read_idx][3]<<'\t'<<"N"<<'\t'<<"N"<<'\t'<<info_line[read_idx][2]<<endl;
+            };
+
+            for(const auto &read_idx:go_through_read_indices){
                 if(emitted_support_reads.insert(read_idx).second){
-                    emit_support_read(read_idx,"number_5",true);
+                    emit_full_support_read(read_idx,"potential_go_through");
                 }
             }
-            for(const auto &read_idx:number_3_reads){
+
+            for(const auto &read_idx:cluster_members){
                 if(emitted_support_reads.insert(read_idx).second){
-                    emit_support_read(read_idx,"number_3",false);
+                    emit_full_support_read(read_idx,"cluster_member");
                 }
             }
                 

@@ -114,13 +114,13 @@ Optional:
 Running PALMER on the example PacBio reads bam file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
 ./PALMER --input $PALMER_Path/example/sample.raw.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.raw --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1
 
-Results (sample.raw_calls.txt, sample.raw_TSD_reads.txt, and sample.raw_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
+Results (sample.raw_calls.txt, sample.raw_all_reads_output.txt, sample.raw_TSD_reads_output.txt, and sample.raw_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
 ```
 ```
 Running PALMER on the example HPRC contig bam file under the 'example' folder to call ALU insertions on the GRCh38 genome with a 10-thread run, genotyping, and keeping intermediate files.
 ./PALMER --input $PALMER_Path/example/sample.asm.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.asm --type ALU --mode asm --chr chr21 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1 --intermediate 1
 
-Results (ample.asm_calls.txt, sample.asm_TSD_reads.txt, and sample.asm_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
+Results (sample.asm_calls.txt, sample.asm_all_reads_output.txt, sample.asm_TSD_reads_output.txt, and sample.asm_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
 ```
 
 ### Others
@@ -150,15 +150,15 @@ ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PA
 ```
 
 ## Output 
-We have several outputs: `sample_calls.txt`, `sample_TSD_reads.txt`, and `sample_integrated.vcf`. If you required the genotyping module with "--GT 1", then there will be a fourth output `sample_calls_genotyped.txt`.
+We have several outputs: `sample_calls.txt`, `sample_all_reads_output.txt`, `sample_TSD_reads_output.txt`, and `sample_integrated.vcf`. If you required the genotyping module with "--GT 1", then there will be a fifth output `sample_calls_genotyped.txt`.
 
 `sample_calls.txt` is the summary for all non-reference insertion calls.
 
-`sample_TSD_reads.txt` contains all details you want for the high confidence (HC) supporting reads (SRs).
+`sample_all_reads_output.txt` contains all potential supporting reads (including HC and non-HC) with the same columns as TSD output. `sample_TSD_reads_output.txt` contains only the high confidence (HC) supporting reads (SRs).
 
 `sample_calls_genotyped.txt` contains the summary for all non-ref insertion calls with extra genotype information.
 
-`sample_integrated.vcf` contains integrated information from the above files in VCF format.
+`sample_integrated.vcf` contains integrated information from the above files in VCF format. Calls lacking any HC TSD-supported read are marked with FILTER `LowConf` (only when TSD finding is enabled); otherwise FILTER is `PASS`.
 
 ## Recommendation (VERY IMPORTANT)
 
