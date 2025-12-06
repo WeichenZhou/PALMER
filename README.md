@@ -1,4 +1,4 @@
-# PALMER Ver2.2
+# PALMER Ver2.3
 
 * PALMER detects non-reference MEIs (LINE, Alu, SVA, and HERVK) and other insertions (e.g., NUMTs, HPV insertions).
 * PALMER detects non-reference germline and somatic signals of your interest. 
@@ -6,27 +6,49 @@
 * PALMER utilizes multi-threads for runs and outputs calls and genotypes (use caution) in VCF.
 * For MEIs, it characterizes hallmark features within MEIs, including TSD motifs, 5' inverted sequence, 5' or 3' transduction sequence, polyA-tail, and reports sequences for each high-confidence candidate insertion. The ideal structure of an MEI event would be 5’-TSD-(5'TransD)-(5'inverted)-MEI-polyA-(3'TransD-polyA)-TSD-3’.
 
-Required resources:
+## Required resources:
 ```
- samtools/1.3.1  https://github.com/samtools/samtools
+ htslib development headers (pkg-config detectable, e.g., libhts-dev or htslib-devel)
  ncbi-blast++/2.10.0  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ (Lower version will introduce fatal bugs.)
 ```
 
+### Installing htslib
+PALMER uses htslib directly from C++; please install htslib **before** running `make` so that `pkg-config --cflags --libs htslib` succeeds.
+
+Common options:
+
+* Ubuntu/Debian: `sudo apt-get install libhts-dev`
+* CentOS/RHEL/Fedora: `sudo yum install htslib-devel`
+* Homebrew (macOS): `brew install htslib`
+* Conda: `conda install -c bioconda htslib`
+
+From source (https://github.com/samtools/htslib):
+```bash
+git clone https://github.com/samtools/htslib.git
+cd htslib
+autoheader && autoconf   # skip if using a release tarball
+./configure
+make
+sudo make install
+```
+
+After installing, verify that `pkg-config --libs htslib` returns linker flags (for example, `-lhts`) before building PALMER.
+
 ## Getting started
 
-Download and Install
+### Download and Install
 ```
 git clone https://github.com/WeichenZhou/PALMER.git
 cd PALMER
+# Install htslib headers/libraries so that `pkg-config --cflags --libs htslib` succeeds
 make
 ```
 
-Parameters
+### Parameters
+
+Required:
+
 ```
-USAGE:
-
-Required
-
 --input
          aligned long-read sequencing BAM file with directory path
 
@@ -47,9 +69,11 @@ Required
 
 --chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)
          chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in the reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'
+```
 
-Optional
+Optional:
 
+```
 --start (default: Null)
          start position in the genome for PALMER to run (default is null). !!It should go with --end if assigned
 
@@ -84,49 +108,59 @@ Optional
          omit to delete intermediate subfolders after completion; set to 1 to retain them
 ```
 
-Examples
+## Examples
+### Test samples
 ```
-1) Running PALMER on the example PacBio subreads bam file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
-./PALMER --input $PALMER_Path/example/sample.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1
+Running PALMER on the example PacBio reads bam file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
+./PALMER --input $PALMER_Path/example/sample.raw.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.raw --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1
 
-Results (sample_calls.txt & sample_TSD_reads.txt)  from the example BAM file can also be found under the 'example' folder.
+Results (sample.raw_calls.txt, sample.raw_all_reads_output.txt, sample.raw_TSD_reads_output.txt, and sample.raw_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
 ```
 ```
-2) Running PALMER on your aligned sequences on the GRCh37 reference genome to call LINE-1 insertions in chromosome 3 at positions from 200,000 to 400,000
+Running PALMER on the example HPRC contig bam file under the 'example' folder to call ALU insertions on the GRCh38 genome with a 10-thread run, genotyping, and keeping intermediate files.
+./PALMER --input $PALMER_Path/example/sample.asm.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.asm --type ALU --mode asm --chr chr21 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1 --intermediate 1
+
+Results (sample.asm_calls.txt, sample.asm_all_reads_output.txt, sample.asm_TSD_reads_output.txt, and sample.asm_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
+```
+
+### Others
+```
+Running PALMER on your aligned sequences on the GRCh37 reference genome to call LINE-1 insertions in chromosome 3 at positions from 200,000 to 400,000
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver GRCh37 --output your.output.prefix --type LINE --mode raw --chr 3 --start 200000 --end 400000 --ref_fa $your.reference.file.path/hs37d5.fa --thread (int)
 ```
 ```
-3) Running PALMER on your aligned assembled contigs in CRAM based on the GRCh38 reference genome to call SVA insertions in chromosome 3
+Running PALMER on your aligned assembled contigs in CRAM based on the GRCh38 reference genome to call SVA insertions in chromosome 3
 ./PALMER --input $DirPath/your.cram.file --workdir $DirPath/ --ref_ver GRCh38 --output your.output.prefix --type SVA --mode asm --chr chr3 --ref_fa $your.reference.file.path/GRCh38.fa --thread (int)
 ```
 ```
-4) Running PALMER on your aligned BAM to call Alu insertions in chromosome 2a of the chimpanzee genome
+Running PALMER on your aligned BAM to call Alu insertions in chromosome 2a of the chimpanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --type ALU --mode raw --chr chr2a(chr.name.based.on.your.reference.fa) --ref_fa $your.reference.file.path/your.reference.fa --thread (int)
 ```
 ```
-5) Running PALMER on your aligned BAM to call NumtS in chromosome 5 of the chimpanzee genome
+Running PALMER on your aligned BAM to call NumtS in chromosome 5 of the chimpanzee genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --ref_ver other --output your.output.prefix --chr chr5 --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/Clint.mt --thread (int)
 ```
 ```
-6) Running PALMER on your aligned BAM to call LINE-1 insertions in chromosomeX of the mouse genome
+Running PALMER on your aligned BAM to call LINE-1 insertions in chromosomeX of the mouse genome
 ./PALMER --input $DirPath/your.bam.file --workdir $DirPath/ --output your.output.prefix --chr chrX --ref_ver other --mode raw --ref_fa $your.reference.file.path/your.reference.fa --type CUSTOMIZED --custom_seq $your.custom_seq.file.path/L1MdA_consensus.fa --TSD_finding TRUE --len_custom_seq (int) --thread (int)
 ```
 ```
-7)
 A callset of non-reference L1Hs in HG002, HG003, and HG004 [a Personal Genome Project trio derived from the Genome in a Bottle (GIAB) Consortium] using PALMER is available under:
 ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/PacBio_PALMER_11242017/
 ```
 
 ## Output 
-We have several outputs: `sample_calls.txt`, `sample_TSD_reads.txt`, and `sample_integrated.vcf`. If you required the genotyping module with "--GT 1", then there will be a fourth output `sample_calls_genotyped.txt`.
+We have several outputs: `sample_calls.txt`, `sample_all_reads_output.txt`, `sample_TSD_reads_output.txt`, and `sample_integrated.vcf`. If you required the genotyping module with "--GT 1", then there will be a fifth output `sample_calls_genotyped.txt`.
 
 `sample_calls.txt` is the summary for all non-reference insertion calls.
 
-`sample_TSD_reads.txt` contains all details you want for the high confidence (HC) supporting reads (SRs).
+`sample_all_reads_output.txt` lists all potential supporting reads (including HC and non-HC) with columns: cluster_id, type, read_name, read_name.info, whole_insertion_seq. When TSD finding is not enabled, all reads will be here.
+
+`sample_TSD_reads_output.txt` contains only the high confidence (HC) supporting reads (SRs) with cluster_id, read_name, read_name.info, TSD/TransD/26mer fields, and whole insertion sequence. When TSD finding is not enabled, no reads will be here.
 
 `sample_calls_genotyped.txt` contains the summary for all non-ref insertion calls with extra genotype information.
 
-`sample_integrated.vcf` contains integrated information from the above files in VCF format.
+`sample_integrated.vcf` contains integrated information from the above files in VCF format. Calls lacking any HC TSD-supported read are marked with FILTER `LowConf` (only when TSD finding is enabled); otherwise FILTER is `PASS`.
 
 ## Recommendation (VERY IMPORTANT)
 
@@ -162,13 +196,29 @@ For SMaHT benchmarking:
 * arthurz@umich.edu
 
 ## Logs
-**Ver2.2** Dec.25th.2025! PALMER2.2. Happy Thanksgiving!
+**Ver2.3** Dec.4th.2025! PALMER2.3 念头通达
+
+* Reorgnized output files and add columns in the output files for potential supporting reads from 5' end, 3' end, and go-through.
+* Optimized ALU calling in terms of running time and identity accuracy. 
+* Optimized BLASTn calling.
+* Implemented samtools API. 
+* Implemented MSA for consensus INS_SEQ with hc supporting read weight=3.0
+* Fixed a bug that overestimates the number of supporting reads, particularly in asm mode.
+* Decreased the number of intermediate files.
+* Running time improved.
+* Minor format bugs fixed.
+* Example updated.
+* Scripts cleaned.
+* README updated.
+
+**Ver2.2** Nov.25th.2025! PALMER2.2 Happy Thanksgiving!
 
 * Add a module for multi-threads. 
 * Add a module to output to VCF files.
 * Disable the function of blastn for reporting usage statistics to NCBI.
 * Add a module for removing (or keeping) intermediate files to avoid crashing the file system.
 * Add a genotyping module based on a Generalized Gaussian Mixture model. But still under development.
+* Replace htslib with samtools
 * Minor format bugs fixed.
 * Example updated.
 * Scripts cleaned.

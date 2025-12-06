@@ -14,12 +14,18 @@
 #include <cstdlib>
 #include <numeric>
 #include <cstdio>
+#include <memory>
+#include <mutex>
+
+#include <htslib/sam.h>
 
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <ctime>
 #include <cctype>
 #include <climits>
+#include <cstdint>
 #include <limits>
 
 #include <thread>
@@ -41,6 +47,8 @@ struct TsdInfo {
     string junction_26mer;
     string insertion_seq;
     int n_count = 0;
+    bool high_conf = false;
+    string support_type = "NA";
 };
 
 struct CollapsedRecord {
@@ -165,40 +173,43 @@ GgmResult fit_generalized_gaussian_mixture(const vector<double> &values, double 
 }
 
 double estimate_average_read_length(const string &bam_path, size_t max_reads = 2000) {
-    string command = "samtools view -F 0x700 " + bam_path + " | head -n " + to_string(max_reads);
-    FILE *pipe = popen(command.c_str(), "r");
-    if (!pipe) {
+    htsFile *in = sam_open(bam_path.c_str(), "r");
+    if (!in) {
         return -1.0;
     }
 
-    char buffer[65536];
+    bam_hdr_t *header = sam_hdr_read(in);
+    if (!header) {
+        sam_close(in);
+        return -1.0;
+    }
+
+    bam1_t *record = bam_init1();
+    if (!record) {
+        bam_hdr_destroy(header);
+        sam_close(in);
+        return -1.0;
+    }
+
     size_t read_count = 0;
     double length_sum = 0.0;
 
-    while (fgets(buffer, sizeof(buffer), pipe)) {
-        string line(buffer);
-        if (!line.empty() && line[0] == '@') {
+    while (read_count < max_reads && sam_read1(in, header, record) >= 0) {
+        if (record->core.flag & 0x700) {
             continue;
         }
 
-        stringstream ss(line);
-        string field;
-        int field_index = 0;
-        while (getline(ss, field, '\t')) {
-            if (field_index == 9) {
-                length_sum += static_cast<double>(field.size());
-                ++read_count;
-                break;
-            }
-            ++field_index;
-        }
-
-        if (read_count >= max_reads) {
-            break;
+        int read_length = record->core.l_qseq;
+        if (read_length > 0) {
+            length_sum += static_cast<double>(read_length);
+            ++read_count;
         }
     }
 
-    pclose(pipe);
+    bam_destroy1(record);
+    bam_hdr_destroy(header);
+    sam_close(in);
+
     if (read_count == 0) {
         return -1.0;
     }
@@ -207,16 +218,47 @@ double estimate_average_read_length(const string &bam_path, size_t max_reads = 2
 }
 
 static string g_filtered_bam_path;
+static std::mutex g_filtered_bam_mutex;
 
-void cleanup_filtered_bam() {
-    if (g_filtered_bam_path.empty()) {
-        return;
+struct FilteredBamContext {
+    string source_bam;
+    int mapq_threshold = 0;
+    string filtered_path;
+    htsFile *fp = nullptr;
+    bam_hdr_t *header = nullptr;
+    hts_idx_t *idx = nullptr;
+};
+
+static unique_ptr<FilteredBamContext> g_filtered_bam_context;
+
+void cleanup_filtered_bam_locked() {
+    if (g_filtered_bam_context) {
+        if (g_filtered_bam_context->idx) {
+            hts_idx_destroy(g_filtered_bam_context->idx);
+        }
+        if (g_filtered_bam_context->header) {
+            bam_hdr_destroy(g_filtered_bam_context->header);
+        }
+        if (g_filtered_bam_context->fp) {
+            sam_close(g_filtered_bam_context->fp);
+        }
+        g_filtered_bam_context.reset();
     }
-    remove(g_filtered_bam_path.c_str());
-    string temp_bai = g_filtered_bam_path + ".bai";
-    remove(temp_bai.c_str());
+
+    if (!g_filtered_bam_path.empty()) {
+        remove(g_filtered_bam_path.c_str());
+        string temp_bai = g_filtered_bam_path + ".bai";
+        remove(temp_bai.c_str());
+        g_filtered_bam_path.clear();
+    }
 }
 
+void cleanup_filtered_bam() {
+    lock_guard<mutex> lock(g_filtered_bam_mutex);
+    cleanup_filtered_bam_locked();
+}
+
+// NOTE: Caller must hold g_filtered_bam_mutex before invoking this helper.
 string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     if (!g_filtered_bam_path.empty()) {
         return g_filtered_bam_path;
@@ -232,21 +274,122 @@ string prepare_filtered_bam(const string &bam_path, int mapq_threshold) {
     g_filtered_bam_path = string(temp_template);
     atexit(cleanup_filtered_bam);
 
-    string filter_command = "samtools view -F 0x700 -q " + to_string(mapq_threshold) + " -b " + bam_path + " > " + g_filtered_bam_path;
-    if (system(filter_command.c_str()) != 0) {
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+    htsFile *in = sam_open(bam_path.c_str(), "r");
+    if (!in) {
+        cleanup_filtered_bam_locked();
         return string();
     }
 
-    string index_command = "samtools index " + g_filtered_bam_path;
-    if (system(index_command.c_str()) != 0) {
-        cleanup_filtered_bam();
-        g_filtered_bam_path.clear();
+    bam_hdr_t *header = sam_hdr_read(in);
+    if (!header) {
+        sam_close(in);
+        cleanup_filtered_bam_locked();
+        return string();
+    }
+
+    htsFile *out = sam_open(g_filtered_bam_path.c_str(), "wb");
+    if (!out) {
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam_locked();
+        return string();
+    }
+
+    if (sam_hdr_write(out, header) < 0) {
+        sam_close(out);
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam_locked();
+        return string();
+    }
+
+    bam1_t *record = bam_init1();
+    if (!record) {
+        sam_close(out);
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam_locked();
+        return string();
+    }
+
+    while (sam_read1(in, header, record) >= 0) {
+        if ((record->core.flag & 0x700) != 0) {
+            continue;
+        }
+
+        if (record->core.qual < mapq_threshold) {
+            continue;
+        }
+
+        if (sam_write1(out, header, record) < 0) {
+            bam_destroy1(record);
+            sam_close(out);
+            bam_hdr_destroy(header);
+            sam_close(in);
+            cleanup_filtered_bam_locked();
+            return string();
+        }
+    }
+
+    bam_destroy1(record);
+    if (sam_close(out) != 0) {
+        bam_hdr_destroy(header);
+        sam_close(in);
+        cleanup_filtered_bam_locked();
+        return string();
+    }
+
+    bam_hdr_destroy(header);
+    sam_close(in);
+
+    if (sam_index_build3(g_filtered_bam_path.c_str(), nullptr, 0, 0) != 0) {
+        cleanup_filtered_bam_locked();
         return string();
     }
 
     return g_filtered_bam_path;
+}
+
+static FilteredBamContext *get_filtered_bam_context_locked(const string &bam_path, int mapq_threshold) {
+    if (g_filtered_bam_context &&
+        g_filtered_bam_context->source_bam == bam_path &&
+        g_filtered_bam_context->mapq_threshold == mapq_threshold &&
+        g_filtered_bam_context->fp && g_filtered_bam_context->header && g_filtered_bam_context->idx) {
+        return g_filtered_bam_context.get();
+    }
+
+    cleanup_filtered_bam_locked();
+
+    string filtered_bam = prepare_filtered_bam(bam_path, mapq_threshold);
+    if (filtered_bam.empty()) {
+        return nullptr;
+    }
+
+    auto context = make_unique<FilteredBamContext>();
+    context->source_bam = bam_path;
+    context->mapq_threshold = mapq_threshold;
+    context->filtered_path = filtered_bam;
+
+    context->fp = sam_open(filtered_bam.c_str(), "r");
+    if (!context->fp) {
+        cleanup_filtered_bam_locked();
+        return nullptr;
+    }
+
+    context->header = sam_hdr_read(context->fp);
+    if (!context->header) {
+        cleanup_filtered_bam_locked();
+        return nullptr;
+    }
+
+    context->idx = sam_index_load(context->fp, filtered_bam.c_str());
+    if (!context->idx) {
+        cleanup_filtered_bam_locked();
+        return nullptr;
+    }
+
+    g_filtered_bam_context = std::move(context);
+    return g_filtered_bam_context.get();
 }
 
 double estimate_local_coverage(const string &bam_path, const string &chrom, long long pos, int mapq_threshold, long long bin_size = 10000) {
@@ -261,39 +404,61 @@ double estimate_local_coverage(const string &bam_path, const string &chrom, long
     stringstream region;
     region << chrom << ":" << region_start << "-" << region_end;
 
-    string filtered_bam = prepare_filtered_bam(bam_path, mapq_threshold);
-    if (filtered_bam.empty()) {
+    unique_lock<mutex> lock(g_filtered_bam_mutex);
+
+    FilteredBamContext *context = get_filtered_bam_context_locked(bam_path, mapq_threshold);
+    if (!context) {
         return -1.0;
     }
 
-    string depth_command = "samtools depth -a -r " + region.str() + " " + filtered_bam;
-    FILE *pipe = popen(depth_command.c_str(), "r");
-    if (!pipe) {
+    hts_itr_t *itr = sam_itr_querys(context->idx, context->header, region.str().c_str());
+    if (!itr) {
         return -1.0;
     }
 
-    char buffer[65536];
-    long long position_count = 0;
-    double depth_sum = 0.0;
+    bam1_t *record = bam_init1();
 
-    while (fgets(buffer, sizeof(buffer), pipe)) {
-        string line(buffer);
-        if (line.empty()) continue;
-        stringstream ss(line);
-        string ref_name;
-        long long pos_value = 0;
-        double depth = 0.0;
-        ss >> ref_name >> pos_value >> depth;
-        depth_sum += depth;
-        ++position_count;
+    int read_status = 0;
+    long long coverage_sum = 0;
+    while ((read_status = sam_itr_next(context->fp, itr, record)) >= 0) {
+        if (record->core.flag & BAM_FUNMAP) {
+            continue;
+        }
+
+        long long ref_pos = static_cast<long long>(record->core.pos) + 1;  // 1-based
+        uint32_t *cigar = bam_get_cigar(record);
+
+        for (uint32_t i = 0; i < record->core.n_cigar; ++i) {
+            int op = bam_cigar_op(cigar[i]);
+            long long op_len = static_cast<long long>(bam_cigar_oplen(cigar[i]));
+
+            if (op == BAM_CMATCH || op == BAM_CEQUAL || op == BAM_CDIFF) {
+                long long ref_start = ref_pos;
+                long long ref_end = ref_pos + op_len - 1;
+                long long overlap_start = max(region_start, ref_start);
+                long long overlap_end = min(region_end, ref_end);
+
+                if (overlap_start <= overlap_end) {
+                    coverage_sum += overlap_end - overlap_start + 1;
+                }
+
+                ref_pos += op_len;
+            } else if (op == BAM_CDEL || op == BAM_CREF_SKIP) {
+                ref_pos += op_len;
+            }
+        }
     }
 
-    pclose(pipe);
-    if (position_count == 0) {
+    bam_destroy1(record);
+    hts_itr_destroy(itr);
+    lock.unlock();
+
+    long long region_length = region_end - region_start + 1;
+    if (region_length <= 0) {
         return -1.0;
     }
 
-    return depth_sum / static_cast<double>(position_count);
+    return coverage_sum / static_cast<double>(region_length);
 }
 
 string genotype_calls(const string &calls_path, const string &bam_path, int mapq_threshold) {
@@ -335,9 +500,9 @@ string genotype_calls(const string &calls_path, const string &bam_path, int mapq
         while (getline(ss, field, '\t')) {
             fields.push_back(field);
         }
-        if (fields.size() > 10) {
+        if (fields.size() > 11) {
             try {
-                observations.push_back(stod(fields[10]));
+                observations.push_back(stod(fields[11]));
             } catch (...) {
                 observations.push_back(0.0);
             }
@@ -575,6 +740,43 @@ vector<pair<string, long long>> load_contigs_from_fasta(const string &reference_
     return contigs;
 }
 
+bool write_bam_header_index_lists(const string &bam_path, const string &output_dir, string &chr_path, string &length_path) {
+    htsFile *fp = sam_open(bam_path.c_str(), "r");
+    if (!fp) {
+        return false;
+    }
+
+    bam_hdr_t *header = sam_hdr_read(fp);
+    if (!header) {
+        sam_close(fp);
+        return false;
+    }
+
+    chr_path = output_dir + "chr.list";
+    length_path = output_dir + "length.list";
+
+    ofstream chr_out(chr_path);
+    ofstream len_out(length_path);
+    if (!chr_out.is_open() || !len_out.is_open()) {
+        bam_hdr_destroy(header);
+        sam_close(fp);
+        return false;
+    }
+
+    for (int i = 0; i < header->n_targets; ++i) {
+        chr_out << header->target_name[i] << '\n';
+        len_out << header->target_len[i] << '\n';
+    }
+
+    bool chr_ok = static_cast<bool>(chr_out);
+    bool len_ok = static_cast<bool>(len_out);
+
+    bam_hdr_destroy(header);
+    sam_close(fp);
+
+    return chr_ok && len_ok;
+}
+
 unordered_map<string, string> load_reference_sequences(const string &reference_path) {
     unordered_map<string, string> sequences;
 
@@ -641,26 +843,346 @@ char reference_base(const unordered_map<string, string> &reference_sequences, co
     return static_cast<char>(toupper(base));
 }
 
-int missing_fields(const TsdInfo &info) {
+int missing_metadata_fields(const TsdInfo &info) {
     int missing = 0;
     missing += (info.read_name == "NA");
     missing += (info.tsd5 == "NA");
     missing += (info.tsd3 == "NA");
     missing += (info.predicted_transd == "NA");
     missing += (info.junction_26mer == "NA");
-    missing += (info.insertion_seq == "NA");
     return missing;
 }
 
-void write_vcf_output(const string &calls_path, const string &tsd_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line, const string &sample_name) {
-
-    unordered_map<string, TsdInfo> tsd_records;
-
-    static bool seeded_rng = false;
-    if (!seeded_rng) {
-        srand(static_cast<unsigned>(time(nullptr)));
-        seeded_rng = true;
+int count_ambiguous_bases(const string &seq) {
+    int count = 0;
+    for (char base : seq) {
+        char upper = static_cast<char>(toupper(static_cast<unsigned char>(base)));
+        if (upper != 'A' && upper != 'C' && upper != 'G' && upper != 'T') {
+            ++count;
+        }
     }
+    return count;
+}
+
+struct AlignmentResult {
+    string ref_aln;
+    string seq_aln;
+};
+
+AlignmentResult global_align(const string &a, const string &b, int match = 2, int mismatch = -1, int gap = -2) {
+    AlignmentResult result;
+    size_t n = a.size();
+    size_t m = b.size();
+
+    const size_t kMaxAlignmentCells = 25000000;
+    if (static_cast<double>(n) * static_cast<double>(m) > static_cast<double>(kMaxAlignmentCells)) {
+        size_t max_len = max(n, m);
+        result.ref_aln.reserve(max_len);
+        result.seq_aln.reserve(max_len);
+        for (size_t idx = 0; idx < max_len; ++idx) {
+            result.ref_aln.push_back(idx < n ? a[idx] : '-');
+            result.seq_aln.push_back(idx < m ? b[idx] : '-');
+        }
+        return result;
+    }
+
+    vector<int> prev(m + 1, 0);
+    vector<int> curr(m + 1, 0);
+    vector<vector<uint8_t>> trace(n + 1, vector<uint8_t>(m + 1, 0));
+
+    for (size_t j = 1; j <= m; ++j) {
+        prev[j] = gap * static_cast<int>(j);
+        trace[0][j] = 1; // left
+    }
+    for (size_t i = 1; i <= n; ++i) {
+        curr[0] = gap * static_cast<int>(i);
+        trace[i][0] = 2; // up
+        for (size_t j = 1; j <= m; ++j) {
+            int score_diag = prev[j - 1] + ((a[i - 1] == b[j - 1]) ? match : mismatch);
+            int score_left = curr[j - 1] + gap;
+            int score_up = prev[j] + gap;
+
+            int best = score_diag;
+            uint8_t dir = 0; // diag
+            if (score_left > best) {
+                best = score_left;
+                dir = 1;
+            }
+            if (score_up > best) {
+                best = score_up;
+                dir = 2;
+            }
+
+            curr[j] = best;
+            trace[i][j] = dir;
+        }
+        swap(prev, curr);
+    }
+
+    size_t i = n;
+    size_t j = m;
+    while (i > 0 || j > 0) {
+        uint8_t dir = trace[i][j];
+        if (i == 0) dir = 1;
+        else if (j == 0) dir = 2;
+
+        if (dir == 0) {
+            result.ref_aln.push_back(a[i - 1]);
+            result.seq_aln.push_back(b[j - 1]);
+            --i;
+            --j;
+        } else if (dir == 1) {
+            result.ref_aln.push_back('-');
+            result.seq_aln.push_back(b[j - 1]);
+            --j;
+        } else {
+            result.ref_aln.push_back(a[i - 1]);
+            result.seq_aln.push_back('-');
+            --i;
+        }
+    }
+
+    reverse(result.ref_aln.begin(), result.ref_aln.end());
+    reverse(result.seq_aln.begin(), result.seq_aln.end());
+    return result;
+}
+
+struct ColumnCounts {
+    double a = 0.0;
+    double c = 0.0;
+    double g = 0.0;
+    double t = 0.0;
+    double n = 0.0;
+    double gap = 0.0;
+};
+
+void add_base_to_column(ColumnCounts &col, char base, double weight) {
+    char upper = static_cast<char>(toupper(static_cast<unsigned char>(base)));
+    switch (upper) {
+        case 'A': col.a += weight; break;
+        case 'C': col.c += weight; break;
+        case 'G': col.g += weight; break;
+        case 'T': col.t += weight; break;
+        default: col.n += weight; break;
+    }
+}
+
+string alignment_string_from_columns(const vector<ColumnCounts> &columns) {
+    string result;
+    result.reserve(columns.size());
+    for (const auto &col : columns) {
+        double best = col.a;
+        char base = 'A';
+        if (col.c > best) { best = col.c; base = 'C'; }
+        if (col.g > best) { best = col.g; base = 'G'; }
+        if (col.t > best) { best = col.t; base = 'T'; }
+        if (col.n > best) { best = col.n; base = 'N'; }
+        result.push_back(base);
+    }
+    return result;
+}
+
+string consensus_from_columns(const vector<ColumnCounts> &columns) {
+    string result;
+    result.reserve(columns.size());
+
+    int pending_gap_run = 0;
+    for (const auto &col : columns) {
+        double base_counts[4] = {col.a, col.c, col.g, col.t};
+        char base_symbols[4] = {'A', 'C', 'G', 'T'};
+
+        double best_base = 0.0;
+        char best_symbol = 'N';
+        for (size_t idx = 0; idx < 4; ++idx) {
+            if (base_counts[idx] > best_base) {
+                best_base = base_counts[idx];
+                best_symbol = base_symbols[idx];
+            }
+        }
+
+        double best_support = best_base;
+        char winner = best_symbol;
+        if (col.gap > best_support) {
+            best_support = col.gap;
+            winner = '-';
+        } else if (best_support <= 0.0 && col.n > 0.0) {
+            best_support = col.n;
+            winner = 'N';
+        }
+
+        if (best_support <= 0.0) {
+            continue;
+        }
+
+        if (winner == '-') {
+            ++pending_gap_run;
+            continue;
+        }
+
+        if (pending_gap_run > 0) {
+            if (result.empty() || result.back() != '-') {
+                result.push_back('-');
+            }
+            pending_gap_run = 0;
+        }
+
+        result.push_back(winner);
+    }
+
+    if (pending_gap_run > 0) {
+        if (result.empty() || result.back() != '-') {
+            result.push_back('-');
+        }
+    }
+
+    // Drop gaps from the final consensus output; gaps are used only for voting.
+    result.erase(remove(result.begin(), result.end(), '-'), result.end());
+
+    if (result.empty()) {
+        return "NA";
+    }
+    return result;
+}
+
+string build_insertion_consensus(const vector<TsdInfo> &candidates) {
+    struct WeightedSeq {
+        string seq;
+        double weight = 1.0;
+        bool high_conf = false;
+    };
+
+    vector<WeightedSeq> sequences;
+    sequences.reserve(candidates.size());
+
+    for (const auto &candidate : candidates) {
+        if (candidate.insertion_seq.empty() || candidate.insertion_seq == "NA") {
+            continue;
+        }
+
+        double weight = candidate.high_conf ? 3.0 : 1.0;
+        if (!candidate.support_type.empty() && candidate.support_type.find("potential_go_through") == 0) {
+            weight += 0.25;
+        }
+        weight /= (1.0 + static_cast<double>(candidate.n_count));
+        if (weight <= 0.0) {
+            continue;
+        }
+
+        sequences.push_back({candidate.insertion_seq, weight, candidate.high_conf});
+    }
+
+    if (sequences.empty()) {
+        return "NA";
+    }
+
+    sort(sequences.begin(), sequences.end(), [](const WeightedSeq &lhs, const WeightedSeq &rhs) {
+        if (lhs.weight == rhs.weight) {
+            if (lhs.high_conf != rhs.high_conf) {
+                return lhs.high_conf;
+            }
+            return lhs.seq.size() > rhs.seq.size();
+        }
+        return lhs.weight > rhs.weight;
+    });
+
+    vector<ColumnCounts> columns;
+    columns.reserve(sequences[0].seq.size());
+    for (char base : sequences[0].seq) {
+        ColumnCounts col;
+        add_base_to_column(col, base, sequences[0].weight);
+        columns.push_back(col);
+    }
+
+    double total_weight = sequences[0].weight;
+    for (size_t idx = 1; idx < sequences.size(); ++idx) {
+        string consensus_template = alignment_string_from_columns(columns);
+        AlignmentResult aln = global_align(consensus_template, sequences[idx].seq);
+
+        vector<ColumnCounts> new_columns;
+        new_columns.reserve(aln.ref_aln.size());
+        size_t existing_idx = 0;
+        for (size_t pos = 0; pos < aln.ref_aln.size(); ++pos) {
+            char ref_base = aln.ref_aln[pos];
+            char seq_base = aln.seq_aln[pos];
+
+            if (ref_base != '-') {
+                ColumnCounts col = columns[existing_idx++];
+                if (seq_base == '-') {
+                    col.gap += sequences[idx].weight;
+                } else {
+                    add_base_to_column(col, seq_base, sequences[idx].weight);
+                }
+                new_columns.push_back(col);
+            } else {
+                ColumnCounts col;
+                col.gap = total_weight;
+                if (seq_base != '-') {
+                    add_base_to_column(col, seq_base, sequences[idx].weight);
+                }
+                new_columns.push_back(col);
+            }
+        }
+
+        columns.swap(new_columns);
+        total_weight += sequences[idx].weight;
+    }
+
+    return consensus_from_columns(columns);
+}
+
+int tsd_missing_bases(const vector<string> &fields) {
+    int missing = 0;
+    size_t start_idx = fields.size() > 3 ? 3 : 0;
+    size_t end_idx = min(fields.size(), static_cast<size_t>(7));
+    for (size_t idx = start_idx; idx < end_idx; ++idx) {
+        const string &value = fields[idx];
+        if (value == "N" || value == "NA" || value.empty()) {
+            ++missing;
+        }
+    }
+    return missing;
+}
+
+void deduplicate_tsd_output(const string &tsd_path) {
+    ifstream in(tsd_path);
+    if (!in.is_open()) {
+        cerr << "CANNOT OPEN TSD OUTPUT FILE FOR DEDUPLICATION: " << tsd_path << endl;
+        return;
+    }
+
+    string header;
+    if (!getline(in, header)) {
+        in.close();
+        return;
+    }
+
+    // Only remove exact duplicate rows; keep all distinct rows even if they share the same read/cluster.
+    unordered_set<string> seen_rows;
+    vector<string> unique_rows;
+    string line;
+    while (getline(in, line)) {
+        if (line.empty()) continue;
+        if (seen_rows.insert(line).second) {
+            unique_rows.push_back(line);
+        }
+    }
+    in.close();
+
+    ofstream out(tsd_path, ios::trunc);
+    if (!out.is_open()) {
+        cerr << "CANNOT WRITE DEDUPLICATED TSD OUTPUT FILE: " << tsd_path << endl;
+        return;
+    }
+
+    out << header << '\n';
+    for (const auto &row : unique_rows) {
+        out << row << '\n';
+    }
+}
+
+void write_vcf_output(const string &calls_path, const string &tsd_path, const string &all_reads_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line, const string &sample_name, bool tsd_enabled) {
+
+    unordered_map<string, vector<TsdInfo>> tsd_records;
 
     ifstream tsd_stream(tsd_path);
     if (tsd_stream.is_open()) {
@@ -676,36 +1198,55 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
                 fields.push_back(field);
             }
 
-            if (fields.size() < 7) continue;
+            if (fields.size() < 8) continue;
 
             int n_count = 0;
-            for (size_t idx = 2; idx <= 6; ++idx) {
-                if (fields[idx] == "N") {
+            for (size_t idx = 3; idx <= 6; ++idx) {
+                if (fields[idx] == "N" || fields[idx] == "NA" || fields[idx].empty()) {
                     ++n_count;
                 }
             }
 
-            auto existing = tsd_records.find(fields[0]);
-            bool should_replace = false;
-            if (existing == tsd_records.end()) {
-                should_replace = true;
-            } else if (n_count < existing->second.n_count) {
-                should_replace = true;
-            } else if (n_count == existing->second.n_count) {
-                should_replace = (rand() % 2) == 0;
-            }
+            TsdInfo info;
+            info.read_name = normalize_field(fields[1]);
+            info.tsd5 = normalize_field(fields[3]);
+            info.tsd3 = normalize_field(fields[4]);
+            info.predicted_transd = normalize_field(fields[5]);
+            info.junction_26mer = normalize_field(fields[6]);
+            info.insertion_seq = normalize_field(fields[7]);
+            info.n_count = n_count + count_ambiguous_bases(info.insertion_seq);
+            info.high_conf = true;
+            info.support_type = "TSD";
+            tsd_records[fields[0]].push_back(info);
+        }
+    }
 
-            if (should_replace) {
-                TsdInfo info;
-                info.read_name = normalize_field(fields[1]);
-                info.tsd5 = normalize_field(fields[2]);
-                info.tsd3 = normalize_field(fields[3]);
-                info.predicted_transd = normalize_field(fields[4]);
-                info.junction_26mer = normalize_field(fields[5]);
-                info.insertion_seq = normalize_field(fields[6]);
-                info.n_count = n_count;
-                tsd_records[fields[0]] = info;
+    ifstream all_reads_stream(all_reads_path);
+    if (all_reads_stream.is_open()) {
+        string reads_line;
+        getline(all_reads_stream, reads_line); // header
+        while (getline(all_reads_stream, reads_line)) {
+            if (reads_line.empty()) continue;
+
+            stringstream reads_ss(reads_line);
+            vector<string> fields;
+            string field;
+            while (getline(reads_ss, field, '\t')) {
+                fields.push_back(field);
             }
+            if (fields.size() < 5) continue;
+
+            TsdInfo info;
+            info.read_name = normalize_field(fields[2]);
+            info.tsd5 = "NA";
+            info.tsd3 = "NA";
+            info.predicted_transd = "NA";
+            info.junction_26mer = "NA";
+            info.insertion_seq = normalize_field(fields[4]);
+            info.support_type = normalize_field(fields[1]);
+            info.high_conf = false;
+            info.n_count = count_ambiguous_bases(info.insertion_seq);
+            tsd_records[fields[0]].push_back(info);
         }
     }
 
@@ -744,7 +1285,10 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
     vcf_stream << "##INFO=<ID=END,Number=1,Type=Integer,Description=\"End coordinate of the insertion interval\">" << endl;
     vcf_stream << "##INFO=<ID=SUBTYPE,Number=1,Type=String,Description=\"Insertion subtype (matches --type)\">" << endl;
     vcf_stream << "##INFO=<ID=CS,Number=1,Type=Integer,Description=\"Confident supporting reads\">" << endl;
-    vcf_stream << "##INFO=<ID=PS,Number=1,Type=Integer,Description=\"Potential supporting reads\">" << endl;
+    vcf_stream << "##INFO=<ID=PS,Number=1,Type=Integer,Description=\"Total potential supporting reads\">" << endl;
+    vcf_stream << "##INFO=<ID=PS5,Number=1,Type=Integer,Description=\"Potential supporting reads from the insertion 5' end\">" << endl;
+    vcf_stream << "##INFO=<ID=PS3,Number=1,Type=Integer,Description=\"Potential supporting reads from the insertion 3' end\">" << endl;
+    vcf_stream << "##INFO=<ID=PSG,Number=1,Type=Integer,Description=\"Potential supporting reads from go-through evidence\">" << endl;
     vcf_stream << "##INFO=<ID=SEG,Number=1,Type=Integer,Description=\"Potential segmental supporting reads\">" << endl;
     vcf_stream << "##INFO=<ID=ORIENTATION,Number=1,Type=String,Description=\"Insertion orientation\">" << endl;
     vcf_stream << "##INFO=<ID=POLYA,Number=1,Type=Integer,Description=\"polyA tail size\">" << endl;
@@ -763,6 +1307,7 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
     vcf_stream << "##INFO=<ID=TRANSD_READ,Number=1,Type=String,Description=\"Predicted transduction sequence (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=JUNC_26MER,Number=1,Type=String,Description=\"Unique 26-mer at 5' junction (NA if unavailable)\">" << endl;
     vcf_stream << "##INFO=<ID=INS_SEQ,Number=1,Type=String,Description=\"Representative insertion sequence (NA if unavailable)\">" << endl;
+    vcf_stream << "##FILTER=<ID=LowConf,Description=\"No high-confidence TSD-supported read; insertion sequence based on low-confidence evidence\">" << endl;
     vcf_stream << "##FORMAT=<ID=GL0,Number=G,Type=Float,Description=\"Genotype likelihoods with no frequency prior\">" << endl;
     vcf_stream << "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=\"Genotype Quality\">" << endl;
     vcf_stream << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << endl;
@@ -787,7 +1332,7 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
             fields.push_back(field);
         }
 
-        if (fields.size() < 21) {
+        if (fields.size() < 24) {
             continue;
         }
 
@@ -813,33 +1358,25 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         info_prefix += ";END=" + end;
         info_prefix += ";CS=" + fields[10];
         info_prefix += ";PS=" + fields[11];
-        info_prefix += ";SEG=" + fields[12];
-        info_prefix += ";ORIENTATION=" + fields[13];
-        info_prefix += ";POLYA=" + fields[14];
-        info_prefix += ";TSD5=" + fields[15];
-        info_prefix += ";TSD3=" + fields[16];
-        info_prefix += ";TRANSD=" + fields[17];
-        info_prefix += ";INV5=" + fields[18];
-        info_prefix += ";INV5_END=" + fields[19];
-        info_prefix += ";INV5_START=" + fields[20];
+        info_prefix += ";PSG=" + fields[12];
+        info_prefix += ";PS5=" + fields[13];
+        info_prefix += ";PS3=" + fields[14];
+        info_prefix += ";SEG=" + fields[15];
+        info_prefix += ";ORIENTATION=" + fields[16];
+        info_prefix += ";POLYA=" + fields[17];
+        info_prefix += ";TSD5=" + fields[18];
+        info_prefix += ";TSD3=" + fields[19];
+        info_prefix += ";TRANSD=" + fields[20];
+        info_prefix += ";INV5=" + fields[21];
+        info_prefix += ";INV5_END=" + fields[22];
+        info_prefix += ";INV5_START=" + fields[23];
         info_prefix += ";START_INVAR=" + to_string(start_invariant);
         info_prefix += ";END_INVAR=" + to_string(end_invariant);
 
         auto tsd_it = tsd_records.find(fields[0]);
-        TsdInfo tsd_info;
-        if (tsd_it != tsd_records.end()) {
-            tsd_info = tsd_it->second;
-        } else {
-            tsd_info.read_name = "NA";
-            tsd_info.tsd5 = "NA";
-            tsd_info.tsd3 = "NA";
-            tsd_info.predicted_transd = "NA";
-            tsd_info.junction_26mer = "NA";
-            tsd_info.insertion_seq = "NA";
-        }
 
         string key;
-        size_t key_fields = min(fields.size(), static_cast<size_t>(21));
+        size_t key_fields = min(fields.size(), static_cast<size_t>(24));
         for (size_t i = 1; i < key_fields; ++i) {
             if (i > 1) key += "|";
             key += fields[i];
@@ -857,7 +1394,9 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
             record.alt_symbol = alt_symbol;
             record.info_prefix = info_prefix;
             record.cluster_ids.push_back(fields[0]);
-            record.tsd_candidates.push_back(tsd_info);
+            if (tsd_it != tsd_records.end()) {
+                record.tsd_candidates.insert(record.tsd_candidates.end(), tsd_it->second.begin(), tsd_it->second.end());
+            }
             record.coverage_estimate = coverage_estimate;
             record.genotype_call = genotype_call;
             record.genotype_likelihoods = genotype_likelihoods;
@@ -868,7 +1407,9 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         } else {
             CollapsedRecord &record = collapsed_records[idx_it->second];
             record.cluster_ids.push_back(fields[0]);
-            record.tsd_candidates.push_back(tsd_info);
+            if (tsd_it != tsd_records.end()) {
+                record.tsd_candidates.insert(record.tsd_candidates.end(), tsd_it->second.begin(), tsd_it->second.end());
+            }
             if (record.coverage_estimate == "NA" && coverage_estimate != "NA") {
                 record.coverage_estimate = coverage_estimate;
             }
@@ -901,15 +1442,32 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         tsd_info.predicted_transd = "NA";
         tsd_info.junction_26mer = "NA";
         tsd_info.insertion_seq = "NA";
+        tsd_info.support_type = "NA";
 
         int best_missing = INT_MAX;
+        bool best_is_high_conf = false;
+        bool high_conf_available = false;
         for (const auto &candidate : record.tsd_candidates) {
-            int missing = missing_fields(candidate);
-            if (missing < best_missing) {
+            bool candidate_high_conf = candidate.high_conf && candidate.insertion_seq != "NA" && candidate.read_name != "NA";
+            if (candidate_high_conf) {
+                high_conf_available = true;
+            }
+
+            int missing = missing_metadata_fields(candidate);
+            if (candidate_high_conf) {
+                if (!best_is_high_conf || missing < best_missing) {
+                    best_missing = missing;
+                    tsd_info = candidate;
+                    best_is_high_conf = true;
+                }
+            } else if (!best_is_high_conf && missing < best_missing) {
                 best_missing = missing;
                 tsd_info = candidate;
             }
         }
+
+        string consensus_seq = build_insertion_consensus(record.tsd_candidates);
+        tsd_info.insertion_seq = consensus_seq;
 
         string info = record.info_prefix;
         info += ";COV_EST=" + record.coverage_estimate;
@@ -929,13 +1487,18 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
 
         string sample_field = gt_value + ":" + gl0_value + ":" + gq_value + ":" + pl_value;
 
+        string filter_value = "PASS";
+        if (tsd_enabled && !high_conf_available) {
+            filter_value = "LowConf";
+        }
+
         vcf_stream << record.chrom << '\t'
                    << record.pos << '\t'
                    << id_field << '\t'
                    << record.ref_base << '\t'
                    << record.alt_symbol << '\t'
                    << '.' << '\t'
-                   << "PASS" << '\t'
+                   << filter_value << '\t'
                    << info << '\t'
                    << format_field << '\t'
                    << sample_field << endl;
@@ -1463,28 +2026,20 @@ int main(int argc, char *argv[]){
         
         string sys_build;
         sys_build="mkdir "+buildup;
-        
+
         char *syst_build = new char[sys_build.length()+1];
         strcpy(syst_build, sys_build.c_str());
         system(syst_build);
-        
-        string sys1;
-        sys1="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $3}' >"+buildup+"chr.list";
-        
-        string sys2;
-        sys2="samtools view "+inputF+" -H |grep \"@SQ\" | awk -F \":|\t\" '{ print $5}' >"+buildup+"length.list";
-        
-        char *syst1 = new char[sys1.length()+1];
-        strcpy(syst1, sys1.c_str());
-        system(syst1);
-        
-        char *syst2 = new char[sys2.length()+1];
-        strcpy(syst2, sys2.c_str());
-        system(syst2);
-        
-        sys_region_index_chr=buildup+"chr.list";
-        sys_region_index_length=buildup+"length.list";
-        sys_region_index=buildup+"region.split.index";
+
+        string chr_list_path;
+        string length_list_path;
+        if (!write_bam_header_index_lists(inputF, buildup, chr_list_path, length_list_path)) {
+            cerr << "FAILED TO GENERATE HEADER INDEX LISTS FROM " << inputF << endl;
+        }
+
+        sys_region_index_chr = chr_list_path.empty() ? buildup + "chr.list" : chr_list_path;
+        sys_region_index_length = length_list_path.empty() ? buildup + "length.list" : length_list_path;
+        sys_region_index = buildup + "region.split.index";
     }
     //cout<<sys_region_index<<" "<<sys_line_region<<endl;
  //original
@@ -1793,15 +2348,24 @@ int main(int argc, char *argv[]){
     ofstream file3;
     file3.open(syst_final_title,ios::trunc);
     
-    file3<<"cluster_id"<<'\t'<<"chr"<<'\t'<<"start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Potential_supporting_reads"<<'\t'<<"Ptential_segmental_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
+    file3<<"cluster_id"<<'\t'<<"chr"<<'\t'<<"start1"<<'\t'<<"start2"<<'\t'<<"end1"<<'\t'<<"end2"<<'\t'<<"start1_inVariant"<<'\t'<<"start2_inVariant"<<'\t'<<"end1_inVariant"<<'\t'<<"end2_inVariant"<<'\t'<<"Confident_supporting_reads"<<'\t'<<"Total_potential_supporting_reads"<<'\t'<<"Potential_supporting_reads_from_go_through"<<'\t'<<"Potential_supporting_reads_from_5'_end"<<'\t'<<"Potential_supporting_reads_from_3'_end"<<'\t'<<"Potential_segmental_supporting_reads"<<'\t'<<"orientation"<<'\t'<<"polyA-tail_size"<<'\t'<<"5'_TSD_size"<<'\t'<<"3'_TSD_size"<<'\t'<<"Predicted_transD_size"<<'\t'<<"Has_5'_inverted_sequence?"<<'\t'<<"5'_inverted_seq_end"<<'\t'<<"5'_seq_start"<<endl;
     
-    string sys_final_tsd_title = WD+output+"_TSD_reads.txt";
+    string sys_final_tsd_title = WD+output+"_TSD_reads_output.txt";
     char *syst_final_tsd_title = new char[sys_final_tsd_title.length()+1];
     strcpy(syst_final_tsd_title, sys_final_tsd_title.c_str());
     ofstream file31;
     file31.open(syst_final_tsd_title,ios::trunc);
     
-    file31<<"cluster_id"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
+    file31<<"cluster_id"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"5'_TSD"<<'\t'<<"3'_TSD"<<'\t'<<"Predicted_transD"<<'\t'<<"Unique_26mer_at_5'junction"<<'\t'<<"Whole_insertion_seq"<<endl;
+    string sys_final_reads_title = WD+output+"_all_reads_output.txt";
+    char *syst_final_reads_title = new char[sys_final_reads_title.length()+1];
+    strcpy(syst_final_reads_title, sys_final_reads_title.c_str());
+    ofstream file32;
+    file32.open(syst_final_reads_title,ios::trunc);
+    file32<<"cluster_id"<<'\t'<<"type"<<'\t'<<"read_name"<<'\t'<<"read_name.info"<<'\t'<<"Whole_insertion_seq"<<endl;
+    file3.close();
+    file31.close();
+    file32.close();
     
     /*
     for(int i=0;i!=line_index;){
@@ -1822,7 +2386,7 @@ int main(int argc, char *argv[]){
             strcpy(syst_final, sys_final.c_str());
             system(syst_final);
             
-            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
             //cout<<sys_final<<endl;
             char *syst_final_tsd = new char[sys_final_tsd.length()+1];
             strcpy(syst_final_tsd, sys_final_tsd.c_str());
@@ -1837,7 +2401,7 @@ int main(int argc, char *argv[]){
             strcpy(syst_final, sys_final.c_str());
             system(syst_final);
             
-            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+            string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
             //cout<<sys_final<<endl;
             char *syst_final_tsd = new char[sys_final_tsd.length()+1];
             strcpy(syst_final_tsd, sys_final_tsd.c_str());
@@ -1853,7 +2417,7 @@ int main(int argc, char *argv[]){
                 strcpy(syst_final, sys_final.c_str());
                 system(syst_final);
                 
-                string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+                string sys_final_tsd="cat "+WD+chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
                 //cout<<sys_final<<endl;
                 char *syst_final_tsd = new char[sys_final_tsd.length()+1];
                 strcpy(syst_final_tsd, sys_final_tsd.c_str());
@@ -1875,12 +2439,18 @@ int main(int argc, char *argv[]){
         strcpy(syst_final, sys_final.c_str());
         system(syst_final);
         
-        string sys_final_tsd="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/TSD_output.txt >> "+sys_final_tsd_title;
+        string sys_final_tsd="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/TSD_reads_output.txt >> "+sys_final_tsd_title;
         char *syst_final_tsd = new char[sys_final_tsd.length()+1];
         strcpy(syst_final_tsd, sys_final_tsd.c_str());
         system(syst_final_tsd);
+        string sys_final_reads="cat "+WD+region.chr+"_"+s_start+"_"+s_end+"/all_reads_output.txt >> "+sys_final_reads_title;
+        char *syst_final_reads = new char[sys_final_reads.length()+1];
+        strcpy(syst_final_reads, sys_final_reads.c_str());
+        system(syst_final_reads);
     }
     
+    deduplicate_tsd_output(sys_final_tsd_title);
+    deduplicate_tsd_output(sys_final_reads_title);
 
     cout<<"Merging step completed."<<endl;
 
@@ -1902,7 +2472,7 @@ int main(int argc, char *argv[]){
         cout<<"Genotyping skipped (--GT=0)."<<endl;
     }
 
-    write_vcf_output(calls_for_vcf, sys_final_tsd_title, sys_final_vcf, T, ref_fa, command_line, output);
+    write_vcf_output(calls_for_vcf, sys_final_tsd_title, sys_final_reads_title, sys_final_vcf, T, ref_fa, command_line, output, flag_tsd==1);
 
     //colapse for the redundant calls
 
