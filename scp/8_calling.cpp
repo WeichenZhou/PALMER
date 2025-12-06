@@ -2463,12 +2463,14 @@ int calling(string WD_dir, string t, int tsd_index){
             unordered_set<int> left_set(left_type_reads.begin(), left_type_reads.end());
             unordered_set<int> right_set(right_type_reads.begin(), right_type_reads.end());
             unordered_set<int> go_set(go_through_read_indices.begin(), go_through_read_indices.end());
+            unordered_set<int> unassigned_set(unassigned_cluster_reads.begin(), unassigned_cluster_reads.end());
 
             unordered_set<string> emitted_read_names;
             vector<int> potential_indices;
             potential_indices.insert(potential_indices.end(), go_through_read_indices.begin(), go_through_read_indices.end());
             potential_indices.insert(potential_indices.end(), left_type_reads.begin(), left_type_reads.end());
             potential_indices.insert(potential_indices.end(), right_type_reads.begin(), right_type_reads.end());
+            potential_indices.insert(potential_indices.end(), unassigned_cluster_reads.begin(), unassigned_cluster_reads.end());
             sort(potential_indices.begin(), potential_indices.end());
             potential_indices.erase(unique(potential_indices.begin(), potential_indices.end()), potential_indices.end());
 
