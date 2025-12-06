@@ -340,6 +340,9 @@ int calling(string WD_dir, string t, int tsd_index){
                 }
                 add_member(idx);
             };
+
+            unordered_set<string> merged_read_names;
+            merged_read_names.insert(info[i][0]);
             
             string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
             stringstream ss_0;
@@ -420,7 +423,7 @@ int calling(string WD_dir, string t, int tsd_index){
                         //add_member(j);
                         
                     }
-                    else if(info[i][0]!=info[j][0]&&loc[j][6]==0&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]){
+                    else if(info[i][0]!=info[j][0]&&loc[j][6]==0&&merged_read_names.count(info[j][0])==0&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]){
                         if((loc[j][4]>=start1&&loc[j][4]<=start2)||(loc[j][5]<=end2&&loc[j][5]>=end1)){
                             
                             //left&right
@@ -447,6 +450,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 
                                 flag=1;
                                 loc[j][6]=-1;
+                                merged_read_names.insert(info[j][0]);
                                 //add_member(j);
                                 number_all=number_all+1;
                                 //number_all_5=number_all_5+1;
@@ -534,6 +538,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][0]+L>L1_s2) L1_s2=loc[j][0]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    merged_read_names.insert(info[j][0]);
                                     //add_member(j);
                                     number_all=number_all+1;
                                     //number_all_5=number_all_5+1;
@@ -618,6 +623,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][0]+L>L1_s2) L1_s2=loc[j][0]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    merged_read_names.insert(info[j][0]);
                                     //add_member(j);
                                     number_all=number_all+1;
                                     //number_all_5=number_all_5+1;
@@ -706,6 +712,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][1]+L>L1_e2) L1_e2=loc[j][1]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    merged_read_names.insert(info[j][0]);
                                     //add_member(j);
                                     
                                     number_all=number_all+1;
@@ -791,6 +798,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][1]+L>L1_e2) L1_e2=loc[j][1]+L;
                                     flag=1;
                                     loc[j][6]=-1;
+                                    merged_read_names.insert(info[j][0]);
                                     //add_member(j);
                                     
                                     number_all=number_all+1;
@@ -873,7 +881,7 @@ int calling(string WD_dir, string t, int tsd_index){
             //calculate the number of 'left&right' & 'right' & 'left'
             for(int j=0;j!=line;++j){
                 
-                if(loc[j][6]==-1&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]&&((loc[j][4]>=start1&&loc[j][4]<=start2)||(loc[j][5]<=end2&&loc[j][5]>=end1))){
+                if(loc[j][6]==-1&&merged_read_names.count(info[j][0])>0&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]&&((loc[j][4]>=start1&&loc[j][4]<=start2)||(loc[j][5]<=end2&&loc[j][5]>=end1))){
                     
                     
                     //'left&right' real go-through
