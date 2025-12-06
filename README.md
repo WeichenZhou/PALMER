@@ -114,13 +114,13 @@ Optional:
 Running PALMER on the example PacBio reads bam file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
 ./PALMER --input $PALMER_Path/example/sample.raw.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.raw --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1
 
-Results (sample.raw_calls.txt, sample.raw_all_reads_output.txt, sample.raw_TSD_reads_output.txt, and sample.raw_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
+Results (sample.raw_calls.txt, sample.raw_all_reads_output.txt, sample.raw_TSD_reads_output.txt, sample.raw_calls_genotyped.txt, and sample.raw_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
 ```
 ```
 Running PALMER on the example HPRC contig bam file under the 'example' folder to call ALU insertions on the GRCh38 genome with a 10-thread run, genotyping, and keeping intermediate files.
 ./PALMER --input $PALMER_Path/example/sample.asm.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.asm --type ALU --mode asm --chr chr21 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1 --intermediate 1
 
-Results (sample.asm_calls.txt, sample.asm_all_reads_output.txt, sample.asm_TSD_reads_output.txt, and sample.asm_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
+Results (sample.asm_calls.txt, sample.asm_all_reads_output.txt, sample.asm_TSD_reads_output.txt, sample.asm_calls_genotyped.txt, and sample.asm_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
 ```
 
 ### Others
@@ -175,7 +175,6 @@ We have several outputs: `sample_calls.txt`, `sample_all_reads_output.txt`, `sam
 * Currently, the genotyping module is still under development, so please set a reasonable cutoff for somatic insertion signals. 
 
 * By default, all the intermediate files will now be deleted after the run finishes. If you retain the intermediate files for other usages, please be cautious that the number of files will be very large.
-* If you have trouble running  Ver2.1.1, especially on ALUs, please use Ver2.0.1.
 
 ## Citation
 
