@@ -307,12 +307,36 @@ int calling(string WD_dir, string t, int tsd_index){
                     cluster_members.push_back(idx);
                 }
             };
-            add_member(i);
+            //add_member(i);
 
             set<int> go_through_seen;
             auto add_go_through = [&](int idx) {
                 if(go_through_seen.insert(idx).second){
                     go_through_read_indices.push_back(idx);
+                }
+                add_member(idx);
+            };
+
+            unordered_set<int> left_seen;
+            auto add_left_read = [&](int idx) {
+                if(left_seen.insert(idx).second){
+                    left_type_reads.push_back(idx);
+                }
+                add_member(idx);
+            };
+
+            unordered_set<int> right_seen;
+            auto add_right_read = [&](int idx) {
+                if(right_seen.insert(idx).second){
+                    right_type_reads.push_back(idx);
+                }
+                add_member(idx);
+            };
+
+            unordered_set<int> unassigned_seen;
+            auto add_unassigned_read = [&](int idx) {
+                if(unassigned_seen.insert(idx).second){
+                    unassigned_cluster_reads.push_back(idx);
                 }
                 add_member(idx);
             };
@@ -393,7 +417,7 @@ int calling(string WD_dir, string t, int tsd_index){
 
                     if(info[i][0]==info[j][0]&&loc[j][6]==0&&info[i][1]==info[j][1]&&loc[i][0]==loc[j][0]&&loc[i][1]==loc[j][1]&&loc[i][2]==loc[j][2]&&loc[i][3]==loc[j][3]&&loc[i][4]==loc[j][4]&&loc[i][5]==loc[j][5]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]&&loc_TP[i][1]==loc_TP[j][1]&&loc_TP[i][2]==loc_TP[j][2]&&loc_TP[i][3]==loc_TP[j][3]&&loc_TP[i][4]==loc_TP[j][4]&&loc_TP[i][5]==loc_TP[j][5]&&loc_TP[i][6]==loc_TP[j][6]){
                         loc[j][6]=-1;
-                        add_member(j);
+                        //add_member(j);
                         
                     }
                     else if(info[i][0]!=info[j][0]&&loc[j][6]==0&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]){
@@ -423,7 +447,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                 
                                 flag=1;
                                 loc[j][6]=-1;
-                                add_member(j);
+                                //add_member(j);
                                 number_all=number_all+1;
                                 //number_all_5=number_all_5+1;
                                 //number_all_3=number_all_3+1;
@@ -510,7 +534,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][0]+L>L1_s2) L1_s2=loc[j][0]+L;
                                     flag=1;
                                     loc[j][6]=-1;
-                                    add_member(j);
+                                    //add_member(j);
                                     number_all=number_all+1;
                                     //number_all_5=number_all_5+1;
                                     //left_supporting_read_indices.push_back(j);
@@ -594,7 +618,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][0]+L>L1_s2) L1_s2=loc[j][0]+L;
                                     flag=1;
                                     loc[j][6]=-1;
-                                    add_member(j);
+                                    //add_member(j);
                                     number_all=number_all+1;
                                     //number_all_5=number_all_5+1;
                                     //left_supporting_read_indices.push_back(j);
@@ -682,7 +706,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][1]+L>L1_e2) L1_e2=loc[j][1]+L;
                                     flag=1;
                                     loc[j][6]=-1;
-                                    add_member(j);
+                                    //add_member(j);
                                     
                                     number_all=number_all+1;
                                     //number_all_3=number_all_3+1;
@@ -767,7 +791,7 @@ int calling(string WD_dir, string t, int tsd_index){
                                     if(loc[j][1]+L>L1_e2) L1_e2=loc[j][1]+L;
                                     flag=1;
                                     loc[j][6]=-1;
-                                    add_member(j);
+                                    //add_member(j);
                                     
                                     number_all=number_all+1;
                                     //number_all_3=number_all_3+1;
@@ -849,105 +873,103 @@ int calling(string WD_dir, string t, int tsd_index){
             //calculate the number of 'left&right' & 'right' & 'left'
             for(int j=0;j!=line;++j){
                 
-                if((loc[j][4]>=start1&&loc[j][4]<=start2)&&(loc[j][5]>=end1&&loc[j][5]<=end2)&&loc[j][6]==-1&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]){
+                if(loc[j][6]==-1&&info[i][1]==info[j][1]&&orien[i]==orien[j]&&loc_TP[i][0]==loc_TP[j][0]&&((loc[j][4]>=start1&&loc[j][4]<=start2)||(loc[j][5]<=end2&&loc[j][5]>=end1))){
                     
                     
                     //'left&right' real go-through
-                    if((loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)&&(loc_TP[j][1]>=L1_s_TP1&&loc_TP[j][1]<=L1_s_TP2)&&(loc_TP[j][2]>=L1_e_TP1&&loc_TP[j][2]<=L1_e_TP2)){
+                    if((loc[j][4]>=start1&&loc[j][4]<=start2)&&(loc[j][5]>=end1&&loc[j][5]<=end2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)&&(loc_TP[j][1]>=L1_s_TP1&&loc_TP[j][1]<=L1_s_TP2)&&(loc_TP[j][2]>=L1_e_TP1&&loc_TP[j][2]<=L1_e_TP2)&&(loc_TP[j][5]>=start_TP1&&loc_TP[j][5]<=start_TP2)&&(loc_TP[j][6]>=end_TP1&&loc_TP[j][6]<=end_TP2)){
                         
                 
                         //for SVA (SVA would overestimated and its 5' number would be underestimated)
                         if(t=="SVA"){
-                            if((loc_TP[j][5]>=start_TP1&&loc_TP[j][5]<=start_TP2)&&(loc_TP[j][6]>=end_TP1&&loc_TP[j][6]<=end_TP2)){
-                                
-                                string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
-                                stringstream ss_0;
-                                ss_0.clear();
-                                ss_0<<loc[j][0];
-                                loc_0=ss_0.str();
-                                stringstream ss_1;
-                                ss_1.clear();
-                                ss_1<<loc[j][1];
-                                loc_1=ss_1.str();
-                                stringstream ss_2;
-                                ss_2.clear();
-                                ss_2<<loc[j][2];
-                                loc_2=ss_2.str();
-                                stringstream ss_3;
-                                ss_3.clear();
-                                ss_3<<loc[j][3];
-                                loc_3=ss_3.str();
-                                stringstream ss_4;
-                                ss_4.clear();
-                                ss_4<<loc[j][4];
-                                loc_4=ss_4.str();
-                                stringstream ss_5;
-                                ss_5.clear();
-                                ss_5<<loc[j][5];
-                                loc_5=ss_5.str();
-                                
-                                string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
-                                stringstream ss_TP_0;
-                                ss_TP_0.clear();
-                                ss_TP_0<<loc_TP[j][0];
-                                loc_TP_0=ss_TP_0.str();
-                                stringstream ss_TP_1;
-                                ss_TP_1.clear();
-                                ss_TP_1<<loc_TP[j][1];
-                                loc_TP_1=ss_TP_1.str();
-                                stringstream ss_TP_2;
-                                ss_TP_2.clear();
-                                ss_TP_2<<loc_TP[j][2];
-                                loc_TP_2=ss_TP_2.str();
-                                stringstream ss_TP_3;
-                                ss_TP_3.clear();
-                                ss_TP_3<<loc_TP[j][3];
-                                loc_TP_3=ss_TP_3.str();
-                                stringstream ss_TP_4;
-                                ss_TP_4.clear();
-                                ss_TP_4<<loc_TP[j][4];
-                                loc_TP_4=ss_TP_4.str();
-                                stringstream ss_TP_5;
-                                ss_TP_5.clear();
-                                ss_TP_5<<loc_TP[j][5];
-                                loc_TP_5=ss_TP_5.str();
-                                stringstream ss_TP_6;
-                                ss_TP_6.clear();
-                                ss_TP_6<<loc_TP[j][6];
-                                loc_TP_6=ss_TP_6.str();
-                                
-                                string seq_index_c;
-                                
-                                seq_index_c=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
-                                
-                                
-                                int flag_number=0;
-                                //int flag_true_number=0;
-                                for(int w=0;w!=line_tsd;++w){
-                                    if(info_tsd[w]==seq_index_c&&loc_tsd[w][8]==1){
-                                        loc_tsd[w][4]=1;
-                                        flag_number=1;
-                                        //*******
-                                        //if(loc_tsd[w][10]>0&&loc_tsd[w][11]>0){
-                                            //&&loc_tsd[w][10]==0){
-                                        //    flag_true_number=1;
-                                        //}
-                                    }
+                            string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
+                            stringstream ss_0;
+                            ss_0.clear();
+                            ss_0<<loc[j][0];
+                            loc_0=ss_0.str();
+                            stringstream ss_1;
+                            ss_1.clear();
+                            ss_1<<loc[j][1];
+                            loc_1=ss_1.str();
+                            stringstream ss_2;
+                            ss_2.clear();
+                            ss_2<<loc[j][2];
+                            loc_2=ss_2.str();
+                            stringstream ss_3;
+                            ss_3.clear();
+                            ss_3<<loc[j][3];
+                            loc_3=ss_3.str();
+                            stringstream ss_4;
+                            ss_4.clear();
+                            ss_4<<loc[j][4];
+                            loc_4=ss_4.str();
+                            stringstream ss_5;
+                            ss_5.clear();
+                            ss_5<<loc[j][5];
+                            loc_5=ss_5.str();
+                            
+                            string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
+                            stringstream ss_TP_0;
+                            ss_TP_0.clear();
+                            ss_TP_0<<loc_TP[j][0];
+                            loc_TP_0=ss_TP_0.str();
+                            stringstream ss_TP_1;
+                            ss_TP_1.clear();
+                            ss_TP_1<<loc_TP[j][1];
+                            loc_TP_1=ss_TP_1.str();
+                            stringstream ss_TP_2;
+                            ss_TP_2.clear();
+                            ss_TP_2<<loc_TP[j][2];
+                            loc_TP_2=ss_TP_2.str();
+                            stringstream ss_TP_3;
+                            ss_TP_3.clear();
+                            ss_TP_3<<loc_TP[j][3];
+                            loc_TP_3=ss_TP_3.str();
+                            stringstream ss_TP_4;
+                            ss_TP_4.clear();
+                            ss_TP_4<<loc_TP[j][4];
+                            loc_TP_4=ss_TP_4.str();
+                            stringstream ss_TP_5;
+                            ss_TP_5.clear();
+                            ss_TP_5<<loc_TP[j][5];
+                            loc_TP_5=ss_TP_5.str();
+                            stringstream ss_TP_6;
+                            ss_TP_6.clear();
+                            ss_TP_6<<loc_TP[j][6];
+                            loc_TP_6=ss_TP_6.str();
+                            
+                            string seq_index_c;
+                            
+                            seq_index_c=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                            
+                            
+                            int flag_number=0;
+                            //int flag_true_number=0;
+                            for(int w=0;w!=line_tsd;++w){
+                                if(info_tsd[w]==seq_index_c&&loc_tsd[w][8]==1){
+                                    loc_tsd[w][4]=1;
+                                    flag_number=1;
+                                    //*******
+                                    //if(loc_tsd[w][10]>0&&loc_tsd[w][11]>0){
+                                        //&&loc_tsd[w][10]==0){
+                                    //    flag_true_number=1;
+                                    //}
                                 }
-                                if(flag_number==1){
-                                    number=number+1;
-                                    add_go_through(j);
-                                    //cout<<seq_index<<endl;
-                                }
-                                //if(flag_true_number==1){
-                                //    number_true=number_true+1;
-                                //}
                             }
+                            if(flag_number==1){
+                                number=number+1;
+                                add_go_through(j);
+                                //cout<<seq_index<<endl;
+                            }
+                            //if(flag_true_number==1){
+                            //    number_true=number_true+1;
+                            //}
+                        
                         }
                         
                         
                         //for ALU and LINE and CUSTOMIZED
-                        else if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc_TP[j][5]>=start_TP1&&loc_TP[j][5]<=start_TP2)&&(loc_TP[j][6]>=end_TP1&&loc_TP[j][6]<=end_TP2)){
+                        else if(loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2){
                                 
                             //cout<<"get in one time"<<endl;
                             
@@ -1040,32 +1062,23 @@ int calling(string WD_dir, string t, int tsd_index){
                             //    number_true=number_true+1;
                             //}
                         }
-                        
-                        else{
-                            add_member(j);
-                            unassigned_cluster_reads.push_back(j);
-                        }
-                
                 
                     }
                     
                     //left
                     else if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc[j][1]<L1_e1)){
                         number_all_5=number_all_5+1;
-                        add_member(j);
-                        left_type_reads.push_back(j);
+                        add_left_read(j);
                     }
                     
                     
                     //right
                     else if((loc[j][0]>L1_s2)&&(loc[j][1]>=L1_e1&&loc[j][1]<=L1_e2)){
                         number_all_3=number_all_3+1;
-                        add_member(j);
-                        right_type_reads.push_back(j);
+                        add_right_read(j);
                     }
                     else{
-                        add_member(j);
-                        unassigned_cluster_reads.push_back(j);
+                        add_unassigned_read(j);
                     }
                     
                 }
@@ -2475,7 +2488,7 @@ int calling(string WD_dir, string t, int tsd_index){
             potential_indices.insert(potential_indices.end(), right_type_reads.begin(), right_type_reads.end());
             potential_indices.insert(potential_indices.end(), unassigned_cluster_reads.begin(), unassigned_cluster_reads.end());
             sort(potential_indices.begin(), potential_indices.end());
-            potential_indices.erase(unique(potential_indices.begin(), potential_indices.end()), potential_indices.end());
+            //potential_indices.erase(unique(potential_indices.begin(), potential_indices.end()), potential_indices.end());
 
             auto emit_all_read = [&](int read_idx, const string &label) {
                 string base_name = clean_read_name(info[read_idx][0]);
