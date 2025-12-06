@@ -24,6 +24,7 @@
 #include <ctime>
 #include <cctype>
 #include <climits>
+#include <cstdint>
 #include <limits>
 
 #include <thread>
@@ -45,6 +46,8 @@ struct TsdInfo {
     string junction_26mer;
     string insertion_seq;
     int n_count = 0;
+    bool high_conf = false;
+    string support_type = "NA";
 };
 
 struct CollapsedRecord {
@@ -839,15 +842,254 @@ char reference_base(const unordered_map<string, string> &reference_sequences, co
     return static_cast<char>(toupper(base));
 }
 
-int missing_fields(const TsdInfo &info) {
+int missing_metadata_fields(const TsdInfo &info) {
     int missing = 0;
     missing += (info.read_name == "NA");
     missing += (info.tsd5 == "NA");
     missing += (info.tsd3 == "NA");
     missing += (info.predicted_transd == "NA");
     missing += (info.junction_26mer == "NA");
-    missing += (info.insertion_seq == "NA");
     return missing;
+}
+
+int count_ambiguous_bases(const string &seq) {
+    int count = 0;
+    for (char base : seq) {
+        char upper = static_cast<char>(toupper(static_cast<unsigned char>(base)));
+        if (upper != 'A' && upper != 'C' && upper != 'G' && upper != 'T') {
+            ++count;
+        }
+    }
+    return count;
+}
+
+struct AlignmentResult {
+    string ref_aln;
+    string seq_aln;
+};
+
+AlignmentResult global_align(const string &a, const string &b, int match = 2, int mismatch = -1, int gap = -2) {
+    AlignmentResult result;
+    size_t n = a.size();
+    size_t m = b.size();
+
+    const size_t kMaxAlignmentCells = 25000000;
+    if (static_cast<double>(n) * static_cast<double>(m) > static_cast<double>(kMaxAlignmentCells)) {
+        size_t max_len = max(n, m);
+        result.ref_aln.reserve(max_len);
+        result.seq_aln.reserve(max_len);
+        for (size_t idx = 0; idx < max_len; ++idx) {
+            result.ref_aln.push_back(idx < n ? a[idx] : '-');
+            result.seq_aln.push_back(idx < m ? b[idx] : '-');
+        }
+        return result;
+    }
+
+    vector<int> prev(m + 1, 0);
+    vector<int> curr(m + 1, 0);
+    vector<vector<uint8_t>> trace(n + 1, vector<uint8_t>(m + 1, 0));
+
+    for (size_t j = 1; j <= m; ++j) {
+        prev[j] = gap * static_cast<int>(j);
+        trace[0][j] = 1; // left
+    }
+    for (size_t i = 1; i <= n; ++i) {
+        curr[0] = gap * static_cast<int>(i);
+        trace[i][0] = 2; // up
+        for (size_t j = 1; j <= m; ++j) {
+            int score_diag = prev[j - 1] + ((a[i - 1] == b[j - 1]) ? match : mismatch);
+            int score_left = curr[j - 1] + gap;
+            int score_up = prev[j] + gap;
+
+            int best = score_diag;
+            uint8_t dir = 0; // diag
+            if (score_left > best) {
+                best = score_left;
+                dir = 1;
+            }
+            if (score_up > best) {
+                best = score_up;
+                dir = 2;
+            }
+
+            curr[j] = best;
+            trace[i][j] = dir;
+        }
+        swap(prev, curr);
+    }
+
+    size_t i = n;
+    size_t j = m;
+    while (i > 0 || j > 0) {
+        uint8_t dir = trace[i][j];
+        if (i == 0) dir = 1;
+        else if (j == 0) dir = 2;
+
+        if (dir == 0) {
+            result.ref_aln.push_back(a[i - 1]);
+            result.seq_aln.push_back(b[j - 1]);
+            --i;
+            --j;
+        } else if (dir == 1) {
+            result.ref_aln.push_back('-');
+            result.seq_aln.push_back(b[j - 1]);
+            --j;
+        } else {
+            result.ref_aln.push_back(a[i - 1]);
+            result.seq_aln.push_back('-');
+            --i;
+        }
+    }
+
+    reverse(result.ref_aln.begin(), result.ref_aln.end());
+    reverse(result.seq_aln.begin(), result.seq_aln.end());
+    return result;
+}
+
+struct ColumnCounts {
+    double a = 0.0;
+    double c = 0.0;
+    double g = 0.0;
+    double t = 0.0;
+    double n = 0.0;
+    double gap = 0.0;
+};
+
+void add_base_to_column(ColumnCounts &col, char base, double weight) {
+    char upper = static_cast<char>(toupper(static_cast<unsigned char>(base)));
+    switch (upper) {
+        case 'A': col.a += weight; break;
+        case 'C': col.c += weight; break;
+        case 'G': col.g += weight; break;
+        case 'T': col.t += weight; break;
+        default: col.n += weight; break;
+    }
+}
+
+string alignment_string_from_columns(const vector<ColumnCounts> &columns) {
+    string result;
+    result.reserve(columns.size());
+    for (const auto &col : columns) {
+        double best = col.a;
+        char base = 'A';
+        if (col.c > best) { best = col.c; base = 'C'; }
+        if (col.g > best) { best = col.g; base = 'G'; }
+        if (col.t > best) { best = col.t; base = 'T'; }
+        if (col.n > best) { best = col.n; base = 'N'; }
+        result.push_back(base);
+    }
+    return result;
+}
+
+string consensus_from_columns(const vector<ColumnCounts> &columns) {
+    string result;
+    result.reserve(columns.size());
+    const double gap_dominance = 0.1;
+
+    for (const auto &col : columns) {
+        double non_gap = col.a + col.c + col.g + col.t + col.n;
+        if (non_gap == 0) {
+            continue;
+        }
+        if (col.gap > 0 && non_gap <= gap_dominance * col.gap) {
+            continue;
+        }
+
+        double best = col.a;
+        char base = 'A';
+        if (col.c > best) { best = col.c; base = 'C'; }
+        if (col.g > best) { best = col.g; base = 'G'; }
+        if (col.t > best) { best = col.t; base = 'T'; }
+        if (col.n > best) { best = col.n; base = 'N'; }
+        result.push_back(base);
+    }
+
+    if (result.empty()) {
+        return "NA";
+    }
+    return result;
+}
+
+string build_insertion_consensus(const vector<TsdInfo> &candidates) {
+    struct WeightedSeq {
+        string seq;
+        double weight = 1.0;
+    };
+
+    vector<WeightedSeq> sequences;
+    sequences.reserve(candidates.size());
+
+    for (const auto &candidate : candidates) {
+        if (candidate.insertion_seq.empty() || candidate.insertion_seq == "NA") {
+            continue;
+        }
+
+        double weight = candidate.high_conf ? 2.0 : 1.0;
+        if (!candidate.support_type.empty() && candidate.support_type.find("potential_go_through") == 0) {
+            weight += 0.25;
+        }
+        weight /= (1.0 + static_cast<double>(candidate.n_count));
+        if (weight <= 0.0) {
+            continue;
+        }
+
+        sequences.push_back({candidate.insertion_seq, weight});
+    }
+
+    if (sequences.empty()) {
+        return "NA";
+    }
+
+    sort(sequences.begin(), sequences.end(), [](const WeightedSeq &lhs, const WeightedSeq &rhs) {
+        if (lhs.weight == rhs.weight) {
+            return lhs.seq.size() > rhs.seq.size();
+        }
+        return lhs.weight > rhs.weight;
+    });
+
+    vector<ColumnCounts> columns;
+    columns.reserve(sequences[0].seq.size());
+    for (char base : sequences[0].seq) {
+        ColumnCounts col;
+        add_base_to_column(col, base, sequences[0].weight);
+        columns.push_back(col);
+    }
+
+    double total_weight = sequences[0].weight;
+    for (size_t idx = 1; idx < sequences.size(); ++idx) {
+        string consensus_template = alignment_string_from_columns(columns);
+        AlignmentResult aln = global_align(consensus_template, sequences[idx].seq);
+
+        vector<ColumnCounts> new_columns;
+        new_columns.reserve(aln.ref_aln.size());
+        size_t existing_idx = 0;
+        for (size_t pos = 0; pos < aln.ref_aln.size(); ++pos) {
+            char ref_base = aln.ref_aln[pos];
+            char seq_base = aln.seq_aln[pos];
+
+            if (ref_base != '-') {
+                ColumnCounts col = columns[existing_idx++];
+                if (seq_base == '-') {
+                    col.gap += sequences[idx].weight;
+                } else {
+                    add_base_to_column(col, seq_base, sequences[idx].weight);
+                }
+                new_columns.push_back(col);
+            } else {
+                ColumnCounts col;
+                col.gap = total_weight;
+                if (seq_base != '-') {
+                    add_base_to_column(col, seq_base, sequences[idx].weight);
+                }
+                new_columns.push_back(col);
+            }
+        }
+
+        columns.swap(new_columns);
+        total_weight += sequences[idx].weight;
+    }
+
+    return consensus_from_columns(columns);
 }
 
 int tsd_missing_bases(const vector<string> &fields) {
@@ -900,15 +1142,9 @@ void deduplicate_tsd_output(const string &tsd_path) {
     }
 }
 
-void write_vcf_output(const string &calls_path, const string &tsd_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line, const string &sample_name, bool tsd_enabled) {
+void write_vcf_output(const string &calls_path, const string &tsd_path, const string &all_reads_path, const string &vcf_path, const string &ins_type, const string &reference_path, const string &command_line, const string &sample_name, bool tsd_enabled) {
 
-    unordered_map<string, TsdInfo> tsd_records;
-
-    static bool seeded_rng = false;
-    if (!seeded_rng) {
-        srand(static_cast<unsigned>(time(nullptr)));
-        seeded_rng = true;
-    }
+    unordered_map<string, vector<TsdInfo>> tsd_records;
 
     ifstream tsd_stream(tsd_path);
     if (tsd_stream.is_open()) {
@@ -928,32 +1164,51 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
 
             int n_count = 0;
             for (size_t idx = 3; idx <= 6; ++idx) {
-                if (fields[idx] == "N") {
+                if (fields[idx] == "N" || fields[idx] == "NA" || fields[idx].empty()) {
                     ++n_count;
                 }
             }
 
-            auto existing = tsd_records.find(fields[0]);
-            bool should_replace = false;
-            if (existing == tsd_records.end()) {
-                should_replace = true;
-            } else if (n_count < existing->second.n_count) {
-                should_replace = true;
-            } else if (n_count == existing->second.n_count) {
-                should_replace = (rand() % 2) == 0;
-            }
+            TsdInfo info;
+            info.read_name = normalize_field(fields[1]);
+            info.tsd5 = normalize_field(fields[3]);
+            info.tsd3 = normalize_field(fields[4]);
+            info.predicted_transd = normalize_field(fields[5]);
+            info.junction_26mer = normalize_field(fields[6]);
+            info.insertion_seq = normalize_field(fields[7]);
+            info.n_count = n_count + count_ambiguous_bases(info.insertion_seq);
+            info.high_conf = true;
+            info.support_type = "TSD";
+            tsd_records[fields[0]].push_back(info);
+        }
+    }
 
-            if (should_replace) {
-                TsdInfo info;
-                info.read_name = normalize_field(fields[1]);
-                info.tsd5 = normalize_field(fields[3]);
-                info.tsd3 = normalize_field(fields[4]);
-                info.predicted_transd = normalize_field(fields[5]);
-                info.junction_26mer = normalize_field(fields[6]);
-                info.insertion_seq = normalize_field(fields[7]);
-                info.n_count = n_count;
-                tsd_records[fields[0]] = info;
+    ifstream all_reads_stream(all_reads_path);
+    if (all_reads_stream.is_open()) {
+        string reads_line;
+        getline(all_reads_stream, reads_line); // header
+        while (getline(all_reads_stream, reads_line)) {
+            if (reads_line.empty()) continue;
+
+            stringstream reads_ss(reads_line);
+            vector<string> fields;
+            string field;
+            while (getline(reads_ss, field, '\t')) {
+                fields.push_back(field);
             }
+            if (fields.size() < 5) continue;
+
+            TsdInfo info;
+            info.read_name = normalize_field(fields[2]);
+            info.tsd5 = "NA";
+            info.tsd3 = "NA";
+            info.predicted_transd = "NA";
+            info.junction_26mer = "NA";
+            info.insertion_seq = normalize_field(fields[4]);
+            info.support_type = normalize_field(fields[1]);
+            info.high_conf = false;
+            info.n_count = count_ambiguous_bases(info.insertion_seq);
+            tsd_records[fields[0]].push_back(info);
         }
     }
 
@@ -1081,17 +1336,6 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         info_prefix += ";END_INVAR=" + to_string(end_invariant);
 
         auto tsd_it = tsd_records.find(fields[0]);
-        TsdInfo tsd_info;
-        if (tsd_it != tsd_records.end()) {
-            tsd_info = tsd_it->second;
-        } else {
-            tsd_info.read_name = "NA";
-            tsd_info.tsd5 = "NA";
-            tsd_info.tsd3 = "NA";
-            tsd_info.predicted_transd = "NA";
-            tsd_info.junction_26mer = "NA";
-            tsd_info.insertion_seq = "NA";
-        }
 
         string key;
         size_t key_fields = min(fields.size(), static_cast<size_t>(24));
@@ -1112,7 +1356,9 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
             record.alt_symbol = alt_symbol;
             record.info_prefix = info_prefix;
             record.cluster_ids.push_back(fields[0]);
-            record.tsd_candidates.push_back(tsd_info);
+            if (tsd_it != tsd_records.end()) {
+                record.tsd_candidates.insert(record.tsd_candidates.end(), tsd_it->second.begin(), tsd_it->second.end());
+            }
             record.coverage_estimate = coverage_estimate;
             record.genotype_call = genotype_call;
             record.genotype_likelihoods = genotype_likelihoods;
@@ -1123,7 +1369,9 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         } else {
             CollapsedRecord &record = collapsed_records[idx_it->second];
             record.cluster_ids.push_back(fields[0]);
-            record.tsd_candidates.push_back(tsd_info);
+            if (tsd_it != tsd_records.end()) {
+                record.tsd_candidates.insert(record.tsd_candidates.end(), tsd_it->second.begin(), tsd_it->second.end());
+            }
             if (record.coverage_estimate == "NA" && coverage_estimate != "NA") {
                 record.coverage_estimate = coverage_estimate;
             }
@@ -1156,27 +1404,32 @@ void write_vcf_output(const string &calls_path, const string &tsd_path, const st
         tsd_info.predicted_transd = "NA";
         tsd_info.junction_26mer = "NA";
         tsd_info.insertion_seq = "NA";
+        tsd_info.support_type = "NA";
 
         int best_missing = INT_MAX;
-        vector<size_t> high_conf_indices;
-        for (size_t idx = 0; idx < record.tsd_candidates.size(); ++idx) {
-            const auto &candidate = record.tsd_candidates[idx];
-            if (candidate.read_name != "NA" && candidate.insertion_seq != "NA") {
-                high_conf_indices.push_back(idx);
+        bool best_is_high_conf = false;
+        bool high_conf_available = false;
+        for (const auto &candidate : record.tsd_candidates) {
+            bool candidate_high_conf = candidate.high_conf && candidate.insertion_seq != "NA" && candidate.read_name != "NA";
+            if (candidate_high_conf) {
+                high_conf_available = true;
             }
-            int missing = missing_fields(candidate);
-            if (missing < best_missing) {
+
+            int missing = missing_metadata_fields(candidate);
+            if (candidate_high_conf) {
+                if (!best_is_high_conf || missing < best_missing) {
+                    best_missing = missing;
+                    tsd_info = candidate;
+                    best_is_high_conf = true;
+                }
+            } else if (!best_is_high_conf && missing < best_missing) {
                 best_missing = missing;
                 tsd_info = candidate;
             }
         }
 
-        bool high_conf_available = false;
-        if (tsd_enabled && !high_conf_indices.empty()) {
-            size_t rand_idx = high_conf_indices[static_cast<size_t>(rand()) % high_conf_indices.size()];
-            tsd_info = record.tsd_candidates[rand_idx];
-            high_conf_available = true;
-        }
+        string consensus_seq = build_insertion_consensus(record.tsd_candidates);
+        tsd_info.insertion_seq = consensus_seq;
 
         string info = record.info_prefix;
         info += ";COV_EST=" + record.coverage_estimate;
@@ -2181,7 +2434,7 @@ int main(int argc, char *argv[]){
         cout<<"Genotyping skipped (--GT=0)."<<endl;
     }
 
-    write_vcf_output(calls_for_vcf, sys_final_tsd_title, sys_final_vcf, T, ref_fa, command_line, output, flag_tsd==1);
+    write_vcf_output(calls_for_vcf, sys_final_tsd_title, sys_final_reads_title, sys_final_vcf, T, ref_fa, command_line, output, flag_tsd==1);
 
     //colapse for the redundant calls
 
