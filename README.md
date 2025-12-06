@@ -202,10 +202,11 @@ For SMaHT benchmarking:
 * Optimized ALU calling in terms of running time and identity accuracy. 
 * Optimized BLASTn calling.
 * Implemented samtools API. 
-* Decreased the number of intermediate files.
+* Implemented MSA for consensus INS_SEQ with hc supporting read weight=3.0
 * Fixed a bug that overestimates the number of supporting reads, particularly in asm mode.
-* Minor format bugs fixed.
+* Decreased the number of intermediate files.
 * Running time improved.
+* Minor format bugs fixed.
 * Example updated.
 * Scripts cleaned.
 * README updated.
