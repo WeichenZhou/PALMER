@@ -2459,6 +2459,12 @@ int calling(string WD_dir, string t, int tsd_index){
             unordered_set<int> go_set(go_through_read_indices.begin(), go_through_read_indices.end());
 
             unordered_set<string> emitted_read_names;
+            vector<int> potential_indices;
+            potential_indices.insert(potential_indices.end(), go_through_read_indices.begin(), go_through_read_indices.end());
+            potential_indices.insert(potential_indices.end(), left_type_reads.begin(), left_type_reads.end());
+            potential_indices.insert(potential_indices.end(), right_type_reads.begin(), right_type_reads.end());
+            sort(potential_indices.begin(), potential_indices.end());
+            potential_indices.erase(unique(potential_indices.begin(), potential_indices.end()), potential_indices.end());
 
             auto emit_all_read = [&](int read_idx, const string &label) {
                 string base_name = clean_read_name(info[read_idx][0]);
@@ -2468,20 +2474,15 @@ int calling(string WD_dir, string t, int tsd_index){
                 file5<<cluster_id<<'\t'<<label<<'\t'<<base_name<<'\t'<<build_seq_index(read_idx)<<'\t'<<info_line[read_idx][2]<<endl;
             };
 
-            for(const auto &read_idx:go_through_read_indices){
-                emit_all_read(read_idx,"potential_go_through");
-            }
-
-            for(const auto &read_idx:cluster_members){
-                if(go_set.count(read_idx)) continue;
-                if(left_set.count(read_idx)){
+            for(const auto &read_idx:potential_indices){
+                if(go_set.count(read_idx)){
+                    emit_all_read(read_idx,"potential_go_through");
+                }
+                else if(left_set.count(read_idx)){
                     emit_all_read(read_idx,"cluster_member_5'");
                 }
                 else if(right_set.count(read_idx)){
                     emit_all_read(read_idx,"cluster_member_3'");
-                }
-                else {
-                    emit_all_read(read_idx,"cluster_member");
                 }
             }
                 
