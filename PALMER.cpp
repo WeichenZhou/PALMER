@@ -984,25 +984,58 @@ string alignment_string_from_columns(const vector<ColumnCounts> &columns) {
 string consensus_from_columns(const vector<ColumnCounts> &columns) {
     string result;
     result.reserve(columns.size());
-    const double gap_dominance = 0.1;
 
+    int pending_gap_run = 0;
     for (const auto &col : columns) {
-        double non_gap = col.a + col.c + col.g + col.t + col.n;
-        if (non_gap == 0) {
-            continue;
+        double base_counts[4] = {col.a, col.c, col.g, col.t};
+        char base_symbols[4] = {'A', 'C', 'G', 'T'};
+
+        double best_base = 0.0;
+        char best_symbol = 'N';
+        for (size_t idx = 0; idx < 4; ++idx) {
+            if (base_counts[idx] > best_base) {
+                best_base = base_counts[idx];
+                best_symbol = base_symbols[idx];
+            }
         }
-        if (col.gap > 0 && non_gap <= gap_dominance * col.gap) {
+
+        double best_support = best_base;
+        char winner = best_symbol;
+        if (col.gap > best_support) {
+            best_support = col.gap;
+            winner = '-';
+        } else if (best_support <= 0.0 && col.n > 0.0) {
+            best_support = col.n;
+            winner = 'N';
+        }
+
+        if (best_support <= 0.0) {
             continue;
         }
 
-        double best = col.a;
-        char base = 'A';
-        if (col.c > best) { best = col.c; base = 'C'; }
-        if (col.g > best) { best = col.g; base = 'G'; }
-        if (col.t > best) { best = col.t; base = 'T'; }
-        if (col.n > best) { best = col.n; base = 'N'; }
-        result.push_back(base);
+        if (winner == '-') {
+            ++pending_gap_run;
+            continue;
+        }
+
+        if (pending_gap_run > 0) {
+            if (result.empty() || result.back() != '-') {
+                result.push_back('-');
+            }
+            pending_gap_run = 0;
+        }
+
+        result.push_back(winner);
     }
+
+    if (pending_gap_run > 0) {
+        if (result.empty() || result.back() != '-') {
+            result.push_back('-');
+        }
+    }
+
+    // Drop gaps from the final consensus output; gaps are used only for voting.
+    result.erase(remove(result.begin(), result.end(), '-'), result.end());
 
     if (result.empty()) {
         return "NA";
@@ -1014,6 +1047,7 @@ string build_insertion_consensus(const vector<TsdInfo> &candidates) {
     struct WeightedSeq {
         string seq;
         double weight = 1.0;
+        bool high_conf = false;
     };
 
     vector<WeightedSeq> sequences;
@@ -1024,7 +1058,7 @@ string build_insertion_consensus(const vector<TsdInfo> &candidates) {
             continue;
         }
 
-        double weight = candidate.high_conf ? 2.0 : 1.0;
+        double weight = candidate.high_conf ? 3.0 : 1.0;
         if (!candidate.support_type.empty() && candidate.support_type.find("potential_go_through") == 0) {
             weight += 0.25;
         }
@@ -1033,7 +1067,7 @@ string build_insertion_consensus(const vector<TsdInfo> &candidates) {
             continue;
         }
 
-        sequences.push_back({candidate.insertion_seq, weight});
+        sequences.push_back({candidate.insertion_seq, weight, candidate.high_conf});
     }
 
     if (sequences.empty()) {
@@ -1042,6 +1076,9 @@ string build_insertion_consensus(const vector<TsdInfo> &candidates) {
 
     sort(sequences.begin(), sequences.end(), [](const WeightedSeq &lhs, const WeightedSeq &rhs) {
         if (lhs.weight == rhs.weight) {
+            if (lhs.high_conf != rhs.high_conf) {
+                return lhs.high_conf;
+            }
             return lhs.seq.size() > rhs.seq.size();
         }
         return lhs.weight > rhs.weight;
