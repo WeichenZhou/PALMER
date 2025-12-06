@@ -947,100 +947,103 @@ int calling(string WD_dir, string t, int tsd_index){
                         
                         
                         //for ALU and LINE and CUSTOMIZED
-                        else {
-                            if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc_TP[j][5]>=start_TP1&&loc_TP[j][5]<=start_TP2)&&(loc_TP[j][6]>=end_TP1&&loc_TP[j][6]<=end_TP2)){
+                        else if((loc[j][0]>=L1_s1&&loc[j][0]<=L1_s2)&&(loc_TP[j][5]>=start_TP1&&loc_TP[j][5]<=start_TP2)&&(loc_TP[j][6]>=end_TP1&&loc_TP[j][6]<=end_TP2)){
                                 
-                                //cout<<"get in one time"<<endl;
+                            //cout<<"get in one time"<<endl;
+                            
+                            string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
+                            stringstream ss_0;
+                            ss_0.clear();
+                            ss_0<<loc[j][0];
+                            loc_0=ss_0.str();
+                            stringstream ss_1;
+                            ss_1.clear();
+                            ss_1<<loc[j][1];
+                            loc_1=ss_1.str();
+                            stringstream ss_2;
+                            ss_2.clear();
+                            ss_2<<loc[j][2];
+                            loc_2=ss_2.str();
+                            stringstream ss_3;
+                            ss_3.clear();
+                            ss_3<<loc[j][3];
+                            loc_3=ss_3.str();
+                            stringstream ss_4;
+                            ss_4.clear();
+                            ss_4<<loc[j][4];
+                            loc_4=ss_4.str();
+                            stringstream ss_5;
+                            ss_5.clear();
+                            ss_5<<loc[j][5];
+                            loc_5=ss_5.str();
+                            
+                            string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
+                            stringstream ss_TP_0;
+                            ss_TP_0.clear();
+                            ss_TP_0<<loc_TP[j][0];
+                            loc_TP_0=ss_TP_0.str();
+                            stringstream ss_TP_1;
+                            ss_TP_1.clear();
+                            ss_TP_1<<loc_TP[j][1];
+                            loc_TP_1=ss_TP_1.str();
+                            stringstream ss_TP_2;
+                            ss_TP_2.clear();
+                            ss_TP_2<<loc_TP[j][2];
+                            loc_TP_2=ss_TP_2.str();
+                            stringstream ss_TP_3;
+                            ss_TP_3.clear();
+                            ss_TP_3<<loc_TP[j][3];
+                            loc_TP_3=ss_TP_3.str();
+                            stringstream ss_TP_4;
+                            ss_TP_4.clear();
+                            ss_TP_4<<loc_TP[j][4];
+                            loc_TP_4=ss_TP_4.str();
+                            stringstream ss_TP_5;
+                            ss_TP_5.clear();
+                            ss_TP_5<<loc_TP[j][5];
+                            loc_TP_5=ss_TP_5.str();
+                            stringstream ss_TP_6;
+                            ss_TP_6.clear();
+                            ss_TP_6<<loc_TP[j][6];
+                            loc_TP_6=ss_TP_6.str();
+                            
+                            string seq_index_c;
+                            
+                            seq_index_c=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                            
+                            
+                            int flag_number=0;
+                            //int flag_true_number=0;
+                            //cout<<"Try to get in as "<<seq_index_c<<endl;
+                            for(int w=0;w!=line_tsd;++w){
                                 
-                                string loc_0, loc_1, loc_2, loc_3, loc_4, loc_5;
-                                stringstream ss_0;
-                                ss_0.clear();
-                                ss_0<<loc[j][0];
-                                loc_0=ss_0.str();
-                                stringstream ss_1;
-                                ss_1.clear();
-                                ss_1<<loc[j][1];
-                                loc_1=ss_1.str();
-                                stringstream ss_2;
-                                ss_2.clear();
-                                ss_2<<loc[j][2];
-                                loc_2=ss_2.str();
-                                stringstream ss_3;
-                                ss_3.clear();
-                                ss_3<<loc[j][3];
-                                loc_3=ss_3.str();
-                                stringstream ss_4;
-                                ss_4.clear();
-                                ss_4<<loc[j][4];
-                                loc_4=ss_4.str();
-                                stringstream ss_5;
-                                ss_5.clear();
-                                ss_5<<loc[j][5];
-                                loc_5=ss_5.str();
-                                
-                                string loc_TP_0, loc_TP_1, loc_TP_2, loc_TP_3, loc_TP_4, loc_TP_5, loc_TP_6;
-                                stringstream ss_TP_0;
-                                ss_TP_0.clear();
-                                ss_TP_0<<loc_TP[j][0];
-                                loc_TP_0=ss_TP_0.str();
-                                stringstream ss_TP_1;
-                                ss_TP_1.clear();
-                                ss_TP_1<<loc_TP[j][1];
-                                loc_TP_1=ss_TP_1.str();
-                                stringstream ss_TP_2;
-                                ss_TP_2.clear();
-                                ss_TP_2<<loc_TP[j][2];
-                                loc_TP_2=ss_TP_2.str();
-                                stringstream ss_TP_3;
-                                ss_TP_3.clear();
-                                ss_TP_3<<loc_TP[j][3];
-                                loc_TP_3=ss_TP_3.str();
-                                stringstream ss_TP_4;
-                                ss_TP_4.clear();
-                                ss_TP_4<<loc_TP[j][4];
-                                loc_TP_4=ss_TP_4.str();
-                                stringstream ss_TP_5;
-                                ss_TP_5.clear();
-                                ss_TP_5<<loc_TP[j][5];
-                                loc_TP_5=ss_TP_5.str();
-                                stringstream ss_TP_6;
-                                ss_TP_6.clear();
-                                ss_TP_6<<loc_TP[j][6];
-                                loc_TP_6=ss_TP_6.str();
-                                
-                                string seq_index_c;
-                                
-                                seq_index_c=info[j][0]+"."+loc_0.c_str()+"."+loc_1.c_str()+"."+loc_2.c_str()+"."+loc_3.c_str()+"."+loc_4.c_str()+"."+loc_5.c_str()+"."+info[j][1]+"."+orien[j]+"."+loc_TP_0.c_str()+"."+loc_TP_1.c_str()+"."+loc_TP_2.c_str()+"."+loc_TP_3.c_str()+"."+loc_TP_4.c_str()+"."+loc_TP_5.c_str()+"."+loc_TP_6.c_str();
+                                //cout<<"Try to test as "<<info_tsd[w]<<" and "<<loc_tsd[w][8]<<endl;
                                 
                                 
-                                int flag_number=0;
-                                //int flag_true_number=0;
-                                //cout<<"Try to get in as "<<seq_index_c<<endl;
-                                for(int w=0;w!=line_tsd;++w){
-                                    
-                                    //cout<<"Try to test as "<<info_tsd[w]<<" and "<<loc_tsd[w][8]<<endl;
-                                    
-                                    
-                                    if(info_tsd[w]==seq_index_c&&loc_tsd[w][8]==1){
-                                        loc_tsd[w][4]=1;
-                                        flag_number=1;
-                                        //cout<<"get in one time "<<seq_index_c<<endl;
-                                        //*******
-                                        //if(loc_tsd[w][10]>0&&loc_tsd[w][11]>0){
-                                            //&&loc_tsd[w][10]==0){
-                                         //   flag_true_number=1;
-                                        //}
-                                    }
+                                if(info_tsd[w]==seq_index_c&&loc_tsd[w][8]==1){
+                                    loc_tsd[w][4]=1;
+                                    flag_number=1;
+                                    //cout<<"get in one time "<<seq_index_c<<endl;
+                                    //*******
+                                    //if(loc_tsd[w][10]>0&&loc_tsd[w][11]>0){
+                                        //&&loc_tsd[w][10]==0){
+                                    //   flag_true_number=1;
+                                    //}
                                 }
-                                if(flag_number==1){
-                                    number=number+1;
-                                    add_go_through(j);
-                                    //cout<<seq_index<<endl;
-                                }
-                                //if(flag_true_number==1){
-                                //    number_true=number_true+1;
-                                //}
                             }
+                            if(flag_number==1){
+                                number=number+1;
+                                add_go_through(j);
+                                //cout<<seq_index<<endl;
+                            }
+                            //if(flag_true_number==1){
+                            //    number_true=number_true+1;
+                            //}
+                        }
+                        
+                        else{
+                            add_member(j);
+                            unassigned_cluster_reads.push_back(j);
                         }
                 
                 
