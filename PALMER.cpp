@@ -876,43 +876,14 @@ void deduplicate_tsd_output(const string &tsd_path) {
         return;
     }
 
-    unordered_map<string, pair<string, int>> best_record;
-    vector<string> order;
+    // Only remove exact duplicate rows; keep all distinct rows even if they share the same read/cluster.
+    unordered_set<string> seen_rows;
+    vector<string> unique_rows;
     string line;
     while (getline(in, line)) {
         if (line.empty()) continue;
-
-        stringstream ss(line);
-        vector<string> fields;
-        string field;
-        while (getline(ss, field, '\t')) {
-            fields.push_back(field);
-        }
-
-        if (fields.empty()) {
-            continue;
-        }
-
-        int missing = tsd_missing_bases(fields);
-        string read_id = (fields.size() > 1) ? fields[1] : string();
-        size_t pipe_pos = read_id.rfind('|');
-        if (pipe_pos != string::npos && pipe_pos + 1 < read_id.size()) {
-            read_id = read_id.substr(pipe_pos + 1);
-        }
-
-        string key = fields[0] + "|" + read_id;
-
-        auto it = best_record.find(key);
-        bool replace = false;
-        if (it == best_record.end()) {
-            replace = true;
-            order.push_back(key);
-        } else if (missing < it->second.second) {
-            replace = true;
-        }
-
-        if (replace) {
-            best_record[key] = {line, missing};
+        if (seen_rows.insert(line).second) {
+            unique_rows.push_back(line);
         }
     }
     in.close();
@@ -924,11 +895,8 @@ void deduplicate_tsd_output(const string &tsd_path) {
     }
 
     out << header << '\n';
-    for (const auto &key : order) {
-        auto it = best_record.find(key);
-        if (it != best_record.end()) {
-            out << it->second.first << '\n';
-        }
+    for (const auto &row : unique_rows) {
+        out << row << '\n';
     }
 }
 

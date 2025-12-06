@@ -198,12 +198,12 @@ For SMaHT benchmarking:
 ## Logs
 **Ver2.3** Dec.4th.2025! PALMER2.3
 
-* Reorgnized output files.
-* Add columns in the output files for potential supporting reads from 5' end, 3' end, and go-through.
+* Reorgnized output files and add columns in the output files for potential supporting reads from 5' end, 3' end, and go-through.
 * Optimized ALU calling in terms of running time and identity accuracy. 
 * Optimized BLASTn calling.
 * Implemented samtools API. 
 * Decreased the number of intermediate files.
+* Fixed a bug that overestimates the number of supporting reads, particularly in asm mode.
 * Minor format bugs fixed.
 * Running time improved.
 * Example updated.
