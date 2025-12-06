@@ -195,7 +195,7 @@ For SMaHT benchmarking:
 * arthurz@umich.edu
 
 ## Logs
-**Ver2.3** Dec.4th.2025! PALMER2.3 念头通达
+**Ver2.3** Dec.6th.2025! PALMER2.3 念头通达
 
 * Reorgnized output files and add columns in the output files for potential supporting reads from 5' end, 3' end, and go-through.
 * Optimized ALU calling in terms of running time and identity accuracy. 
