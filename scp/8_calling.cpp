@@ -2456,6 +2456,7 @@ int calling(string WD_dir, string t, int tsd_index){
 
             unordered_set<int> left_set(left_type_reads.begin(), left_type_reads.end());
             unordered_set<int> right_set(right_type_reads.begin(), right_type_reads.end());
+            unordered_set<int> go_set(go_through_read_indices.begin(), go_through_read_indices.end());
 
             unordered_set<string> emitted_read_names;
 
@@ -2472,6 +2473,7 @@ int calling(string WD_dir, string t, int tsd_index){
             }
 
             for(const auto &read_idx:cluster_members){
+                if(go_set.count(read_idx)) continue;
                 if(left_set.count(read_idx)){
                     emit_all_read(read_idx,"cluster_member_5'");
                 }
