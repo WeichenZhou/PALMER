@@ -20,6 +20,7 @@
 #include <htslib/sam.h>
 
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <ctime>
 #include <cctype>
