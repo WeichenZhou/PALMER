@@ -1,9 +1,9 @@
 # PALMER Ver2.3
 
-* PALMER detects non-reference MEIs (LINE, Alu, SVA, and HERVK) and other insertions (e.g., NUMTs, HPV insertions).
-* PALMER detects non-reference germline and somatic signals of your interest. 
-* PALMER detects non-reference signals from long-read WGS data, assembled contigs, targeted long-reads (see NanoPal, https://github.com/WeichenZhou/NanoPal-and-Cas9-targeted-enrichment-pipelines), and single-cell long-reads (see PALMESOM, https://github.com/HelloYanming/PALMESOM).
-* PALMER utilizes multi-threads for runs and outputs calls and genotypes (use caution) in VCF.
+* PALMER detects non-reference MEIs (LINE, Alu, SVA, and HERVK) and other insertions (e.g., NUMTs, HPV insertions) from the genomic DNA.
+* PALMER detects non-reference germline and somatic insertion signals of your interest. 
+* PALMER works on whole-genome long-reads (PacBio&ONT), assembled contigs, targeted long-reads (see NanoPal, https://github.com/WeichenZhou/NanoPal-and-Cas9-targeted-enrichment-pipelines), and single-cell long-reads (see PALMESOM, https://github.com/HelloYanming/PALMESOM).
+* PALMER utilizes multi-threads for runs and outputs calls with consensus sequence and genotype (use caution) in VCF.
 * For MEIs, it characterizes hallmark features within MEIs, including TSD motifs, 5' inverted sequence, 5' or 3' transduction sequence, polyA-tail, and reports sequences for each high-confidence candidate insertion. The ideal structure of an MEI event would be 5’-TSD-(5'TransD)-(5'inverted)-MEI-polyA-(3'TransD-polyA)-TSD-3’.
 
 ## Required resources:
@@ -171,10 +171,10 @@ We have several outputs: `sample_calls.txt`, `sample_all_reads_output.txt`, `sam
 * Recommended for a single-node run: Use --cpus-per-task=N in sbatch (or srun if launching via srun) to reserve N cores; Run PALMER with `--thread N` to actually use those N cores.
 * Keep --ntasks-per-node=1 for a single PALMER process in your Slurm job; increase --ntasks-per-node only if you intend to run multiple independent PALMER jobs on different chromosomes simultaneously (each with its own --thread limit and matching --cpus-per-task request).
 
-* By using raw sub-reads from a ~50x coverage PacBio genome, we recommend a cutoff for HC calls as ≥1 HC-SR and ≥5 (10% of the average coverage) SRs.
-* Currently, the genotyping module is still under development, so please set a reasonable cutoff for somatic insertion signals. 
+* By using CLR (Continuous Long Reads) from a ~50x coverage PacBio genome, we recommend a cutoff for high-confidence calls as `≥1 confident TSD supporting reads` and `≥5 (10% of the average coverage) other potential supporting reads`.
+* Currently, the genotyping module is still under development, so please use the information from genotypes to set a reasonable cutoff for germline and somatic insertion signals. 
 
-* By default, all the intermediate files will now be deleted after the run finishes. If you retain the intermediate files for other usages, please be cautious that the number of files will be very large.
+* By default, all the intermediate files will now be deleted after the run finishes. If you want to retain the intermediate files for other usages, please be cautious that `the number of files` will be very large.
 
 ## Citation
 
