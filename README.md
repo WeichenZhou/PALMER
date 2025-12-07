@@ -111,7 +111,7 @@ Optional:
 ## Examples
 ### Test samples
 ```
-Running PALMER on the example PacBio reads bam file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
+Running PALMER on the example PacBio reads the BAM file under the 'example' folder to call LINE-1 insertions on the GRCh38 genome with a 10-thread run and genotyping.
 ./PALMER --input $PALMER_Path/example/sample.raw.bam --workdir $DirPath/ --ref_ver GRCh38 --output sample.raw --type LINE --mode raw --chr chr19 --ref_fa $your.reference.file.path/GRCh38.fa --thread 10 --GT 1
 
 Results (sample.raw_calls.txt, sample.raw_all_reads_output.txt, sample.raw_TSD_reads_output.txt, sample.raw_calls_genotyped.txt, and sample.raw_integrated.vcf)  from the example BAM file can also be found under the 'example' folder.
@@ -197,7 +197,7 @@ For SMaHT benchmarking:
 ## Logs
 **Ver2.3** Dec.6th.2025! PALMER2.3 念头通达
 
-* Reorgnized output files and add columns in the output files for potential supporting reads from 5' end, 3' end, and go-through.
+* Reorganized output files and added columns in the output files for potential supporting reads from 5' end, 3' end, and the go-through.
 * Optimized ALU calling in terms of running time and identity accuracy. 
 * Optimized BLASTn calling.
 * Implemented samtools API. 
