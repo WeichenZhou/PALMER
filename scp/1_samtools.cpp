@@ -17,6 +17,10 @@ int samtools(string working_dir, string input_bam, string chr, string start, str
     if (!in) {
         return -1;
     }
+    if (hts_set_fai_filename(in, fasta.c_str()) != 0) {
+        sam_close(in);
+        return -1;
+    }
 
     bam_hdr_t *header = sam_hdr_read(in);
     if (!header) {
