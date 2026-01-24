@@ -34,7 +34,11 @@ int samtools(string working_dir, string input_bam, string chr, string start, str
     if (has_fasta) {
         const htsFormat *format = hts_get_format(in);
         if (format && format->format == cram) {
-            if (hts_set_fai_filename(in, fasta.c_str()) != 0) {
+            string fai_path = fasta;
+            if (fai_path.size() < 4 || fai_path.compare(fai_path.size() - 4, 4, ".fai") != 0) {
+                fai_path += ".fai";
+            }
+            if (hts_set_fai_filename(in, fai_path.c_str()) != 0) {
                 sam_close(in);
                 return -1;
             }
