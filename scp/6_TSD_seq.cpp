@@ -22,7 +22,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     else if (t=="HERVK"){
         BIN_3=50;
         BIN_5=50;
-        tsd_index=0;
+        //tsd_index=0;
     }
     //int JUN_BIN=50;
     
