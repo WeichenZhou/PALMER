@@ -1,5 +1,9 @@
 ////copyright by ArthurZhou @ UMich&Fudan&HUST
 #include "common.hpp"
+#include <algorithm>
+#include <cctype>
+#include <htslib/cram.h>
+#include <htslib/hts.h>
 #include <htslib/kstring.h>
 #include <htslib/sam.h>
 
@@ -13,9 +17,32 @@ int samtools(string working_dir, string input_bam, string chr, string start, str
         return -1;
     }
 
+    bool has_input = std::any_of(input_bam.begin(), input_bam.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    });
+    if (!has_input) {
+        return -1;
+    }
+
     htsFile *in = sam_open(input_bam.c_str(), "r");
     if (!in) {
         return -1;
+    }
+    bool has_fasta = std::any_of(fasta.begin(), fasta.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    });
+    if (has_fasta) {
+        const htsFormat *format = hts_get_format(in);
+        if (format && format->format == cram) {
+            if (hts_set_fai_filename(in, fasta.c_str()) != 0) {
+                sam_close(in);
+                return -1;
+            }
+            if (hts_set_opt(in, CRAM_OPT_REFERENCE, fasta.c_str()) != 0) {
+                sam_close(in);
+                return -1;
+            }
+        }
     }
 
     bam_hdr_t *header = sam_hdr_read(in);
