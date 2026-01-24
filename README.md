@@ -195,6 +195,10 @@ For SMaHT benchmarking:
 * arthurz@umich.edu
 
 ## Logs
+**Ver2.3** Jan.23rd.2026! PALMER2.3.1
+
+* Fixed the bug for reading the CRAM files.
+
 **Ver2.3** Dec.6th.2025! PALMER2.3 念头通达
 
 * Reorganized output files and added columns in the output files for potential supporting reads from 5' end, 3' end, and the go-through.
