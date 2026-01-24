@@ -198,6 +198,7 @@ For SMaHT benchmarking:
 **Ver2.3** Jan.23rd.2026! PALMER2.3.1
 
 * Fixed the bug for reading the CRAM files.
+* Fixed the bug for TSD_finding=FALSE.
 
 **Ver2.3** Dec.6th.2025! PALMER2.3 念头通达
 
