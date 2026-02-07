@@ -1784,7 +1784,7 @@ int main(int argc, char *argv[]){
     
     if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_tsd==1&flag_cus_seq_len==0)||(flag_m==0)||(mapq_int<0 || mapq_int>100)||invalid_intermediate==1||invalid_gt==1){
         if(flag_T==0&&flag_cus==0){
-            cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA/HERVK"<<endl;}
+            cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA/HERVK/CUSTOMIZED"<<endl;}
         if(flag_T==1&&flag_cus==1){
             cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE WITHOUT YOUR CUSTOMIZED SEQUENCE"<<endl;}
         if(flag_s!=flag_e){
@@ -1813,8 +1813,8 @@ int main(int argc, char *argv[]){
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
         cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: 2.0.0"<<endl;
-        cout<<"Presented by Weichen Zhou @ Mills Lab. May.20th.2022"<<endl;
+        cout<<"Version: 2.3.1"<<endl;
+        cout<<"Presented by Weichen Zhou @ Mills Lab. Jan.23rd.2026"<<endl;
         cout<<endl;
         cout<<"USAGE:"<<endl;
         cout<<endl;
@@ -1824,15 +1824,15 @@ int main(int argc, char *argv[]){
         cout<<"         aligned long-read sequencing BAM file with directory path"<<endl;
         cout<<endl;
         cout<<"--workdir"<<endl;
-        cout<<"         the user's working directory. Please follow the format /your/woking/directory/ !!don't forget the last '/'!!"<<endl;
+        cout<<"         the user's working directory. Please follow the format /your/working/directory/ !!don't forget the last '/'!!"<<endl;
         cout<<endl;
         cout<<"--ref_ver (options: hg19, GRCh37, GRCh38 or other)"<<endl;
-        cout<<"         reference genome used for the aligned file ('other' option for the cusmized genome out of hg19, GRCh37 or GRCh38)"<<endl;
+        cout<<"         reference genome used for the aligned file ('other' option for the customized genome out of hg19, GRCh37, or GRCh38)"<<endl;
         cout<<endl;
         cout<<"--ref_fa"<<endl;
-        cout<<"         indexed fasta file of reference genome fasta file with directory path used for the aligned bam file (wrong reference will cause error information)"<<endl;
+        cout<<"         indexed fasta file of the reference genome, fasta file with the directory path used for the aligned bam/cram file (wrong reference will cause error information)"<<endl;
         cout<<endl;
-        cout<<"--type (options: LINE, ALU, SVA, HERVK, or CUSTOMIZED (if you want to setup your costomized sequence))"<<endl;
+        cout<<"--type (options: LINE, ALU, SVA, HERVK, or CUSTOMIZED (if you want to set up your customized sequence))"<<endl;
         cout<<"         type of MEIs or other kinds of insertions to detect"<<endl;
         cout<<endl;
         
@@ -1840,8 +1840,8 @@ int main(int argc, char *argv[]){
         cout<<"         type of input sequencing to be processed (raw: raw nanopore/PacBio-sub reads; asm: assembled contigs)"<<endl;
         cout<<endl;
         
-        cout<<"--chr (default: ALL (for whole genome); recommended options: chromosome1, chromosome2, ...chromosomeY)"<<endl;
-        cout<<"         chromosome name for PALMER to run (if running for whole genome, don't need to assign). !!The chromosome names should be consistent with the ones in reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'"<<endl;
+        cout<<"--chr (default: ALL (for whole genome, not recommended); options: chromosome1, chromosome2, ...chromosomeY)"<<endl;
+        cout<<"         chromosome name for PALMER to run. !!The chromosome names should be consistent with the ones in the reference genome version!! e.g. for GRCh37, to run PALMER on chromosome1, the option should be '1', while for GRCh38 it should be 'chr1'"<<endl;
         cout<<endl;
         
         cout<<"Optional"<<endl;
@@ -1861,7 +1861,7 @@ int main(int argc, char *argv[]){
         //cout<<"--custom_index (default: Null; if you have both '--ref_ver other' and '--type LINE/ALU/SVA/HERVK', you must give PALMER a index file (format: \"CHR'\t'START'\t'END'\t'MEI_NAME'\n'\" for each MEI to be masked in each line) for masking module; if you have --custom_seq parameter without --custom_index, PALMER will work without masking step)"<<endl;
         //cout<<"         index file with directory path to mask the genome for your insertion finding"<<endl;
         cout<<endl;
-        cout<<"--TSD_finding (Fixed: TRUE for all MEIs ,or default: FALSE for CUSTOMIZED insertion)"<<endl;
+        cout<<"--TSD_finding (Fixed: TRUE for all MEIs, or default: FALSE for CUSTOMIZED insertion)"<<endl;
         cout<<"         whether to run TSD motif finding module for your insertion calling"<<endl;
         cout<<endl;
         
@@ -1874,12 +1874,12 @@ int main(int argc, char *argv[]){
         cout<<"        number of concurrent region workers to launch during preprocessing and calling"<<endl;
         cout<<endl;
 
-        cout<<"--GT (default: 0)"<<endl;
+        cout<<"--GT (default: 0, still under development & use caution)"<<endl;
         cout<<"         set to 1 to enable genotyping; keep 0 to skip"<<endl;
         cout<<endl;
 
-        cout<<"--len_custom_seq (MUST set up when activate TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)"<<endl;
-        cout<<"         interger value for the length of your customized sequence WITHOUT polyA tact"<<endl;
+        cout<<"--len_custom_seq (MUST set up when activating TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)"<<endl;
+        cout<<"         integer value for the length of your customized sequence WITHOUT polyA tract"<<endl;
         cout<<endl;
         
         cout<<"--L_len (default: 25bp)"<<endl;
@@ -1890,8 +1890,8 @@ int main(int argc, char *argv[]){
         cout<<"         the prefix of the output file"<<endl;
         cout<<endl;
         
-        cout<<"--intermediate (default: 0)"<<endl;
-        cout<<"         set to 0 to delete intermediate subfolders after completion; set to 1 to retain them"<<endl;
+        cout<<"--intermediate (optional, default: 0)"<<endl;
+        cout<<"         omit to delete intermediate subfolders after completion; set to 1 to retain them"<<endl;
         cout<<endl;
         
         exit(1);
