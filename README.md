@@ -196,7 +196,7 @@ For SMaHT benchmarking:
 
 ## Changelog
 
-See `CHANGELOG.md` for release logs and version history.
+See [CHANGELOG.md](CHANGELOG.md) for release logs and version history.
 
 ## COPYRIGHT
 Copyright (c) 2018-2025 Weichen Arthur Zhou @ UMich&Fudan&HUST
