@@ -196,7 +196,7 @@ For SMaHT benchmarking:
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for release logs and version history.
+See the [Project Wiki](https://github.com/WeichenZhou/PALMER/wiki) for release logs and version history.
 
 ## COPYRIGHT
 Copyright (c) 2018-2026 Weichen Arthur Zhou @ UMich&Fudan&HUST
