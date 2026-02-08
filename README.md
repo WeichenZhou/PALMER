@@ -195,7 +195,12 @@ For SMaHT benchmarking:
 * arthurz@umich.edu
 
 ## Logs
-**Ver2.3** Jan.23rd.2026! PALMER2.3.1
+**Ver2.3.2** Feb.7nd.2026! PALMER2.3.2
+
+* Fixed a rare bug for reading the same cigar from different reads/contigs.
+* Fix the --help information.
+
+**Ver2.3.1** Jan.23rd.2026! PALMER2.3.1
 
 * Fixed the bug for reading the CRAM files.
 * Fixed the bug for TSD_finding=FALSE.

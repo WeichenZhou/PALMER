@@ -1812,9 +1812,9 @@ int main(int argc, char *argv[]){
             cout<<"***ERROR*** PLEASE SET --GT TO 0 (SKIP) OR 1 (RUN GENOTYPING)"<<endl;}
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
-        cout<<"***PALMER:Pre-mAsking Long reads for Mobile Element inseRtion***"<<endl;
-        cout<<"Version: 2.3.1"<<endl;
-        cout<<"Presented by Weichen Zhou @ Mills Lab. Jan.23rd.2026"<<endl;
+        cout<<"***PALMER Ver2.3***"<<endl;
+
+        cout<<"Presented by Weichen Zhou @UMich&Fudan&HUST Copyright 2018-2026"<<endl;
         cout<<endl;
         cout<<"USAGE:"<<endl;
         cout<<endl;
