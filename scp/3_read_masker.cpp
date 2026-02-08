@@ -11,7 +11,7 @@ int ReadMasker(string WD_dir, string mode){
     ifstream file3;
     ofstream file5;
     ofstream file6;
-    ofstream file7;
+    //ofstream file7;
     
     string sys_regionsam = WD_dir+"region.sam";
     char *syst_regionsam = new char[sys_regionsam.length()+1];
@@ -31,12 +31,13 @@ int ReadMasker(string WD_dir, string mode){
     
     file6.open(syst_SEQ);
     
+    /*
     string sys_selecinfo = WD_dir+"selected.reads.info";
     char *syst_selecinfo = new char[sys_selecinfo.length()+1];
     strcpy(syst_selecinfo, sys_selecinfo.c_str());
     
     file7.open(syst_selecinfo);
-    
+    */
     if (!file1.is_open())
     {
         cout <<"CANNOT OPEN FILE, 'region.sam'"<< endl;
@@ -185,11 +186,11 @@ int ReadMasker(string WD_dir, string mode){
             }
             
 //output
-            file5<<sam_info[i][2]<<"0E"<<'\t'<<i<<endl;
+            file5<<sam_info[i][2]<<"0E"<<'\t'<<i<<'\t';
             file6<<">"<<sam_info[i][0]<<"_"<<sam_loc[i][1]<<"_"<<i<<endl;
             for(int x=0;x!=le;++x) file6<<seq[x];
             file6<<endl;
-            file7<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<'\t'<<le<<'\t'<<i<<endl;
+            file5<<sam_info[i][0]<<'\t'<<sam_info[i][1]<<'\t'<<sam_loc[i][1]<<'\t'<<le<<endl;
         //}
         delete [] seq;
     }

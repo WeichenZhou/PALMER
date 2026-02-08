@@ -53,11 +53,15 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     
     string **ci;
     ci=new string*[line_cigar];
-    for(int i=0;i!=line_cigar;++i) ci[i]=new string[2];
+    for(int i=0;i!=line_cigar;++i) ci[i]=new string[6];
     
     for(int i=0;i!=line_cigar;++i){
         file66>>ci[i][0];
         file66>>ci[i][1];
+        file66>>ci[i][2];
+        file66>>ci[i][3];
+        file66>>ci[i][4];
+        file66>>ci[i][5];
     }
     file66.close();
     file66.clear();
@@ -165,7 +169,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         string cig=input+"0E";
         string tag;
         for(int j=0;j!=line_cigar;j++){
-            if(cig==ci[j][0]){
+            if(cig==ci[j][0]&&SEQ[i][0]==ci[j][2]&&input==ci[j][4]){
                 tag=ci[j][1];
             }
         }

@@ -40,7 +40,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         //exit(1);
         return 0;
     }
-
+    /*
     string sys_selecinfo = WD_dir+"selected.reads.info";
     char *syst_selecinfo =  new char[sys_selecinfo.length()+1];
     strcpy(syst_selecinfo, sys_selecinfo.c_str());
@@ -54,7 +54,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
         //exit(1);
         return 0;
     }
-    
+    */
     string sys_readresult = WD_dir+"read_result_pre.txt";
     char *syst_readresult =  new char[sys_readresult.length()+1];
     strcpy(syst_readresult, sys_readresult.c_str());
@@ -66,13 +66,13 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     
     int line;
     string input;
-    for(int i=0;!file3.eof();++i){
-        getline(file3,input);
+    for(int i=0;!file1.eof();++i){
+        getline(file1,input);
         line=i;
     }
-    file3.close();
-    file3.clear();
-    file3.open(syst_selecinfo);
+    file1.close();
+    file1.clear();
+    file1.open(syst_cigar);
 
     //constexpr double identity_cutoff = 90.0;
 
@@ -117,11 +117,11 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     for(int i=0;i!=line;++i){
         file1>>read[i][2];      //cigar
         file1>>input;   //tag #
-        file3>>read[i][0];      //read name
-        file3>>read[i][1];      //chr
-        file3>>read_loc[i];     //pos
-        file3>>read_le[i];      //read length
-        file3>>input;   //tag #
+        file1>>read[i][0];      //read name
+        file1>>read[i][1];      //chr
+        file1>>read_loc[i];     //pos
+        file1>>read_le[i];      //read length
+        //file1>>input;   //tag #
         string nametag;
         nametag = std::to_string(read_loc[i]);
         read[i][3]=read[i][0]+"_"+nametag+"_"+input;
@@ -655,8 +655,8 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
     file1.clear();
     file2.close();
     file2.clear();
-    file3.close();
-    file3.clear();
+    //file3.close();
+    //file3.clear();
     file6.close();
     file6.clear();
     file15.close();
