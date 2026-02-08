@@ -199,4 +199,4 @@ For SMaHT benchmarking:
 See [CHANGELOG.md](CHANGELOG.md) for release logs and version history.
 
 ## COPYRIGHT
-Copyright (c) 2018-2025 Weichen Arthur Zhou @ UMich&Fudan&HUST
+Copyright (c) 2018-2026 Weichen Arthur Zhou @ UMich&Fudan&HUST
