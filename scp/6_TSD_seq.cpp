@@ -42,6 +42,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     
     int line_cigar=0;
     string input;
+    string input_pos;
     for(int i=0;!file66.eof();++i){
         getline(file66,input);
         line_cigar=i;
@@ -56,12 +57,12 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     for(int i=0;i!=line_cigar;++i) ci[i]=new string[6];
     
     for(int i=0;i!=line_cigar;++i){
-        file66>>ci[i][0];
-        file66>>ci[i][1];
-        file66>>ci[i][2];
-        file66>>ci[i][3];
-        file66>>ci[i][4];
-        file66>>ci[i][5];
+        file66>>ci[i][0];   // cigar+0E
+        file66>>ci[i][1];   // tag
+        file66>>ci[i][2];   // seq name
+        file66>>ci[i][3];   // chr
+        file66>>ci[i][4];   // pos
+        file66>>ci[i][5];   // read length
     }
     file66.close();
     file66.clear();
@@ -162,14 +163,14 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         file2>>SEQ[i][0];
         file2>>input;
         file2>>input;
-        file2>>input;
+        file2>>input_pos;
         SEQ[i][2]=SEQ[i][0]+"_"+input;
         file2>>input;
         file2>>input;
         string cig=input+"0E";
         string tag;
         for(int j=0;j!=line_cigar;j++){
-            if(cig==ci[j][0]&&SEQ[i][0]==ci[j][2]&&input==ci[j][4]){
+            if(cig==ci[j][0]&&SEQ[i][0]==ci[j][2]&&input_pos==ci[j][4]){
                 tag=ci[j][1];
             }
         }
