@@ -164,7 +164,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
         file2>>input;
         file2>>input;
         file2>>input_pos;
-        SEQ[i][2]=SEQ[i][0]+"_"+input;
+        SEQ[i][2]=SEQ[i][0]+"_"+input_pos;
         file2>>input;
         file2>>input;
         string cig=input+"0E";
