@@ -1,10 +1,10 @@
 ////copyright by ArthurZhou @ UMich&Fudan&HUST
 #include "common.hpp"
 
-int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len){
+int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len, int tsd_index){
         
-    int C_len=10000;
-    if(cus_seq_len!=-1){
+    int C_len=-1;
+    if(cus_seq_len!=-1 && tsd_index==1){
         if(cus_seq_len<=1000){
             C_len=cus_seq_len-20;
         }
@@ -12,7 +12,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
             C_len=98*cus_seq_len/100;
         }
         else if(cus_seq_len>1500){
-            C_len=90*cus_seq_len/100;
+            C_len=95*cus_seq_len/100;
         }
     }
     
@@ -558,7 +558,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                         }
                                     }
                                     else if(t!="LINE"&&t!="ALU"&&t!="SVA"&&t!="HERVK"){
-                                        if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-10)){
+                                        if((C_len<0||loc[i][0]<C_len)&&loc[i][1]>=(cus_seq_len-10)){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[j][2]<<'\t'<<loc[i][3]<<'\t'<<loc[j][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[j][3]<<'\t'<<loc[i][2]<<'\t'<<loc[j][5]<<'\t'<<loc[i][4]<<endl;
                                         }
                                     }
@@ -590,7 +590,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
                                         }
                                     }
                                     else if(t!="LINE"&&t!="ALU"&&t!="SVA"&&t!="HERVK"){
-                                        if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-30)){
+                                        if((C_len<0||loc[i][0]<C_len)&&loc[i][1]>=(cus_seq_len-30)){
                                             file15<<name[i]<<'\t'<<loc[j][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[j][3]<<'\t'<<loc[i][4]<<'\t'<<loc[j][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"1"<<'\t'<<loc[j][1]<<'\t'<<loc[i][0]<<'\t'<<loc[i][3]<<'\t'<<loc[j][2]<<'\t'<<loc[i][5]<<'\t'<<loc[j][4]<<endl;
                                         }
                                     }
@@ -627,7 +627,7 @@ int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len
             }
         }
         else if(t!="LINE"&&t!="ALU"&&t!="SVA"&&t!="HERVK"){
-            if(loc[i][0]<C_len&&loc[i][1]>=(cus_seq_len-30)){
+            if((C_len<0||loc[i][0]<C_len)&&loc[i][1]>=(cus_seq_len-30)){
                 file15<<name[i]<<'\t'<<loc[i][0]<<'\t'<<loc[i][1]<<'\t'<<loc[i][2]<<'\t'<<loc[i][3]<<'\t'<<loc[i][4]<<'\t'<<loc[i][5]<<'\t'<<info[i][0]<<'\t'<<info[i][1]<<'\t'<<loc[i][6]<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
         }

@@ -82,7 +82,7 @@ int tube(string working_dir, string input_bam, string chr, int start, int end, s
     
 //5. Blastn caller
     
-    BlastnCaller(WD_tube, chr, type, L_len, cus_seq_len);
+    BlastnCaller(WD_tube, chr, type, L_len, cus_seq_len, tsd);
     //cout<<"5. Blastn Caller Step for region "+chr+"_"+s_start+"_"+s_end+" is now completed."<<endl;
  
     cout<<"Single read calling step for "+chr+"_"+s_start+"_"+s_end+" completed."<<endl;
