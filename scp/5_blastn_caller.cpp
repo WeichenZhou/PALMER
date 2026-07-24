@@ -1,10 +1,10 @@
 ////copyright by ArthurZhou @ UMich&Fudan&HUST
 #include "common.hpp"
 
-int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len, int tsd_index){
+int BlastnCaller(string WD_dir, string chr, string t, int L_len, int cus_seq_len, int tsd_index, int require_3end){
         
     int C_len=-1;
-    if(cus_seq_len!=-1 && tsd_index==1){
+    if(cus_seq_len!=-1 && tsd_index==1 && require_3end==1){
         if(cus_seq_len<=1000){
             C_len=cus_seq_len-20;
         }

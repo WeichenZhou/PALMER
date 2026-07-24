@@ -1539,6 +1539,8 @@ int main(int argc, char *argv[]){
     int L_len=25;
     int seq_len=-1;
     int flag_cus_seq_len=0;
+    int require_3end=0;
+    int invalid_3end=0;
     
     int intermediate=0;
     int flag_intermediate=0;
@@ -1755,6 +1757,23 @@ int main(int argc, char *argv[]){
             //cus_seq_len=stoi(string_cus_seq_len)
             flag_cus_seq_len=1;
         }
+        if(strncmp(argv[i],"--3end_require",14)==0){
+            string require_3end_value = "0";
+            if((i+1)<argc && argv[i+1][0]!='-'){
+                require_3end_value = argv[i+1];
+            }
+
+            if(require_3end_value=="1"){
+                require_3end=1;
+            }
+            else if(require_3end_value=="0"){
+                require_3end=0;
+            }
+            else {
+                cout<<"PLEASE SET --3end_require TO 0 (SKIP) OR 1 (REQUIRE 3' END)"<<endl;
+                invalid_3end=1;
+            }
+        }
         if(strncmp(argv[i],"--help",6)==0){
             
             help=1;
@@ -1782,7 +1801,7 @@ int main(int argc, char *argv[]){
     }
     
     
-    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_tsd==1&flag_cus_seq_len==0)||(flag_m==0)||(mapq_int<0 || mapq_int>100)||invalid_intermediate==1||invalid_gt==1){
+    if((flag_T==0&&flag_cus==0)||(flag_T==1&&flag_cus==1)||flag_wd==0||flag_inputf==0||ref_n==0||flag_reffa==0||help==1||(flag_T==2&&flag_cus==0)||(flag_T==2&&flag_cus==1&&flag_tsd==1&&require_3end==1&&flag_cus_seq_len==0)||(flag_m==0)||(mapq_int<0 || mapq_int>100)||invalid_intermediate==1||invalid_gt==1||invalid_3end==1){
         if(flag_T==0&&flag_cus==0){
             cout<<"***ERROR*** PLEASE ASSIGN A MEI TYPE! LINE/ALU/SVA/HERVK/CUSTOMIZED"<<endl;}
         if(flag_T==1&&flag_cus==1){
@@ -1800,8 +1819,8 @@ int main(int argc, char *argv[]){
         if(ref_n==0||flag_reffa==0){
             cout<<"***ERROR*** PLEASE ASSIGN A CORRECT REFERENCE version/fasta!"<<endl;}
 
-        if(flag_T==2&&flag_cus==1&&flag_tsd==1&flag_cus_seq_len==0){
-        cout<<"***ERROR*** PLEASE ASSIGN 'CUSTOMIZD_SEQUENCE_LENGTH' WHILE YOU ACTIVATE TSD_FINDING FOR YOUR CUSTOMIZED TYPE"<<endl;}
+        if(flag_T==2&&flag_cus==1&&flag_tsd==1&&require_3end==1&&flag_cus_seq_len==0){
+        cout<<"***ERROR*** PLEASE ASSIGN 'CUSTOMIZD_SEQUENCE_LENGTH' WHEN YOU SET --3end_require 1 FOR TSD FINDING OF YOUR CUSTOMIZED TYPE"<<endl;}
         if(flag_m==0){
             cout<<"***ERROR*** A INPUT MODE FOR DATA FORMAT IS REQUIRED"<<endl;}
         if(mapq_int<0 || mapq_int>100){
@@ -1810,6 +1829,8 @@ int main(int argc, char *argv[]){
             cout<<"***ERROR*** PLEASE SET --intermediate TO 0 (DELETE) OR 1 (KEEP)"<<endl;}
         if(invalid_gt==1){
             cout<<"***ERROR*** PLEASE SET --GT TO 0 (SKIP) OR 1 (RUN GENOTYPING)"<<endl;}
+        if(invalid_3end==1){
+            cout<<"***ERROR*** PLEASE SET --3end_require TO 0 (SKIP) OR 1 (REQUIRE 3' END)"<<endl;}
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
         cout<<"***PALMER Ver2.3***"<<endl;
@@ -1878,8 +1899,12 @@ int main(int argc, char *argv[]){
         cout<<"         set to 1 to enable genotyping; keep 0 to skip"<<endl;
         cout<<endl;
 
-        cout<<"--len_custom_seq (MUST set up when activating TSD_finding for CUSTOMIZED insertion, otherwise CLOSED)"<<endl;
+        cout<<"--len_custom_seq (optional; required only when CUSTOMIZED + TSD_finding + --3end_require 1)"<<endl;
         cout<<"         integer value for the length of your customized sequence WITHOUT polyA tract"<<endl;
+        cout<<endl;
+
+        cout<<"--3end_require (optional, default: 0)"<<endl;
+        cout<<"         set to 1 to enforce the customized sequence 3' end requirement in CUSTOMIZED + TSD_finding mode; keep 0 to disable the custom qstart cap"<<endl;
         cout<<endl;
         
         cout<<"--L_len (default: 25bp)"<<endl;
@@ -2261,7 +2286,7 @@ int main(int argc, char *argv[]){
                     break;
                 }
                 const Region &region = regions[idx];
-                tube(WD, inputF, region.chr, region.start, region.end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, mode, mapq_int, intermediate);
+                tube(WD, inputF, region.chr, region.start, region.end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, require_3end, mode, mapq_int, intermediate);
             }
         };
         
@@ -2310,7 +2335,7 @@ int main(int argc, char *argv[]){
             //getchar();
             //****
             //cout<<flag_tsd<<endl;
-            tube(WD, inputF, chr, start, end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, mode, mapq_int);
+            tube(WD, inputF, chr, start, end, T, ref_n, direc, ref_fa, flag_tsd, L_len, seq_len, require_3end, mode, mapq_int, intermediate);
         }
         /*ver1.3
         if(chr_index==1){
