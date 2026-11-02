@@ -32,7 +32,7 @@ cd PALMER
 make
 ```
 
-Build requirements: a C++17 compiler, `pkg-config`, and `htslib` development headers. Install `ncbi-blast++/2.10.0` to run PALMER.
+Build requirements: a C++17 compiler, `pkg-config`, and HTSlib **1.24 or newer** development headers/libraries. Install `ncbi-blast++/2.10.0` to run PALMER.
 
 ## Citation
 
