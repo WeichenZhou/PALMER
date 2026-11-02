@@ -1092,6 +1092,27 @@ int calling(string WD_dir, string t, int tsd_index){
                 }
             }
             
+            // Total support uses PALMER alignment IDs, not candidate-row indices.
+            // Count each ID in one category, preferring go-through to one-sided support.
+            // Keep the candidate count for TSD storage: one ID may have several hits.
+            const int go_through_candidate_count = number;
+            unordered_set<string> counted_read_names;
+            auto keep_unique_reads = [&](vector<int> &indices) {
+                vector<int> unique_indices;
+                unique_indices.reserve(indices.size());
+                for(int idx : indices){
+                    if(counted_read_names.insert(info[idx][0]).second){
+                        unique_indices.push_back(idx);
+                    }
+                }
+                indices.swap(unique_indices);
+                return static_cast<int>(indices.size());
+            };
+            number=keep_unique_reads(go_through_read_indices);
+            number_all_5=keep_unique_reads(left_type_reads);
+            number_all_3=keep_unique_reads(right_type_reads);
+            keep_unique_reads(unassigned_cluster_reads);
+
             //note for above: we only need "number_all" here
             //cout<<"number is "<<number<<endl;
             //cout<<"number_ture is "<<number_true<<endl;
@@ -1111,30 +1132,30 @@ int calling(string WD_dir, string t, int tsd_index){
                 //TSD_indentifier
                 string **name_tsd;
                 name_tsd =new string*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) name_tsd[j]= new string[number];
+                for(int j=0;j!=line_tsd;++j) name_tsd[j]= new string[go_through_candidate_count];
                 
                 int **ls;
                 ls =new int*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) ls[j]= new int[number];
+                for(int j=0;j!=line_tsd;++j) ls[j]= new int[go_through_candidate_count];
                 int **le;
                 le =new int*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) le[j]= new int[number];
+                for(int j=0;j!=line_tsd;++j) le[j]= new int[go_through_candidate_count];
                 int **rs;
                 rs =new int*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) rs[j]= new int[number];
+                for(int j=0;j!=line_tsd;++j) rs[j]= new int[go_through_candidate_count];
                 int **re;
                 re =new int*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) re[j]= new int[number];
+                for(int j=0;j!=line_tsd;++j) re[j]= new int[go_through_candidate_count];
                 int **len_5;
                 len_5 =new int*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) len_5[j]= new int[number];
+                for(int j=0;j!=line_tsd;++j) len_5[j]= new int[go_through_candidate_count];
                 int **len_3;
                 len_3 =new int*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) len_3[j]= new int[number];
+                for(int j=0;j!=line_tsd;++j) len_3[j]= new int[go_through_candidate_count];
                 
                 string **kmerseq_tsd;
                 kmerseq_tsd =new string*[line_tsd];
-                for(int j=0;j!=line_tsd;++j) kmerseq_tsd[j]= new string[number];
+                for(int j=0;j!=line_tsd;++j) kmerseq_tsd[j]= new string[go_through_candidate_count];
                 
                 //loc_tsd[][5]
                 for(int w=0;w!=line_tsd;++w){
