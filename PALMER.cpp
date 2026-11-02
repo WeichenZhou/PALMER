@@ -1833,7 +1833,7 @@ int main(int argc, char *argv[]){
             cout<<"***ERROR*** PLEASE SET --3end_require TO 0 (SKIP) OR 1 (REQUIRE 3' END)"<<endl;}
         cout<<endl;
         cout<<"***WELCOME***"<<endl;
-        cout<<"***PALMER Ver2.3***"<<endl;
+        cout<<"***PALMER Ver2.3.4***"<<endl;
 
         cout<<"Presented by Weichen Zhou @UMich&Fudan&HUST Copyright 2018-2026"<<endl;
         cout<<endl;
