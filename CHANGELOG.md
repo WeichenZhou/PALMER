@@ -1,5 +1,17 @@
 # Changelog
 
+**Ver2.3.4** Jul.24th.2026. PALMER2.3.4
+
+* Quick patch for a bug of numt under-calling.
+* Small update for CUSTOMIZED insertion filtering.
+* Added `--3end_require` option.
+
+[Source code tree](https://github.com/WeichenZhou/PALMER/tree/09a46d54be7c14a21b6c5725af4b75ff90914864)
+
+**Ver2.3.3** Feb.9nd.2026! PALMER2.3.3
+
+* Quick patch for a fatal bug.
+
 **Ver2.3.2** Feb.7nd.2026! PALMER2.3.2
 
 * Fixed a rare bug for reading the same cigar from different reads/contigs.
