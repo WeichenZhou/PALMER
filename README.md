@@ -4,7 +4,7 @@ PALMER detects non-reference mobile element insertions (LINE, Alu, SVA, HERVK) a
 
 ## Documentation
 
-- The most recent version is **2.3.4**.
+- The current development version is **2.3.5** (unreleased).
 
 Full documentation is in the wiki:
 

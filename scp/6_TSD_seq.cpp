@@ -87,8 +87,12 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     char *syst_tsd_bl = new char[sys_tsd_bl.length()+1];
     strcpy(syst_tsd_bl, sys_tsd_bl.c_str());
     file14.open(syst_tsd_bl,ios::trunc);
-    file14.clear();
-    file14.close();
+    if (!file14.is_open()) {
+        cerr << "CANNOT OPEN FILE, 'TSD_blastn_pre.txt'" << endl;
+        return -1;
+    }
+    // TSD-off writes every placeholder here; TSD-on appends via BLAST below.
+    if(tsd_index!=0) file14.close();
     
     if (!file2.is_open())
     {
@@ -670,8 +674,7 @@ int tsd_module(string WD_dir, string t, int tsd_index){
             
             else if(tsd_index==0){
                 //cout<< "yes"<<endl;
-                file14.open(syst_tsd_bl);
-                file14<<name[i]<<seq_index<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
+                file14<<name[i]<<seq_index<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<'\t'<<"0"<<endl;
             }
 
         }
@@ -692,6 +695,14 @@ int tsd_module(string WD_dir, string t, int tsd_index){
     delete [] info;
     delete [] loc;
     delete [] loc_TP;
+
+    if(tsd_index==0){
+        file14.close();
+        if(!file14){
+            cerr << "CANNOT WRITE FILE, 'TSD_blastn_pre.txt'" << endl;
+            return -1;
+        }
+    }
 
     return 0;
 }
