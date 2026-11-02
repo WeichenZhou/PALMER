@@ -1,21 +1,16 @@
 # Changelog
 
-**Ver2.3.4** July 24, 2026
+**Ver2.3.4** Jul.24th.2026. PALMER2.3.4
 
-[Source code](https://github.com/WeichenZhou/PALMER/tree/09a46d54be7c14a21b6c5725af4b75ff90914864) · [Source ZIP](https://github.com/WeichenZhou/PALMER/archive/09a46d54be7c14a21b6c5725af4b75ff90914864.zip) · [Changes since the 2.3.3 source snapshot](https://github.com/WeichenZhou/PALMER/compare/b72dff1bec094847dce3a9f7aa85b4f00acef70c...09a46d54be7c14a21b6c5725af4b75ff90914864)
+* Quick patch for a bug of numt under-calling.
+* Small update for CUSTOMIZED insertion filtering.
+* Added `--3end_require` option.
 
-* Fixed CUSTOMIZED/NUMT undercalling caused by the default 10,000 bp query-start cap.
-* Added `--3end_require` (default: `0`) to opt into the length-based custom query-start cap when TSD finding is enabled and `--len_custom_seq` is supplied. The custom sequence length is required only for that combination.
-* Increased the optional query-start cap from 90% to 95% of the custom reference length for references longer than 1,500 bp.
+[Source code tree](https://github.com/WeichenZhou/PALMER/tree/09a46d54be7c14a21b6c5725af4b75ff90914864)
 
-Supplying `--len_custom_seq` still applies the existing query-end cutoff independently of `--3end_require`. These options concern coordinates within the customized reference sequence, not distance from a sequencing-read end.
+**Ver2.3.3** Feb.9nd.2026! PALMER2.3.3
 
-**Ver2.3.3** Source snapshot: February 9, 2026
-
-[Source code](https://github.com/WeichenZhou/PALMER/tree/b72dff1bec094847dce3a9f7aa85b4f00acef70c)
-
-* The README identifies this source snapshot as version 2.3.3; its formal release date is not recorded in the existing changelog.
-* This snapshot includes corrections to position-based read matching and sequence identifiers in the TSD module ([matching correction](https://github.com/WeichenZhou/PALMER/commit/43b27c570d2f188f8993acc613e051345191760e), [identifier correction](https://github.com/WeichenZhou/PALMER/commit/a133757f64ba173b58f1d8c302fa0da73054598e)).
+* Quick patch for a fatal bug.
 
 **Ver2.3.2** Feb.7nd.2026! PALMER2.3.2
 
